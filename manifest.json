@@ -1,0 +1,9 @@
+{
+    "Name": "CombatExtended",
+    "Author": "WhyBother11",
+    "Version": "%ProjectVersion%",
+    "UniqueId": "WhyBother11.CombatExtended",
+    "Description": "Extends Stardew Valley combat with new mechanics.",
+    "EntryDll": "CombatExtended.dll",
+    "MinimumApiVersion": "4.5.2"
+}

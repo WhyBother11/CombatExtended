@@ -1,0 +1,16 @@
+{
+    // config //
+    "config.option.no-immunities": "Отсутствие иммунитета к урону",
+    "config.option.no-immunities.tooltip": "Выключить любой иммунитет к типу урона у монстров.\nВместо этого они получат Сопротивление, т.e. будут получать половину урона.",
+    // messages //
+    "message.mjolnir.lift-unworthy": "Вы не способны поднять Мьёлнир. Вы чувствуете, что ещё не достойны его.",
+    "message.mjolnir.lift-worthy": "Как только молот прилетел вам в руку, вы чувствуете, что он считает вас достойным.",
+    "message.thunder-soul.acquired": "Душа Галактики поглотила мощь молнии! Какое оружие она теперь может усилить?",
+    // misc //
+    "misc.legendary-weapon.category-name.sword": "Легендарный {0}",
+    "misc.legendary-weapon.category-name.dagger": "Легендарный {0}",
+    "misc.legendary-weapon.category-name.club": "Легендарная {0}",
+    "misc.ultimate-weapon.category-name.sword": "Совершенный {0}",
+    "misc.ultimate-weapon.category-name.dagger": "Совершенный {0}",
+    "misc.ultimate-weapon.category-name.club": "Совершенная {0}"
+}

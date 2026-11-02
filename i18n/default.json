@@ -1,0 +1,9 @@
+{
+    // config //
+    "config.option.no-immunities": "Disable damage immunities",
+    "config.option.no-immunities.tooltip": "Disable any damage immunity for monsters.\nInstead they will be Resistant, taking only half of damage.",
+    "config.option.hotbar-key": "Hotbar Keys",
+    "config.option.hotbar-key.toolptip": "Button(s) to interact with ability hotbar.",
+    "config.option.use-ability-key": "Use Ability Keys",
+    "config.option.use-ability-key.toolptip": "Button(s) to use abilities.",
+}

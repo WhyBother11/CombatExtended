@@ -1,0 +1,288 @@
+{
+    "Mines40_80": {
+        "Id": "Mines40_80",
+        "Priority": "-9999",
+        "Resistances": [
+            {
+                "Type": "Ice",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Mines80_120": {
+        "Id": "Mines80_120",
+        "Priority": "-9999",
+        "Resistances": [
+            {
+                "Type": "Fire",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "VolcanoDungeon": {
+        "Id": "VolcanoDungeon",
+        "Priority": "-9999",
+        "Resistances": [
+            {
+                "Type": "Fire",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Slime": {
+        "Id": "Slime",
+        "Priority": "1000"
+    },
+    "Flying": {
+        "Id": "Flying",
+        "Priority": "-1000",
+        "Resistances": [
+            {
+                "Type": "Lightning",
+                "Value": "Weak"
+            }
+        ]
+    },
+    "Animal": {
+        "Id": "Animal",
+        "Priority": "100"
+    },
+    "Insect": {
+        "Id": "Insect",
+        "Priority": "1000"
+    },
+    "Golem": {
+        "Id": "Golem",
+        "Priority": "1000"
+    },
+    "Iridium": {
+        "Id": "Iridium",
+        "Priority": "-100",
+        "Resistances": [
+            {
+                "Type": "Lightning",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Shadow": {
+        "Id": "Shadow",
+        "Priority": "1000",
+        "Resistances": [
+            {
+                "Type": "Radiant",
+                "Value": "Weak"
+            }
+        ]
+    },
+    "Undead": {
+        "Id": "Undead",
+        "Priority": "1000",
+        "Resistances": [
+            {
+                "Type": "Radiant",
+                "Value": "Weak"
+            },
+            {
+                "Type": "Poison",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Ghost": {
+        "Id": "Ghost",
+        "Priority": "1000",
+        "Resistances": [
+            {
+                "Type": "Radiant",
+                "Value": "Weak"
+            },
+            {
+                "Type": "Poison",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Skeleton": {
+        "Id": "Skeleton",
+        "Priority": "1000",
+        "Resistances": [
+            {
+                "Type": "Radiant",
+                "Value": "Weak"
+            },
+            {
+                "Type": "Poison",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Mummy": {
+        "Id": "Mummy",
+        "Priority": "1000",
+        "Resistances": [
+            {
+                "Type": "Radiant",
+                "Value": "Weak"
+            },
+            {
+                "Type": "Poison",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Fire_Resistant": {
+        "Id": "Fire_Resistant",
+        "Priority": "9999",
+        "Resistances": [
+            {
+                "Type": "Fire",
+                "Value": "Resistant"
+            }
+        ]
+    },
+    "Fire_Enduring": {
+        "Id": "Fire_Enduring",
+        "Priority": "9999",
+        "Resistances": [
+            {
+                "Type": "Fire",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Fire_Weak": {
+        "Id": "Fire_Weak",
+        "Priority": "9999",
+        "Resistances": [
+            {
+                "Type": "Fire",
+                "Value": "Weak"
+            }
+        ]
+    },
+    "Ice_Resistant": {
+        "Id": "Ice_Resistant",
+        "Priority": "9999",
+        "Resistances": [
+            {
+                "Type": "Ice",
+                "Value": "Resistant"
+            }
+        ]
+    },
+    "Ice_Enduring": {
+        "Id": "Fire_Enduring",
+        "Priority": "9999",
+        "Resistances": [
+            {
+                "Type": "Ice",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Ice_Weak": {
+        "Id": "Ice_Weak",
+        "Priority": "9999",
+        "Resistances": [
+            {
+                "Type": "Ice",
+                "Value": "Weak"
+            }
+        ]
+    },
+    "Serpent": {
+        "Id": "Serpent",
+        "Priority": "1000"
+    },
+    "Lava": {
+        "Id": "Lava",
+        "Priority": "500",
+        "Resistances": [
+            {
+                "Type": "Fire",
+                "Value": "Immune"
+            },
+            {
+                "Type": "Ice",
+                "Value": "Weak"
+            }
+        ]
+    },
+    "MagmaSprite": {
+        "Id": "MagmaSprite",
+        "Priority": "1000",
+        "Resistances": [
+            {
+                "Type": "Fire",
+                "Value": "Immune"
+            },
+            {
+                "Type": "Ice",
+                "Value": "Vulnerable"
+            }
+        ]
+    },
+    "Plant": {
+        "Id": "Plant",
+        "Priority": "100",
+        "Resistances": [
+            {
+                "Type": "Fire",
+                "Value": "Weak"
+            }
+        ]
+    },
+    "Construct": {
+        "Id": "Construct",
+        "Priority": "100",
+        "Resistances": [
+            {
+                "Type": "Physical",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Ranged": {
+        "Id": "Ranged",
+        "Priority": "-1000"
+    },
+    "Poison_Immune": {
+        "Id": "Poison_Immune",
+        "Priority": "9999",
+        "Resistances": [
+            {
+                "Type": "Poison",
+                "Value": "Immune"
+            }
+        ]
+    },
+    "Swamp": {
+        "Id": "Swamp",
+        "Priority": "1000",
+        "Resistances": [
+            {
+                "Type": "Poison",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Zombie": {
+        "Id": "Zombie",
+        "Priority": "1000",
+        "Resistances": [
+            {
+                "Type": "Radiant",
+                "Value": "Weak"
+            },
+            {
+                "Type": "Poison",
+                "Value": "Enduring"
+            }
+        ]
+    },
+    "Pirate": {
+        "Id": "Pirate",
+        "Priority": "1000"
+    }
+}

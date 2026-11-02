@@ -1,0 +1,26 @@
+{
+    "Physical": {
+        "DisplayName": "Physical",
+        "Color": "-1"
+    },
+    "Ice": {
+        "DisplayName": "Ice",
+        "Color": "0 230 255"
+    },
+    "Fire": {
+        "DisplayName": "Fire",
+        "Color": "255 64 0"
+    },
+    "Lightning": {
+        "DisplayName": "Lightning",
+        "Color": "5 0 150"
+    },
+    "Radiant": {
+        "DisplayName": "Radiant",
+        "Color": "255 220 0"
+    },
+    "Poison": {
+        "DisplayName": "Poison",
+        "Color": "64 180 40"
+    }
+}

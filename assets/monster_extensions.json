@@ -1,0 +1,165 @@
+{
+    "Green Slime": {
+        "Tags": "Slime",
+        "ExtraArmourClass": -1
+    },
+    "Dust Spirit": {
+        "Tags": "",
+        "ExtraArmourClass": -1
+    },
+    "Bat": {
+        "Tags": "Flying Animal"
+    },
+    "Frost Bat": {
+        "Tags": "Flying Animal"
+    },
+    "Lava Bat": {
+        "Tags": "Flying Animal"
+    },
+    "Iridium Bat": {
+        "Tags": "Flying Animal Iridium",
+        "ExtraArmourClass": 1
+    },
+    "Stone Golem": {
+        "Tags": "Golem Construct",
+        "ExtraArmourClass": 2
+    },
+    "Wilderness Golem": {
+        "Tags": "Golem Construct",
+        "ExtraArmourClass": 2
+    },
+    "Iridium Golem": {
+        "Tags": "Golem Construct Iridium",
+        "ExtraArmourClass": 3
+    },
+    "Grub": {
+        "Tags": "Animal Insect",
+        "ExtraArmourClass": -1
+    },
+    "Fly": {
+        "Tags": "Flying Animal Insect",
+        "ExtraArmourClass": -1
+    },
+    "Frost Jelly": {
+        "Tags": "Slime Fire_Weak Ice_Enduring",
+        "ExtraArmourClass": -1
+    },
+    "Sludge": {
+        "Tags": "Slime Fire_Enduring Ice_Weak"
+    },
+    "Shadow Guy": {
+        "Tags": "Slime Fire_Enduring Ice_Weak"
+    },
+    "Ghost": {
+        "Tags": "Flying Undead Ghost"
+    },
+    "Carbon Ghost": {
+        "Tags": "Flying Undead Ghost"
+    },
+    "Duggy": {
+        "Tags": ""
+    },
+    "Rock Crab": {
+        "Tags": "Animal",
+        "ExtraArmourClass": 1
+    },
+    "Truffle Crab": {
+        "Tags": "Animal"
+    },
+    "Lava Crab": {
+        "Tags": "Animal Fire_Enduring",
+        "ExtraArmourClass": 2
+    },
+    "Iridium Crab": {
+        "Tags": "Animal Iridium",
+        "ExtraArmourClass": 3
+    },
+    "Squid Kid": {
+        "Tags": "Ranged"
+    },
+    "Skeleton Warrior": {
+        "Tags": "Undead Skeleton Ranged",
+        "ExtraArmourClass": 1
+    },
+    "Shadow Brute": {
+        "Tags": "Shadow",
+        "ExtraArmourClass": 1
+    },
+    "Shadow Shaman": {
+        "Tags": "Shadow"
+    },
+    "Skeleton": {
+        "Tags": "Undead Skeleton Ranged"
+    },
+    "Skeleton Mage": {
+        "Tags": "Undead Skeleton Ranged"
+    },
+    "Metal Head": {
+        "Tags": "",
+        "ExtraArmourClass": 42
+    },
+    "Bug": {
+        "Tags": "Flying Animal Insect",
+        "ExtraArmourClass": -1
+    },
+    "Mummy": {
+        "Tags": "Undead Mummy"
+    },
+    "Big Slime": {
+        "Tags": "Slime"
+    },
+    "Serpent": {
+        "Tags": "Flying Serpent"
+    },
+    "Pepper Rex": {
+        "Tags": "Animal Fire_Enduring",
+        "ExtraArmourClass": 2
+    },
+    "Tiger Slime": {
+        "Tags": "Slime",
+        "ExtraArmourClass": 1
+    },
+    "Lava Lurk": {
+        "Tags": "Lava Ranged"
+    },
+    "Hot Head": {
+        "Tags": "",
+        "ExtraArmourClass": 2
+    },
+    "Magma Sprite": {
+        "Tags": "Flying MagmaSprite"
+    },
+    "Magma Duggy": {
+        "Tags": ""
+    },
+    "Magma Sparker": {
+        "Tags": "Flying MagmaSprite"
+    },
+    "False Magma Cap": {
+        "Tags": "Plant"
+    },
+    "Dwarvish Sentry": {
+        "Tags": "Flying Construct",
+        "ExtraArmourClass": 3
+    },
+    "Putrid Ghost": {
+        "Tags": "Flying Undead Ghost Poison_Immune"
+    },
+    "Shadow Sniper": {
+        "Tags": "Shadow Ranged"
+    },
+    "Spider": {
+        "Tags": "Animal Insect",
+        "ExtraArmourClass": -1
+    },
+    "Royal Serpent": {
+        "Tags": "Flying Serpent",
+        "ExtraArmourClass": 1
+    },
+    "Blue Squid": {
+        "Tags": "Animal"
+    },
+    "Haunted Skull": {
+        "Tags": "Flying Undead"
+    }
+}
