@@ -1,4 +1,5 @@
 using CombatExtended.Framework.Data;
+using CombatExtended.Framework.Events.Args;
 using CombatExtended.Framework.Util;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Graphics;
@@ -8,6 +9,7 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.ItemTypeDefinitions;
 using StardewValley.Tools;
+using StardewValley.Triggers;
 
 namespace CombatExtended.Framework.Core.Weapons;
 
@@ -26,6 +28,9 @@ public static class WeaponStateEnabler
     
     public static void Register(IModHelper helper)
     {
+        Event.OnWeaponEquipped += OnWeaponEquipped_RaiseActions;
+        Event.OnWeaponUnequipped += OnWeaponUnequipped_RaiseActions;
+        Event.OnWeaponSwitched += OnWeaponSwitched_RaiseActions;
         helper.Events.Player.InventoryChanged += OnInventoryChanged_ApplyOrRestoreWeaponStates;
         helper.Events.GameLoop.DayEnding += (_, _) => { CleanUp(); };
         helper.Events.GameLoop.ReturnedToTitle += (_, _) => { CleanUp(); };
@@ -121,6 +126,26 @@ public static class WeaponStateEnabler
     {
         CurrentStates.Remove(weaponId);
         CachedOverrideTextures.Remove(weaponId);
+    }
+
+    private static void OnWeaponEquipped_RaiseActions(object? sender, WeaponEquippedEventArgs e)
+    {
+        if (WeaponExtensionDataAsset.Data.TryGetValue(e.Equipped.ItemId, out var data))
+            data.ActionsOnEquip.ForEach(action => TriggerActionManager.Raise(action));
+    }
+    
+    private static void OnWeaponUnequipped_RaiseActions(object? sender, WeaponUnequippedEventArgs e)
+    {
+        if (WeaponExtensionDataAsset.Data.TryGetValue(e.Unequipped.ItemId, out var data))
+            data.ActionsOnUnequip.ForEach(action => TriggerActionManager.Raise(action));
+    }
+
+    private static void OnWeaponSwitched_RaiseActions(object? sender, WeaponSwitchedEventArgs e)
+    {
+        if (WeaponExtensionDataAsset.Data.TryGetValue(e.Equipped.ItemId, out var data))
+            data.ActionsOnEquip.ForEach(action => TriggerActionManager.Raise(action));
+        if (WeaponExtensionDataAsset.Data.TryGetValue(e.Unequipped.ItemId, out data))
+            data.ActionsOnUnequip.ForEach(action => TriggerActionManager.Raise(action));
     }
 
     /// <summary>

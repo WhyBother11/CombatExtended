@@ -2,7 +2,6 @@ using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Util;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI;
-using StardewValley;
 
 namespace CombatExtended.Framework.Data;
 
@@ -21,10 +20,10 @@ public class WeaponExtensionData
     public string? ActionPoints;
     
     [ContentSerializer(Optional = true)]
-    public List<string> ActionsOnEquip;
+    public List<string> ActionsOnEquip = new ();
     
     [ContentSerializer(Optional = true)]
-    public List<string> ActionsOnUnequip;
+    public List<string> ActionsOnUnequip = new ();
 }
 
 public class DamageTypeWeaponExtensionData

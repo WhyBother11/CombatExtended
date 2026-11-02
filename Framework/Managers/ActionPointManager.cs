@@ -1,14 +1,12 @@
 using CombatExtended.Framework.Core.Misc.ActionPoints;
 using CombatExtended.Framework.Core.Weapons;
 using CombatExtended.Framework.Data;
+using CombatExtended.Framework.Events.Args;
 using CombatExtended.Framework.UI.Interface;
 using CombatExtended.Framework.Util;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
-using StardewValley.Tools;
-using StardewValley.Triggers;
-using Utility = CombatExtended.Framework.Util.Utility;
 
 namespace CombatExtended.Framework.Managers;
 
@@ -20,31 +18,32 @@ public class ActionPointManager
     /// <summary>
     /// Used to determine how often should action point replenish time be handled.
     /// </summary>
-    private const int BaseTicks = 10;
+    private const int BaseTicks = 1;
     
     /// <summary>
     /// Used to store all active action points.
     /// </summary>
     public Dictionary<string, ActionPoint> ActionPoints { get; } = new ();
     
-    private readonly List<ActionPoint> _actionPointsToEnable = new ();
-    private readonly List<string> _actionPointsToDisable = new ();
-    
     private readonly Dictionary<string, int> _savedActionPointAmounts = new();
     
     private readonly Dictionary<string, int> _replenishTimeTicksOverrides = new ();
     private readonly Dictionary<string, int> _maxAmountOverrides = new ();
 
-    private MeleeWeapon? _weapon;
-
     public static void Register(IModHelper helper)
     {
         helper.Events.GameLoop.UpdateTicked += PerScreenInstance.Value.OnUpdateTicked_HandleActionPointReplenish;
+        Event.OnWeaponSwitched += PerScreenInstance.Value.OnWeaponSwitched_EnableActionPoints;
+        Event.OnWeaponEquipped += PerScreenInstance.Value.OnWeaponEquipped_EnableActionPoints;
+        Event.OnWeaponUnequipped += PerScreenInstance.Value.OnWeaponUnequipped_EnableActionPoints;
     }
 
     public static void Unregister(IModHelper helper)
     {
         helper.Events.GameLoop.UpdateTicked -= PerScreenInstance.Value.OnUpdateTicked_HandleActionPointReplenish;
+        Event.OnWeaponSwitched -= PerScreenInstance.Value.OnWeaponSwitched_EnableActionPoints;
+        Event.OnWeaponEquipped -= PerScreenInstance.Value.OnWeaponEquipped_EnableActionPoints;
+        Event.OnWeaponUnequipped -= PerScreenInstance.Value.OnWeaponUnequipped_EnableActionPoints;
     }
 
     /// <summary>
@@ -93,7 +92,7 @@ public class ActionPointManager
         }
         if (overrideAmount >= 0)
             actionPoint.CurrentAmount = overrideAmount;
-        _actionPointsToEnable.Add(actionPoint);
+        ActionPoints[id] = actionPoint;
     }
     
     /// <summary>
@@ -102,38 +101,8 @@ public class ActionPointManager
     /// <param name="id">The action point ID.</param>
     public void DisableActionPoint(string id)
     {
-        _actionPointsToDisable.Add(id);
-    }
-
-    /// <summary>
-    /// Modify replenish time of action point with given <paramref name="id"/> by <paramref name="modifier"/>.
-    /// </summary>
-    /// <param name="id">The action point ID.</param>
-    /// <param name="modifier">The replenish time modifier.</param>
-    public void ModifyReplenishTime(string id, float modifier)
-    {
-        if (_replenishTimeTicksOverrides.TryGetValue(id, out var replenishTimeTicks))
-        {
-            _replenishTimeTicksOverrides[id] = (int)(replenishTimeTicks * modifier);
-        }
-        else _replenishTimeTicksOverrides[id] =
-            (int) (ActionPointDataAsset.Data[id].ReplenishTime.ToTicks() * modifier);
-    }
-    
-    /// <summary>
-    /// Add to or subtract given <paramref name="delta"/> from replenish time of action point with given <paramref name="id"/>.
-    /// </summary>
-    /// <param name="id">The action point ID.</param>
-    /// <param name="delta">The replenish time delta.</param>
-    public void AddReplenishTime(string id, float delta)
-    {
-        if (_replenishTimeTicksOverrides.TryGetValue(id, out var replenishTimeTicks))
-        {
-            // not to set non-replenishable if delta is negative and too big
-            _replenishTimeTicksOverrides[id] = Math.Max(1, replenishTimeTicks + delta.ToTicks());
-        }
-        else _replenishTimeTicksOverrides[id] =
-             ActionPointDataAsset.Data[id].ReplenishTime.ToTicks() + delta.ToTicks();
+        if (ActionPoints.Remove(id, out var removed)) 
+            _savedActionPointAmounts[id] = removed.CurrentAmount;
     }
     
     /// <summary>
@@ -169,6 +138,25 @@ public class ActionPointManager
         _replenishTimeTicksOverrides.Remove(id);
     }
 
+    private void OnWeaponEquipped_EnableActionPoints(object? sender, WeaponEquippedEventArgs e)
+    {
+        e.Equipped.GetActionPoints().ForEach(ap => EnableActionPoint(ap.Id));
+        ActionPointIcons.Icons().NotifyActionPointsUpdated();
+    }
+    
+    private void OnWeaponUnequipped_EnableActionPoints(object? sender, WeaponUnequippedEventArgs e)
+    {
+        e.Unequipped.GetActionPoints().ForEach(ap => DisableActionPoint(ap.Id));
+        ActionPointIcons.Icons().NotifyActionPointsUpdated();
+    }
+    
+    private void OnWeaponSwitched_EnableActionPoints(object? sender, WeaponSwitchedEventArgs e)
+    {
+        e.Equipped.GetActionPoints().ForEach(ap => EnableActionPoint(ap.Id));
+        e.Unequipped.GetActionPoints().ForEach(ap => DisableActionPoint(ap.Id));
+        ActionPointIcons.Icons().NotifyActionPointsUpdated();
+    }
+
     /// <summary>
     /// Handle replenishing of all action points that have their replenish time defined or modified.
     /// </summary>
@@ -177,48 +165,6 @@ public class ActionPointManager
     private void OnUpdateTicked_HandleActionPointReplenish(object? sender, UpdateTickedEventArgs e)
     {
         if (!e.IsMultipleOf(BaseTicks) || !Context.IsPlayerFree) return;
-        
-        var weapon = Utility.CurrentWeapon();
-        var changedWeapon = weapon is not null && _weapon is not null && weapon.ItemId != _weapon.ItemId;
-        var shouldNotify = false;
-        if (weapon is null && _weapon is not null || changedWeapon)
-        {
-            // if weapon is unequipped or changed, remove previous weapon's action points
-            _weapon!.GetActionPoints().ForEach(ap => DisableActionPoint(ap.Id));
-            // todo: ok enough but should really move to separate manager and think how ability manager should be handled in that case
-            if (WeaponExtensionDataAsset.Data.TryGetValue(_weapon!.ItemId, out var data))
-                data.ActionsOnUnequip.ForEach(action => TriggerActionManager.Raise(action));
-            _weapon = null;
-            shouldNotify = true;
-            //ActionPointIcons.Icons().NotifyActionPointsUpdated();
-        } else if (weapon is not null && _weapon is null || changedWeapon)
-        {
-            // if weapon is equipped or changed, add current weapon's action points
-            weapon!.GetActionPoints().ForEach(ap => EnableActionPoint(ap.Id));
-            if (WeaponExtensionDataAsset.Data.TryGetValue(_weapon!.ItemId, out var data))
-                data.ActionsOnEquip.ForEach(action => TriggerActionManager.Raise(action));
-            _weapon = weapon;
-            shouldNotify = true;
-            //ActionPointIcons.Icons().NotifyActionPointsUpdated();
-        }
-        
-        if (_actionPointsToEnable.Count > 0)
-        {
-            _actionPointsToEnable.ForEach(ap => ActionPoints[ap.Id] = ap);
-            _actionPointsToEnable.Clear();
-        }
-        if (_actionPointsToDisable.Count > 0)
-        {
-            _actionPointsToDisable.ForEach(id =>
-            {
-                // save current amount to restore when added back
-                if (ActionPoints.Remove(id, out var removed)) 
-                    _savedActionPointAmounts[id] = removed.CurrentAmount;
-            });
-            _actionPointsToDisable.Clear();
-        }
-        if (shouldNotify) 
-            ActionPointIcons.Icons().NotifyActionPointsUpdated();
         
         foreach (var (_, ap) in ActionPoints)
         {

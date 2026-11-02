@@ -1,6 +1,7 @@
 global using static CombatExtended.ModBindings;
 global using SUtility = StardewValley.Utility;
 global using SObject = StardewValley.Object;
+global using Event = CombatExtended.Framework.Events.Events;
 using CombatExtended.Framework.Managers;
 using CombatExtended.Framework.Managers.MonsterBuffs;
 using StardewModdingAPI;

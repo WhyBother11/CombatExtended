@@ -1,4 +1,5 @@
 using System.Reflection;
+using CombatExtended.Framework.Managers;
 using CombatExtended.Framework.Managers.MonsterBuffs;
 using CombatExtended.Framework.UI.Interface;
 using CombatExtended.Framework.Util;
@@ -120,6 +121,7 @@ public class ModEntry : Mod
             MonsterBuffManager.Register(Helper);
         }
         
+        WeaponManager.Register(Helper);
         AbilityManager.Register(Helper);
         StackableBuffManager.Register(Helper);
         ActionPointManager.Register(Helper);
@@ -128,6 +130,7 @@ public class ModEntry : Mod
     private void OnDayEnding_UnregisterManagers(object? sender, DayEndingEventArgs e)
     {
         MonsterBuffManager.Unregister(Helper);
+        WeaponManager.Unregister(Helper);
         AbilityManager.Unregister(Helper);
         StackableBuffManager.Unregister(Helper);
         ActionPointManager.Unregister(Helper);
