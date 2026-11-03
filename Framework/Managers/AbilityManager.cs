@@ -1,6 +1,7 @@
 using CombatExtended.Framework.Core.Abilities;
 using CombatExtended.Framework.Core.Weapons;
 using CombatExtended.Framework.Data;
+using CombatExtended.Framework.Events.Args;
 using CombatExtended.Framework.TriggersActionsGSQ.Abilities;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.UI.Interface;
@@ -47,9 +48,6 @@ public class AbilityManager
     /// </summary>
     private MeleeWeapon? _weapon;
     
-    private readonly Dictionary<string, List<Ability>> _abilitiesToBeAdded = new();
-    private readonly Dictionary<string, List<string>> _abilityIdsToBeRemoved = new();
-    
     public readonly Dictionary<string, int> CooldownTicksOverrides = new();
     public readonly Dictionary<string, int> DurationTicksOverrides = new();
     
@@ -63,6 +61,9 @@ public class AbilityManager
         helper.Events.GameLoop.UpdateTicked += PerScreenInstance.Value.OnUpdateTicked_UpdateAbilities;
         helper.Events.Display.RenderedWorld += PerScreenInstance.Value.OnRenderedWorld_DrawHighlightedTiles;
         helper.Events.Player.Warped += PerScreenInstance.Value.OnWarped_ClearHighlightedTiles;
+        Event.OnWeaponSwitched += PerScreenInstance.Value.OnWeaponSwitched;
+        Event.OnWeaponEquipped += PerScreenInstance.Value.OnWeaponEquipped;
+        Event.OnWeaponUnequipped += PerScreenInstance.Value.OnWeaponUnequipped;
     }
 
     public static void Unregister(IModHelper helper)
@@ -70,6 +71,9 @@ public class AbilityManager
         helper.Events.GameLoop.UpdateTicked -= PerScreenInstance.Value.OnUpdateTicked_UpdateAbilities;
         helper.Events.Display.RenderedWorld -= PerScreenInstance.Value.OnRenderedWorld_DrawHighlightedTiles;
         helper.Events.Player.Warped -= PerScreenInstance.Value.OnWarped_ClearHighlightedTiles;
+        Event.OnWeaponSwitched -= PerScreenInstance.Value.OnWeaponSwitched;
+        Event.OnWeaponEquipped -= PerScreenInstance.Value.OnWeaponEquipped;
+        Event.OnWeaponUnequipped -= PerScreenInstance.Value.OnWeaponUnequipped;
     }
 
     /// <summary>
@@ -80,9 +84,11 @@ public class AbilityManager
     /// <param name="ability">The ability to add.</param>
     public void AddWeaponAbility(string weaponId, Ability ability)
     {
-        if (_abilitiesToBeAdded.TryGetValue(weaponId, out var abilities))
-            abilities.Add(ability);
-        else _abilitiesToBeAdded[weaponId] = new List<Ability> { ability };
+        if (weaponId == _weapon?.ItemId)
+            WeaponAbilities[ability.Id] = ability;
+        else if (PreviousWeaponAbilities.TryGetValue(weaponId, out var prevAbilities))
+            prevAbilities[ability.Id] = ability;
+        AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
         if (ability is ContinuousAbility continuousAbility)
             _doContinuousEffectUintTicks[continuousAbility.Id] =
                 Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
@@ -95,9 +101,11 @@ public class AbilityManager
     /// <param name="abilityId">ID of ability to remove.</param>
     public void RemoveWeaponAbility(string weaponId, string abilityId)
     {
-        if (_abilityIdsToBeRemoved.TryGetValue(weaponId, out var abilities))
-            abilities.Add(abilityId);
-        else _abilityIdsToBeRemoved[weaponId] = new List<string> { abilityId };
+        if (weaponId == _weapon?.ItemId)
+            WeaponAbilities.Remove(abilityId);
+        else if (PreviousWeaponAbilities.TryGetValue(weaponId, out var prevAbilities))
+            prevAbilities.Remove(abilityId);
+        AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
     }
     
     /// <summary>
@@ -193,98 +201,71 @@ public class AbilityManager
         _tilesToHighlight.Clear();
     }
 
-    private void OnUpdateTicked_UpdateAbilities(object? sender, UpdateTickedEventArgs e)
+    private void OnWeaponEquipped()
     {
-        if (!e.IsMultipleOf(BaseTicks) || !Context.IsPlayerFree) return;
-        var current = Game1.player.ActiveItem;
-        var player = Game1.player;
-        if (_abilitiesToBeAdded.Count > 0)
+        if (PreviousWeaponAbilities.TryGetValue(_weapon!.ItemId, out var abilities))
         {
-            foreach (var (weaponId, abilities) in _abilitiesToBeAdded)
-            {
-                if (_weapon?.ItemId == weaponId) 
-                    abilities.ForEach(ability => WeaponAbilities[ability.Id] = ability);
-                else if (PreviousWeaponAbilities.TryGetValue(weaponId, out var prevAbilities)) 
-                    abilities.ForEach(ability => prevAbilities[ability.Id] = ability);
-            }
-            _abilitiesToBeAdded.Clear();
-            AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
-        }
-        if (_abilityIdsToBeRemoved.Count > 0)
-        {
-            foreach (var (weaponId, abilityIds) in _abilityIdsToBeRemoved)
-            {
-                if (_weapon?.ItemId == weaponId) 
-                    abilityIds.ForEach(abilityId => WeaponAbilities.Remove(abilityId));
-                else if (PreviousWeaponAbilities.TryGetValue(weaponId, out var prevAbilities)) 
-                    abilityIds.ForEach(id => prevAbilities.Remove(id)); 
-            }
-            _abilityIdsToBeRemoved.Clear();
-            AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
-        }
-        if (current is MeleeWeapon weapon)
-        {
-            // weapon has not been changed
-            if (weapon.QualifiedItemId == _weapon?.QualifiedItemId)
-            {
-                foreach (var (_, ability) in WeaponAbilities)
-                {
-                    HandleAbility(ability, player, e);
-                }
-            }
-            else
-            {
-                // weapon is changed
-                if (_weapon != null)
-                {
-                    foreach (var continuousAbility in WeaponAbilities.Values.OfType<ContinuousAbility>())
-                    {
-                        // stop effect if ability is attached to the weapon
-                        if (continuousAbility.EffectAttachedToWeapon)
-                        {
-                            if (DurationTicksOverrides.TryGetValue(continuousAbility.Id, out var durationTicks))
-                                continuousAbility.DurationTicksElapsed = durationTicks;
-                            else continuousAbility.DurationTicksElapsed = continuousAbility.DurationTicks;
-                        }
-                    }
-                    // save to track cooldowns
-                    PreviousWeaponAbilities[_weapon.QualifiedItemId] = WeaponAbilities;
-                }
-                
-                _weapon = weapon;
-                if (PreviousWeaponAbilities.TryGetValue(weapon.QualifiedItemId, out var abilities))
-                {
-                    // weapon still has tracked data, restore it
-                    WeaponAbilities = abilities;
-                    PreviousWeaponAbilities.Remove(weapon.QualifiedItemId);
-                }
-                else
-                {
-                    var weaponAbilities = weapon.GetAbilityDictionary();
-                    // weapon was not equipped yet or its cooldowns were reset
-                    WeaponAbilities = weaponAbilities;
-                    foreach (var ability in weaponAbilities.Values)
-                    {
-                        if (ability is ContinuousAbility continuousAbility)
-                            _doContinuousEffectUintTicks[continuousAbility.Id] =
-                                Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
-                    }
-                }
-
-                AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
-            }
+            // weapon still has tracked data, restore it
+            WeaponAbilities = abilities;
+            PreviousWeaponAbilities.Remove(_weapon.ItemId);
         }
         else
         {
-            // unequipped weapon
-            if (_weapon != null)
+            var weaponAbilities = _weapon.GetAbilityDictionary();
+            // weapon was not equipped yet or its cooldowns were reset
+            WeaponAbilities = weaponAbilities;
+            foreach (var ability in weaponAbilities.Values)
             {
-                // save to track cooldowns
-                PreviousWeaponAbilities[_weapon.QualifiedItemId] = WeaponAbilities;
-                WeaponAbilities = new Dictionary<string, Ability>();
-                AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
-                _weapon = null;
+                if (ability is ContinuousAbility continuousAbility)
+                    _doContinuousEffectUintTicks[continuousAbility.Id] =
+                        Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
             }
+        }
+        AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
+    }
+
+    private void OnWeaponEquipped(object? sender, WeaponEquippedEventArgs e)
+    {
+        _weapon = e.Equipped;
+        OnWeaponEquipped();
+    }
+    
+    private void OnWeaponUnequipped(object? sender, WeaponUnequippedEventArgs e)
+    {
+        PreviousWeaponAbilities[e.Unequipped.ItemId] = WeaponAbilities;
+        WeaponAbilities = new Dictionary<string, Ability>();
+        _weapon = null;
+        AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
+    }
+    
+    private void OnWeaponSwitched(object? sender, WeaponSwitchedEventArgs e)
+    {
+        foreach (var continuousAbility in WeaponAbilities.Values.OfType<ContinuousAbility>())
+        {
+            // stop effect if ability is attached to the weapon
+            if (continuousAbility.EffectAttachedToWeapon)
+            {
+                if (DurationTicksOverrides.TryGetValue(continuousAbility.Id, out var durationTicks))
+                    continuousAbility.DurationTicksElapsed = durationTicks;
+                else continuousAbility.DurationTicksElapsed = continuousAbility.DurationTicks;
+            }
+        }
+        // save to track cooldowns
+        PreviousWeaponAbilities[e.Unequipped.ItemId] = WeaponAbilities;
+        _weapon = e.Equipped;
+        OnWeaponEquipped();
+    }
+
+    private void OnUpdateTicked_UpdateAbilities(object? sender, UpdateTickedEventArgs e)
+    {
+        if (!e.IsMultipleOf(BaseTicks) || !Context.IsPlayerFree) return;
+        var player = Game1.player;
+        // not to cause illegal state exception
+        List<(string, Ability, Farmer)> triggers = new ();
+        
+        foreach (var (_, ability) in WeaponAbilities)
+        {
+            HandleAbility(ability, player, triggers, e);
         }
         
         // update all previous weapon abilities cooldowns and trigger continuous effects
@@ -292,9 +273,10 @@ public class AbilityManager
         {
             foreach (var (_, ability) in abilities)
             {
-                HandleAbility(ability, player, e, true);
+                HandleAbility(ability, player, triggers, e, true);
             }
         }
+        triggers.ForEach(tr => RaiseAbilityTriggerAction(tr.Item1, tr.Item2, tr.Item3));
     }
 
     /// <summary>
@@ -323,7 +305,9 @@ public class AbilityManager
         return ability.CooldownTicksElapsed < ability.CooldownTicks;
     }
 
-    private void HandleAbility(Ability ability, Farmer player, UpdateTickedEventArgs e, bool activeWeapon = false)
+    private void HandleAbility(Ability ability, Farmer player,
+        List<(string, Ability, Farmer)> triggers,
+        UpdateTickedEventArgs e, bool activeWeapon = false)
     {
         if (ability is ContinuousAbility continuousAbility)
         {
@@ -338,7 +322,7 @@ public class AbilityManager
             if (!isActive && !continuousAbility.IsEndHandled)
             {
                 continuousAbility.End(player, player.currentLocation);
-                RaiseAbilityTriggerAction(Triggers.AbilityEnded, continuousAbility, player);
+                triggers.Add((Triggers.AbilityEnded, continuousAbility, player));
                 return;
             }
             continuousAbility.DurationTicksElapsed += BaseTicks;
@@ -348,7 +332,7 @@ public class AbilityManager
         if (!IsAbilityCooldownActive(ability) && !ability.IsCooldownEndHandled)
         {
             ability.EndCooldown(player, player.currentLocation);
-            RaiseAbilityTriggerAction(Triggers.CooldownEnded, ability, player);
+            triggers.Add((Triggers.CooldownEnded, ability, player));
             return;
         }
         ability.CooldownTicksElapsed += BaseTicks;

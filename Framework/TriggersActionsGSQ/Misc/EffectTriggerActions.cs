@@ -6,7 +6,7 @@ using StardewValley;
 using StardewValley.Delegates;
 using StardewValley.Monsters;
 
-namespace CombatExtended.Framework.TriggersActionsGSQ.Effects;
+namespace CombatExtended.Framework.TriggersActionsGSQ.Misc;
 
 [TriggerActionGSQ_Holder]
 public static class EffectTriggerActions

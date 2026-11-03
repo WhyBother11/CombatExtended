@@ -8,6 +8,9 @@ using StardewValley;
 
 namespace CombatExtended.Framework.Managers;
 
+/// <summary>
+/// Manager to handle player stackable buffs.
+/// </summary>
 public class StackableBuffManager
 {
     public static StackableBuffManager Instance => PerScreenInstance.Value;
@@ -20,10 +23,6 @@ public class StackableBuffManager
     private readonly Dictionary<string, int> _buffMaxStacks = new ();
     
     private readonly Dictionary<string, LinkedList<int>> _buffTimers = new ();
-    
-    private readonly Dictionary<string, int> _buffTimerAmountsToBeRemoved = new();
-    
-    private readonly Dictionary<string, int> _buffTimerAmountsToBeAdded = new();
 
     public static void Register(IModHelper helper)
     {
@@ -43,15 +42,13 @@ public class StackableBuffManager
     {
         var currentStacks = GetStacks(buffId);
         var isIndependentStacking = BuffExtensionDataAsset.Data[buffId].StackableData?.IndependentStacks ?? false;
+        var buffData = DataLoader.Buffs(Game1.content)[buffId];
         if (currentStacks >= GetMaxStacks(buffId))
         {
             if (!isIndependentStacking) return;
-            
-            if (!_buffTimerAmountsToBeAdded.TryAdd(buffId, 1))
-                _buffTimerAmountsToBeAdded[buffId] += 1;
-            
-            if (!_buffTimerAmountsToBeRemoved.TryAdd(buffId, 1))
-                _buffTimerAmountsToBeRemoved[buffId] += 1;
+            _buffTimers[buffId].RemoveFirst();
+            var duration = buffData.Duration == -2 ? int.MaxValue : buffData.Duration.MillisToTicks();
+            _buffTimers[buffId].AddLast(duration);
             return;
         }
         if (currentStacks == 0)
@@ -64,8 +61,7 @@ public class StackableBuffManager
         
         if (isIndependentStacking)
         {
-            if (!_buffTimerAmountsToBeAdded.TryAdd(buffId, 1))
-                _buffTimerAmountsToBeAdded[buffId] += 1;
+            _buffTimers[buffId].AddLast(buffData.Duration.MillisToTicks());
         }
     }
 
@@ -120,30 +116,6 @@ public class StackableBuffManager
     private void OnUpdateTicked_HandleIndependentBuffStacks(object? sender, UpdateTickedEventArgs e)
     {
         if (!e.IsMultipleOf(BaseTicks) || !Context.IsPlayerFree) return;
-        if (_buffTimerAmountsToBeAdded.Count > 0)
-        {
-            var buffData = DataLoader.Buffs(Game1.content);
-            foreach (var (buffId, amount) in _buffTimerAmountsToBeRemoved)
-            {
-                var buff = buffData[buffId];
-                if (buff.Duration == -2) continue;
-                for (var i = 0; i < amount; i++)
-                {
-                    _buffTimers[buffId].RemoveFirst();
-                }
-            }
-            foreach (var (buffId, amount) in _buffTimerAmountsToBeAdded)
-            {
-                var buff = buffData[buffId];
-                if (buff.Duration == -2) continue;
-                for (var i = 0; i < amount; i++)
-                {
-                    _buffTimers[buffId].AddLast(buff.Duration.MillisToTicks());
-                }
-            }
-            _buffTimerAmountsToBeAdded.Clear();
-            _buffTimerAmountsToBeRemoved.Clear();
-        }
         foreach (var (buffId, timers) in _buffTimers)
         {
             var stackAmount = 0;

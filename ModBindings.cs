@@ -26,5 +26,7 @@ public static class ModBindings
     
     public static ActionPointManager ActionPointManager => ActionPointManager.Instance;
     
+    public static CooldownManager CooldownManager => CooldownManager.Instance;
+    
     public static string Id => ModEntry.Instance.ModManifest.UniqueID;
 }

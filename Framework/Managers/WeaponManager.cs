@@ -7,6 +7,9 @@ using StardewValley.Tools;
 
 namespace CombatExtended.Framework.Managers;
 
+/// <summary>
+/// Manager to handle player weapons.
+/// </summary>
 public class WeaponManager
 {
     public static WeaponManager Instance => PerScreenInstance.Value;

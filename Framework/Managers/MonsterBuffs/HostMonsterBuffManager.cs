@@ -236,7 +236,6 @@ public class HostMonsterBuffManager : IMonsterBuffManager
                 };
                 buff.AppliedBy = charApplier;
             }
-            // i'm not sure if it should or could cause illegal state exception but i couldn't trigger it so it's fine????
             buffs[buffId] = buff;
             Log.Trace($"Applied buff {buffId} for Monster {monster.Name}_{monster.GetCharacterId()} on location {loc.Name}");
             buff.HandleApplied(monster, loc);

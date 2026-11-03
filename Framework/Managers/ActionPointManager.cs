@@ -10,6 +10,9 @@ using StardewModdingAPI.Utilities;
 
 namespace CombatExtended.Framework.Managers;
 
+/// <summary>
+/// Manager to handle action points.
+/// </summary>
 public class ActionPointManager
 {
     public static ActionPointManager Instance => PerScreenInstance.Value;
@@ -18,13 +21,16 @@ public class ActionPointManager
     /// <summary>
     /// Used to determine how often should action point replenish time be handled.
     /// </summary>
-    private const int BaseTicks = 1;
+    private const int BaseTicks = 10;
     
     /// <summary>
     /// Used to store all active action points.
     /// </summary>
     public Dictionary<string, ActionPoint> ActionPoints { get; } = new ();
     
+    /// <summary>
+    /// Used to store action point amount when it is disabled to restore later.
+    /// </summary>
     private readonly Dictionary<string, int> _savedActionPointAmounts = new();
     
     private readonly Dictionary<string, int> _replenishTimeTicksOverrides = new ();
@@ -106,7 +112,7 @@ public class ActionPointManager
     }
     
     /// <summary>
-    /// Set replenish time of action point with given <paramref name="id"/>.
+    /// Override replenish time of action point with given <paramref name="id"/>.
     /// </summary>
     /// <param name="id">The action point ID.</param>
     /// <param name="replenishTime">The replenish time override.</param>
@@ -115,6 +121,11 @@ public class ActionPointManager
         _replenishTimeTicksOverrides[id] = replenishTime.ToTicks();
     }
 
+    /// <summary>
+    /// Override max amount of action point with given <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id">The action point ID.</param>
+    /// <param name="maxAmount">The max amount override.</param>
     public void SetMaxAmount(string id, int maxAmount)
     {
         if (ActionPoints.TryGetValue(id, out var actionPoint))
@@ -122,6 +133,10 @@ public class ActionPointManager
         else _maxAmountOverrides[id] = maxAmount;
     }
 
+    /// <summary>
+    /// Restore max amount of action point with given <paramref name="id"/> to max amount from <see cref="ActionPointDataAsset"/>.
+    /// </summary>
+    /// <param name="id">The action point ID.</param>
     public void RestoreMaxAmount(string id)
     {
         _maxAmountOverrides.Remove(id);
@@ -130,7 +145,7 @@ public class ActionPointManager
     }
 
     /// <summary>
-    /// Restore replenish time of action point with given <paramref name="id"/> to replenish time from data.
+    /// Restore replenish time of action point with given <paramref name="id"/> to replenish time from <see cref="ActionPointDataAsset"/>.
     /// </summary>
     /// <param name="id">The action point ID.</param>
     public void RestoreReplenishTime(string id)
@@ -138,18 +153,33 @@ public class ActionPointManager
         _replenishTimeTicksOverrides.Remove(id);
     }
 
+    /// <summary>
+    /// When weapon is equipped, enable all of its action points defined in <see cref="WeaponExtensionDataAsset"/>.
+    /// </summary>
+    /// <param name="sender">Event sender.</param>
+    /// <param name="e"><see cref="WeaponEquippedEventArgs"/>.</param>
     private void OnWeaponEquipped_EnableActionPoints(object? sender, WeaponEquippedEventArgs e)
     {
         e.Equipped.GetActionPoints().ForEach(ap => EnableActionPoint(ap.Id));
         ActionPointIcons.Icons().NotifyActionPointsUpdated();
     }
     
+    /// <summary>
+    /// When weapon is unequipped, disable all of its action points defined in <see cref="WeaponExtensionDataAsset"/>.
+    /// </summary>
+    /// <param name="sender">Event sender.</param>
+    /// <param name="e"><see cref="WeaponUnequippedEventArgs"/>.</param>
     private void OnWeaponUnequipped_EnableActionPoints(object? sender, WeaponUnequippedEventArgs e)
     {
         e.Unequipped.GetActionPoints().ForEach(ap => DisableActionPoint(ap.Id));
         ActionPointIcons.Icons().NotifyActionPointsUpdated();
     }
     
+    /// <summary>
+    /// When weapon is switched, enable and disable action points of new and previous weapon respectively, as defined in <see cref="WeaponExtensionDataAsset"/>.
+    /// </summary>
+    /// <param name="sender">Event sender.</param>
+    /// <param name="e"><see cref="WeaponSwitchedEventArgs"/>.</param>
     private void OnWeaponSwitched_EnableActionPoints(object? sender, WeaponSwitchedEventArgs e)
     {
         e.Equipped.GetActionPoints().ForEach(ap => EnableActionPoint(ap.Id));

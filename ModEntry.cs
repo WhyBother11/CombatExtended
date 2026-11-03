@@ -13,6 +13,7 @@ using StardewValley.Triggers;
 using AbilityManager = CombatExtended.Framework.Managers.AbilityManager;
 using ActionPointManager = CombatExtended.Framework.Managers.ActionPointManager;
 using StackableBuffManager = CombatExtended.Framework.Managers.StackableBuffManager;
+using CooldownManager = CombatExtended.Framework.Managers.CooldownManager;
 
 namespace CombatExtended;
 
@@ -122,6 +123,7 @@ public class ModEntry : Mod
         }
         
         WeaponManager.Register(Helper);
+        CooldownManager.Register(Helper);
         AbilityManager.Register(Helper);
         StackableBuffManager.Register(Helper);
         ActionPointManager.Register(Helper);
@@ -131,6 +133,7 @@ public class ModEntry : Mod
     {
         MonsterBuffManager.Unregister(Helper);
         WeaponManager.Unregister(Helper);
+        CooldownManager.Unregister(Helper);
         AbilityManager.Unregister(Helper);
         StackableBuffManager.Unregister(Helper);
         ActionPointManager.Unregister(Helper);

@@ -5,7 +5,7 @@ using StardewValley.Monsters;
 namespace CombatExtended.Framework.Managers.MonsterBuffs;
 
 /// <summary>
-/// Manager for handling buffs.
+/// Manager to hande monster buffs.
 /// </summary>
 public interface IMonsterBuffManager
 {
