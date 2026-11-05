@@ -1,6 +1,9 @@
 global using static CombatExtended.ModBindings;
 global using SUtility = StardewValley.Utility;
 global using SObject = StardewValley.Object;
+global using Color = Microsoft.Xna.Framework.Color;
+global using Rectangle = Microsoft.Xna.Framework.Rectangle;
+global using Vector2 = Microsoft.Xna.Framework.Vector2;
 global using Event = CombatExtended.Framework.Events.Events;
 using CombatExtended.Framework.Managers;
 using CombatExtended.Framework.Managers.MonsterBuffs;

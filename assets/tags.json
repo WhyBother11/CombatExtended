@@ -1,6 +1,7 @@
 {
     "Mines40_80": {
         "Id": "Mines40_80",
+        "Condition": "WhyBother11.CombatExtended_MINE_LEVEL 40 79",
         "Priority": "-9999",
         "Resistances": [
             {
@@ -11,6 +12,7 @@
     },
     "Mines80_120": {
         "Id": "Mines80_120",
+        "Condition": "WhyBother11.CombatExtended_MINE_LEVEL 80 120",
         "Priority": "-9999",
         "Resistances": [
             {
@@ -21,6 +23,7 @@
     },
     "VolcanoDungeon": {
         "Id": "VolcanoDungeon",
+        "Condition": "WhyBother11.CombatExtended_VOLCANO_DUNGEON_LEVEL 0 10",
         "Priority": "-9999",
         "Resistances": [
             {

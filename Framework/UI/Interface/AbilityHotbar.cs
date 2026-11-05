@@ -1,6 +1,5 @@
 using CombatExtended.Framework.Core.Abilities;
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;

@@ -7,7 +7,6 @@ using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.UI.Vanilla;
 using HarmonyLib;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -165,6 +164,13 @@ public static class Utility
         }
     }
     
+    /// <summary>
+    /// Raise monster buff trigger for local player.
+    /// </summary>
+    /// <param name="trigger">The monster buff trigger to raise.</param>
+    /// <param name="buffId">The monster buff for which to raise trigger.</param>
+    /// <param name="monster">The monster for which to raise trigger.</param>
+    /// <param name="loc">The location for which to raise trigger.</param>
     public static void RaiseMonsterBuffTrigger(string trigger, string buffId, Monster monster, GameLocation loc)
     {
         var item = ItemRegistry.Create("(O)168");
@@ -178,7 +184,25 @@ public static class Utility
             player: Game1.player,
             targetItem: item
         );
-    } 
+    }
+
+    /// <summary>
+    /// Raise <see cref="Triggers.OnMonsterDeath"/> for local player./>
+    /// </summary>
+    /// <param name="monster">The monster for which to raise trigger.</param>
+    /// <param name="loc">The location for which to raise trigger.</param>
+    public static void RaiseMonsterDeathTrigger(Monster monster, GameLocation loc)
+    {
+        var item = ItemRegistry.Create("(O)168");
+        item.PackMonsterInfo(monster);
+        TriggerActionManager.Raise(
+            trigger: Triggers.OnMonsterDeath,
+            triggerArgs: new object[] { monster },
+            location: loc,
+            player: Game1.player,
+            targetItem: item
+        );
+    }
     
     /// <summary>
     /// Try to find monster with given <paramref name="monsterId"/> on <paramref name="loc"/>.
@@ -280,6 +304,8 @@ public static class Utility
     public static void AddExtraBuffEffects(this Buff buff, ExtraBuffAttributesData data)
     {
         BuffExtensionEnabler.AddArmourClass(buff, (int) data.ArmourClass);
+        BuffExtensionEnabler.AddFlatCritChance(buff, data.FlatCriticalChance);
+        BuffExtensionEnabler.AddFlatCritMult(buff, data.FlatCriticalMultiplier);
     }
     #endregion
 }

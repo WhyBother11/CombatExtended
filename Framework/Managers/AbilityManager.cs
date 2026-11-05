@@ -6,7 +6,6 @@ using CombatExtended.Framework.TriggersActionsGSQ.Abilities;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.UI.Interface;
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
@@ -229,16 +228,8 @@ public class AbilityManager
         _weapon = e.Equipped;
         OnWeaponEquipped();
     }
-    
-    private void OnWeaponUnequipped(object? sender, WeaponUnequippedEventArgs e)
-    {
-        PreviousWeaponAbilities[e.Unequipped.ItemId] = WeaponAbilities;
-        WeaponAbilities = new Dictionary<string, Ability>();
-        _weapon = null;
-        AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
-    }
-    
-    private void OnWeaponSwitched(object? sender, WeaponSwitchedEventArgs e)
+
+    private void OnWeaponUnequipped()
     {
         foreach (var continuousAbility in WeaponAbilities.Values.OfType<ContinuousAbility>())
         {
@@ -251,7 +242,21 @@ public class AbilityManager
             }
         }
         // save to track cooldowns
-        PreviousWeaponAbilities[e.Unequipped.ItemId] = WeaponAbilities;
+        PreviousWeaponAbilities[_weapon!.ItemId] = WeaponAbilities;
+    }
+    
+    private void OnWeaponUnequipped(object? sender, WeaponUnequippedEventArgs e)
+    {
+        //PreviousWeaponAbilities[e.Unequipped.ItemId] = WeaponAbilities;
+        OnWeaponUnequipped();
+        WeaponAbilities = new Dictionary<string, Ability>();
+        _weapon = null;
+        AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
+    }
+    
+    private void OnWeaponSwitched(object? sender, WeaponSwitchedEventArgs e)
+    {
+        OnWeaponUnequipped();
         _weapon = e.Equipped;
         OnWeaponEquipped();
     }
@@ -265,7 +270,7 @@ public class AbilityManager
         
         foreach (var (_, ability) in WeaponAbilities)
         {
-            HandleAbility(ability, player, triggers, e);
+            HandleAbility(ability, player, triggers, e, true);
         }
         
         // update all previous weapon abilities cooldowns and trigger continuous effects
@@ -273,7 +278,7 @@ public class AbilityManager
         {
             foreach (var (_, ability) in abilities)
             {
-                HandleAbility(ability, player, triggers, e, true);
+                HandleAbility(ability, player, triggers, e);
             }
         }
         triggers.ForEach(tr => RaiseAbilityTriggerAction(tr.Item1, tr.Item2, tr.Item3));

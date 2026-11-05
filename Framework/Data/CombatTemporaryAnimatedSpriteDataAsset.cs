@@ -1,5 +1,4 @@
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI;
 
@@ -13,7 +12,7 @@ public class CombatTemporaryAnimatedSpriteData
     public Rectangle SourceRect;
 
     [ContentSerializer(Optional = true)]
-    public bool AttachedToMonster = false;
+    public bool Attached = false;
 
     [ContentSerializer(Optional = true)]
     public AnimationSpecData? AnimationSpec;

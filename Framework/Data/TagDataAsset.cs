@@ -27,6 +27,9 @@ public class TagData
 
     [ContentSerializer(Optional = true)] 
     public List<ResistanceData>? ResistanceData;
+
+    [ContentSerializer(Optional = true)] 
+    public string? Condition = null;
 }
 
 [DataAsset("Tags")]

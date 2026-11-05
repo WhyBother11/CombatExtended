@@ -29,6 +29,12 @@ public class WeaponManager
         helper.Events.GameLoop.UpdateTicked -= PerScreenInstance.Value.OnUpdateTicked_HandleCurrentWeapon;
     }
 
+    /// <summary>
+    /// Check current player weapon and determine if the player's weapon was equipped, unequipped or switched and raise
+    /// <see cref="Event.OnWeaponEquipped"/>, <see cref="Event.OnWeaponUnequipped"/> and <see cref="Event.OnWeaponSwitched"/> accordingly.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e"><see cref="UpdateTickedEventArgs"/>.</param>
     private void OnUpdateTicked_HandleCurrentWeapon(object? sender, UpdateTickedEventArgs e)
     {
         if (!e.IsMultipleOf(BaseTicks) || !Context.IsPlayerFree) return;
@@ -37,18 +43,18 @@ public class WeaponManager
         if (weapon is null && _weapon is not null)
         {
             var args = new WeaponUnequippedEventArgs(_weapon);
-            Events.Events.RaiseWeaponUnequipped(args);
+            Event.RaiseWeaponUnequipped(args);
             _weapon = null;
         }
         else if (weapon is not null && _weapon is null)
         {
             var args = new WeaponEquippedEventArgs(weapon);
-            Events.Events.RaiseWeaponEquipped(args);
+            Event.RaiseWeaponEquipped(args);
             _weapon = weapon;
         } else if (weapon is not null && _weapon is not null && weapon.ItemId != _weapon.ItemId)
         {
             var args = new WeaponSwitchedEventArgs(weapon, _weapon);
-            Events.Events.RaiseWeaponSwitched(args);
+            Event.RaiseWeaponSwitched(args);
             _weapon = weapon;
         }
     }

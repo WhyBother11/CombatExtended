@@ -1,11 +1,11 @@
 using CombatExtended.Framework.Core.Damage;
+using CombatExtended.Framework.Core.Monsters.Tags;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.Util;
 using CombatExtended.Integrations.Compatibility.Tags;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Locations;
 using StardewValley.Monsters;
 
 namespace CombatExtended.Framework.Core.Monsters;
@@ -18,6 +18,9 @@ public static class MonsterExtensionEnabler
 {
 
     private static int _latestAssignedMonsterId;
+    
+    private static readonly string MonsterExtensionsAppliedModDataKey = "ExtensionsApplied".PrependId();
+    private static readonly string MonsterIdModDataKey = "Id".PrependId();
 
     public static void Register(IModHelper helper)
     {
@@ -62,9 +65,14 @@ public static class MonsterExtensionEnabler
     #region ApplyMonsterExtensions
     private static void ApplyMonsterExtensions(Monster monster, GameLocation location)
     {
-        if (monster.modData.ContainsKey("ExtensionsApplied".PrependId())) return;
-        var resistance = GetLocationResistance(location);
+        if (monster.modData.ContainsKey(MonsterExtensionsAppliedModDataKey)) return;
+        var resistance = new CombinedResistance();
         var tags = monster.GetTags().WithCompatibility(monster);
+        foreach (var tagData in TagDataAsset.Data.Values)
+        {
+            if (tagData.Condition is not null && GameStateQuery.CheckConditions(tagData.Condition, location))
+                tags.Add(Tag.MapToTag(tagData));
+        }
         tags.Sort((tag1, tag2) => tag1.Priority.CompareTo(tag2.Priority));
         resistance.ApplyTags(tags);
         if (Config.NoImmunities)
@@ -72,34 +80,9 @@ public static class MonsterExtensionEnabler
         monster.UpdateResistance(resistance);
         var ac = monster.GetArmourClass().WithCompatibility(monster);
         monster.AddArmourClass(ac);
-        if (monster.modData.ContainsKey("ExtensionsApplied".PrependId())) return;
-        monster.modData["ExtensionsApplied".PrependId()] = "true";
-        monster.modData["Id".PrependId()] = $"{Game1.player.UniqueMultiplayerID}_{GetNextMonsterId()}";
-    }
-
-    /// <summary>
-    /// Get default <see cref="CombinedResistance"/> based on <paramref name="location"/>.
-    /// </summary>
-    /// <param name="location">Current location.</param>
-    /// <returns><see cref="CombinedResistance"/> with applicable resistances.</returns>
-    private static CombinedResistance GetLocationResistance(GameLocation location)
-    {
-        switch (location)
-        {
-            case MineShaft mine:
-                var level = mine.mineLevel;
-                switch (level)
-                {
-                    case >= 40 and < 80:
-                        return CombinedResistance.FromTag(TagDataAsset.Data["Mines40_80"]);
-                    case >= 80 and < 120:
-                        return CombinedResistance.FromTag(TagDataAsset.Data["Mines80_120"]);
-                }
-                break;
-            case VolcanoDungeon:
-                return CombinedResistance.FromTag(TagDataAsset.Data["VolcanoDungeon"]);
-        }
-        return new CombinedResistance();
+        if (monster.modData.ContainsKey(MonsterExtensionsAppliedModDataKey)) return;
+        monster.modData[MonsterExtensionsAppliedModDataKey] = "true";
+        monster.modData[MonsterIdModDataKey] = $"{Game1.player.UniqueMultiplayerID}_{GetNextMonsterId()}";
     }
     #endregion
 }

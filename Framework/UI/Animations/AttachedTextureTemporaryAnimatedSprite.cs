@@ -3,6 +3,9 @@ using StardewValley;
 
 namespace CombatExtended.Framework.UI.Animations;
 
+/// <summary>
+/// <see cref="TextureTemporaryAnimatedSprite"/> that is attached to some <see cref="Character"/>.
+/// </summary>
 public class AttachedTextureTemporaryAnimatedSprite : TextureTemporaryAnimatedSprite
 {
 

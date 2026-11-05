@@ -131,21 +131,37 @@ public static class WeaponStateEnabler
     private static void OnWeaponEquipped_RaiseActions(object? sender, WeaponEquippedEventArgs e)
     {
         if (WeaponExtensionDataAsset.Data.TryGetValue(e.Equipped.ItemId, out var data))
-            data.ActionsOnEquip.ForEach(action => TriggerActionManager.Raise(action));
+            data.ActionsOnEquip.ForEach(action =>
+            {
+                if (!TriggerActionManager.TryRunAction(action, out var error, out _))
+                    Log.Error(error);
+            });
     }
     
     private static void OnWeaponUnequipped_RaiseActions(object? sender, WeaponUnequippedEventArgs e)
     {
         if (WeaponExtensionDataAsset.Data.TryGetValue(e.Unequipped.ItemId, out var data))
-            data.ActionsOnUnequip.ForEach(action => TriggerActionManager.Raise(action));
+            data.ActionsOnUnequip.ForEach(action =>
+            {
+                if (!TriggerActionManager.TryRunAction(action, out var error, out _))
+                    Log.Error(error);
+            });
     }
 
     private static void OnWeaponSwitched_RaiseActions(object? sender, WeaponSwitchedEventArgs e)
     {
         if (WeaponExtensionDataAsset.Data.TryGetValue(e.Equipped.ItemId, out var data))
-            data.ActionsOnEquip.ForEach(action => TriggerActionManager.Raise(action));
+            data.ActionsOnEquip.ForEach(action =>
+            {
+                if (!TriggerActionManager.TryRunAction(action, out var error, out _))
+                    Log.Error(error);
+            });
         if (WeaponExtensionDataAsset.Data.TryGetValue(e.Unequipped.ItemId, out data))
-            data.ActionsOnUnequip.ForEach(action => TriggerActionManager.Raise(action));
+            data.ActionsOnUnequip.ForEach(action =>
+            {
+                if (!TriggerActionManager.TryRunAction(action, out var error, out _))
+                    Log.Error(error);
+            });
     }
 
     /// <summary>

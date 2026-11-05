@@ -6,4 +6,6 @@
     "config.option.hotbar-key.toolptip": "Button(s) to interact with ability hotbar.",
     "config.option.use-ability-key": "Use Ability Keys",
     "config.option.use-ability-key.toolptip": "Button(s) to use abilities.",
+    // strings //
+    "string.buff.armour-class.description": "+{0} Armour Class"
 }

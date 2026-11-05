@@ -73,7 +73,7 @@ public class Tag
         return null;
     }
 
-    private static Tag MapToTag(TagData tagData)
+    public static Tag MapToTag(TagData tagData)
     {
         var tag = new Tag { Id = tagData.Id, Resistance = CombinedResistance.FromTag(tagData) };
         if (int.TryParse(tagData.Priority, out var priority)) tag.Priority = priority;

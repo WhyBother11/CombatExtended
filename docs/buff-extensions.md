@@ -1,7 +1,7 @@
-_## Buff extensions
+## Buff extensions
 
 Buff extension data is located in `Mods/WhyBother11.CombatExtended/BuffExtensionData`. This is a dictionary with key being existing buff id and value being
-data model described below. They are used to extend vanilla buffs._
+data model described below. They are used to extend vanilla buffs.
 
 ### BuffExtensionData
 
@@ -21,46 +21,50 @@ data model described below. They are used to extend vanilla buffs._
 
 ### ExtraBuffAttributesData
 
-| Field         | Type                      | Description                                                                                                                                                                                                                                   |
-|---------------|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ArmourClass` | `int`                     | *(Optional)* The player's armour class. It adds `5 * ArmourClass`% chance to dodge monster attack. When calculating dodge chance, it is clamped to \[0, 19\]. For example, 10 armour class will result in 50% chance to dodge monster attack. |
+| Field                    | Type    | Description                                                                                                                                                                                                                                   |
+|--------------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `ArmourClass`            | `int`   | *(Optional)* The player's armour class. It adds `5 * ArmourClass`% chance to dodge monster attack. When calculating dodge chance, it is clamped to \[0, 19\]. For example, 10 armour class will result in 50% chance to dodge monster attack. |
+| `FlatCriticalChance`     | `float` | *(Optional)* The extra flat critical strike chance. Applied after `CriticalChanceMultiplier` takes effect but before vanilla Scout profession.                                                                                                |
+| `FlatCriticalMultiplier` | `float` | *(Optional)* The extra flat critical strike multiplier. Applied after `CriticalChanceMultiplier` takes effect but before vanilla Scout profession.                                                                                            |
+
+Those stats can also be used for food (or edible objects in general) buffs. For this you should target `CustomFields` of entry in `Buffs` list of 
+corresponding food's data in `Data/Objects` by including the following keys: `WhyBother11.CombatExtended_ArmourClass`, 
+`WhyBother11.CombatExtended_FlatCriticalChance` or `FlatCriticalMultiplier`, each for corresponding extra buff attribute. 
+The key (`float` type) is the buff extension stat.
+
 
 ### Buff triggers
 
-All triggers should be prepended with `WhyBother11.CombatExtended_`. To not clutter documentation, it is omitted here.
-
-### `BuffApplied`
+### `WhyBother11.CombatExtended_BuffApplied`
 
 Raised when buff is applied. This trigger passes buff id as target item's id.
 
 ### Buff trigger actions
 
-All trigger actions should be prepended with `WhyBother11.CombatExtended_`. To not clutter documentation, it is omitted here.
 Required arguments are surrounded with `<>`, while optional with `[]`.
 
-### `ChangeBuffStackLimit`
+### `WhyBother11.CombatExtended_ChangeBuffStackLimit`
 
-Format: `ChangeBuffStackLimit <BuffId> <Limit>`
+Format: `WhyBother11.CombatExtended_ChangeBuffStackLimit <BuffId> <Limit>`
 
 Used to change maximum amount of stacks. `BuffId` corresponds to buff whose maximum amount of stacks should be changed. `Limit` has `int` type and should not be
 negative, unless it is `-2`, in which case maximum stack amount will become unlimited.
 
 ### Buff game state queries
 
-All game state queries should be prepended with `WhyBother11.CombatExtended_`. To not clutter documentation, it is omitted here.
 Required arguments are surrounded with `<>`, while optional with `[]`. If argument has `+` after it, then it can be added multiple times, and if
 argument is required, it should be present at least one time.
 
-### `BUFF_STACKS`
+### `WhyBother11.CombatExtended_BUFF_STACKS`
 
-Format: `BUFF_STACKS <BuffId> <Min> [Max]`
+Format: `WhyBother11.CombatExtended_BUFF_STACKS <BuffId> <Min> [Max]`
 
 Used to check current amount of stacks for given buff. `BuffId` corresponds to the buff whose stack amount should be checked. `Min` and `Max` (defaults to `int` max value) have `int` type
 and are used to define minimum and maximum possible amount of stacks respectively. Query returns `true` if buff's current stack amount is between `Min` and `Max`
 
-### `BUFF_MAX_STACKS`
+### `WhyBother11.CombatExtended_BUFF_MAX_STACKS`
 
-Format: `BUFF_MAX_STACKS <BuffId> <Min> [Max]`
+Format: `WhyBother11.CombatExtended_BUFF_MAX_STACKS <BuffId> <Min> [Max]`
 
 Used to check current maximum amount of stacks for given buff. `BuffId` corresponds to the buff whose maximum stack amount should be checked. `Min` and `Max` (defaults to `int` max value) have `int` type
 and are used to define minimum and maximum possible amount of max stacks respectively. Query returns `true` if buff's current maximum stack amount is between `Min` and `Max`

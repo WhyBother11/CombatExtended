@@ -21,4 +21,6 @@ public static class Triggers
     public static readonly string MonsterBuffContinuousEffect = "MonsterBuffContinuousEffect".PrependId();
     
     public static readonly string ProjectileMonsterHit = "ProjectileMonsterHit".PrependId();
+    
+    public static readonly string OnMonsterDeath = "OnMonsterDeath".PrependId();
 }

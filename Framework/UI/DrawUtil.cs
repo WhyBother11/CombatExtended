@@ -1,4 +1,3 @@
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace CombatExtended.Framework.UI;
@@ -13,7 +12,7 @@ public static class DrawUtil
     public const int DigitWidth = 5;
     public const int DigitHeight = 7;
 
-    public static void DrawNumber(this SpriteBatch batch, char number, Vector2 position, float scale)//int x, int y, float scale)
+    public static void DrawNumber(this SpriteBatch batch, char number, Vector2 position, float scale)
     {
         var num = int.Parse(number.ToString());
         batch.Draw(

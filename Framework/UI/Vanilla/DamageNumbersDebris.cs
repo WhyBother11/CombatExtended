@@ -1,5 +1,4 @@
 using HarmonyLib;
-using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Monsters;
 

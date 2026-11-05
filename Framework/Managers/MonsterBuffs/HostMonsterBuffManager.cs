@@ -57,10 +57,12 @@ public class HostMonsterBuffManager : IMonsterBuffManager
     public void Monster_takeDamage_Postfix(Monster __instance)
     {
         if (__instance.Health > 0 || !_buffs.TryGetValue(__instance, out var buffs)) return;
+        var location = __instance.currentLocation;
         foreach (var monsterBuff in buffs.Values)
         {
-            monsterBuff.OnMonsterDeath(__instance, __instance.currentLocation);
-            monsterBuff.StopAnimating(__instance, __instance.currentLocation);
+            monsterBuff.OnMonsterDeath(__instance, location);
+            monsterBuff.StopAnimating(__instance, location);
+            Utility.RaiseMonsterDeathTrigger(__instance, location);
         }
         _buffs.Remove(__instance);
     }
@@ -84,7 +86,6 @@ public class HostMonsterBuffManager : IMonsterBuffManager
                     monsterBuff.End(monster, monster.currentLocation);
                     monsterBuff.StopAnimating(monster, monster.currentLocation);
                     HandleMonsterBuffTrigger(Triggers.MonsterBuffExpired, monsterBuff, monster, monster.currentLocation);
-                    //RaiseMonsterBuffTrigger(Triggers.MonsterBuffExpired, monsterBuffId, monster, monster.currentLocation);
                     continue;
                 }
 
@@ -131,6 +132,14 @@ public class HostMonsterBuffManager : IMonsterBuffManager
         }
     }
 
+    /// <summary>
+    /// Check for <paramref name="monsterBuff"/>'s <see cref="MonsterBuff.AppliedBy"/>. If it is a farmhand player, send them a message
+    /// to raise <paramref name="trigger"/>, otherwise raise it for host player.
+    /// </summary>
+    /// <param name="trigger">The trigger to raise.</param>
+    /// <param name="monsterBuff">The monster buff for which <paramref name="trigger"/> should be raised.</param>
+    /// <param name="monster">The monster for which <paramref name="trigger"/> should be raised.</param>
+    /// <param name="location">The location for which <paramref name="trigger"/> should be raised.</param>
     private static void HandleMonsterBuffTrigger(string trigger, MonsterBuff monsterBuff, Monster monster,
         GameLocation location)
     {
@@ -211,6 +220,7 @@ public class HostMonsterBuffManager : IMonsterBuffManager
         string? applierId = null)
     {
         var buffs =  _buffs.GetValue(monster, _ => new Dictionary<string, MonsterBuff>());
+        // buff is present and active
         if (buffs.TryGetValue(buffId, out var existingBuff) && !existingBuff.IsDurationEndHandled)
         {
             // check stacks and update
@@ -223,6 +233,7 @@ public class HostMonsterBuffManager : IMonsterBuffManager
             existingBuff.OnRenewed(monster, loc);
             Log.Trace($"Updated buff {buffId} for Monster {monster.Name}_{monster.GetCharacterId()} on location {loc.Name}");
         }
+        // buff is not present or ended but not removed yet
         else
         {
             var buff = MonsterBuff.Create(buffId);

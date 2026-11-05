@@ -34,13 +34,9 @@ public static class ArmourClass
     /// <returns>Current player's armour class.</returns>
     public static int GetFarmerArmourClass()
     {
-        var buffArmourClass = 0;
-        foreach (var (_, buff) in Game1.player.buffs.AppliedBuffs)
-        {
-            buffArmourClass += BuffExtensionEnabler.GetArmourClass(buff);
-        }
+        var extraArmourClass = BuffExtensionEnabler.CalculateTotalArmourClass();
 
-        return Math.Clamp(FarmerArmourClass.Value + buffArmourClass, 0, 19);
+        return Math.Clamp(FarmerArmourClass.Value + extraArmourClass, 0, 19);
     }
 
     /// <summary>

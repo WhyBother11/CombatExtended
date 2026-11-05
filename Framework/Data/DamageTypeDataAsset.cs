@@ -1,5 +1,4 @@
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;

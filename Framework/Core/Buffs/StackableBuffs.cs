@@ -17,7 +17,7 @@ public static class StackableBuffs
     {
         if (!BuffExtensionDataAsset.Data.TryGetValue(buff.id, out var data) || data.StackableData is null) return;
         buff.RegisterAddedStack();
-        if (data.StackableData.AttributesPerStack is null) return;
+        if (data.StackableData.AttributesPerStack is null && data.StackableData.ExtraAttributesPerStack is null) return;
         var effectiveStacks = buff.GetStacks() - 1;
         if (effectiveStacks <= 0) return;
         var attributes = data.StackableData.AttributesPerStack;
@@ -44,7 +44,7 @@ public static class StackableBuffs
                 WeaponPrecisionMultiplier = attributes.WeaponPrecisionMultiplier * effectiveStacks,
                 WeaponSpeedMultiplier = attributes.WeaponSpeedMultiplier * effectiveStacks
             };
-            buff.effects.Add(resultAttributes);
+            buff.effects.Add(new BuffEffects(resultAttributes));
         }
 
         var extraAttributes = data.StackableData.ExtraAttributesPerStack;
@@ -53,6 +53,8 @@ public static class StackableBuffs
             var resultExtraAttributes = new ExtraBuffAttributesData
             {
                 ArmourClass = extraAttributes.ArmourClass * effectiveStacks,
+                FlatCriticalChance = extraAttributes.FlatCriticalChance * effectiveStacks,
+                FlatCriticalMultiplier = extraAttributes.FlatCriticalMultiplier * effectiveStacks,
             };
             buff.AddExtraBuffEffects(resultExtraAttributes);
         }
@@ -60,7 +62,7 @@ public static class StackableBuffs
 
     [HarmonyPatch(typeof(Buff), nameof(Buff.update))]
     [HarmonyPostfix]
-    private static void Buff_update_ClearPostfix(Buff __instance, bool __result)
+    private static void Buff_update_Postfix(Buff __instance, bool __result)
     {
         if (!__result || !BuffExtensionDataAsset.Data.TryGetValue(__instance.id, out _)) return;
         __instance.OnStackableBuffExpire();

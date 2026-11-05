@@ -21,7 +21,7 @@ public class ActionPointManager
     /// <summary>
     /// Used to determine how often should action point replenish time be handled.
     /// </summary>
-    private const int BaseTicks = 10;
+    private const int BaseTicks = 20;
     
     /// <summary>
     /// Used to store all active action points.

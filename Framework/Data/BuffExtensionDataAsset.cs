@@ -33,8 +33,13 @@ public class BuffExtensionStackableData
 public class ExtraBuffAttributesData
 {
     [ContentSerializer(Optional = true)] 
-    public float ArmourClass;
+    public float ArmourClass = 0;
 
+    [ContentSerializer(Optional = true)] 
+    public float FlatCriticalChance = 0;
+    
+    [ContentSerializer(Optional = true)] 
+    public float FlatCriticalMultiplier = 0;
 }
 
 [DataAsset("BuffExtensionData")]

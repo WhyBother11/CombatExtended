@@ -93,8 +93,12 @@ public class StackableBuffManager
     /// <remarks>For non-stackable buffs <c>1</c> is returned.</remarks>
     /// <param name="buffId">Buff ID.</param>
     /// <returns>Buff max stack amount.</returns>
-    public int GetMaxStacks(string buffId) => _buffMaxStacks.GetValueOrDefault(buffId,
-        BuffExtensionDataAsset.Data[buffId].StackableData?.MaxStacks ?? 1);
+    public int GetMaxStacks(string buffId)
+    {
+        var maxStacks = _buffMaxStacks.GetValueOrDefault(buffId,
+            BuffExtensionDataAsset.Data[buffId].StackableData?.MaxStacks ?? 1);
+        return maxStacks == -2 ? int.MaxValue : maxStacks;
+    }
 
     /// <summary>
     /// Dynamically change max stack amount for buff with given <paramref name="buffId"/>

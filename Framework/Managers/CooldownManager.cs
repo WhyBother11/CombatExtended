@@ -29,11 +29,21 @@ public class CooldownManager
         helper.Events.GameLoop.UpdateTicked -= PerScreenInstance.Value.OnUpdateTicked_HandleTimers;
     }
 
+    /// <summary>
+    /// Register <paramref name="timeSeconds"/> cooldown for given <paramref name="id"/> arbitrary action.
+    /// </summary>
+    /// <param name="id">The ID that given cooldown should have</param>
+    /// <param name="timeSeconds">The cooldown in seconds.</param>
     public void Add(string id, float timeSeconds)
     {
         _timers.TryAdd(id, timeSeconds.ToTicks());
     }
 
+    /// <summary>
+    /// Iterate over cooldown timers, decrement them and remove all expired timers.
+    /// </summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e"><see cref="UpdateTickedEventArgs"/>.</param>
     private void OnUpdateTicked_HandleTimers(object? sender, UpdateTickedEventArgs e)
     {
         if (!e.IsMultipleOf(BaseTicks) || !Context.IsPlayerFree) return;

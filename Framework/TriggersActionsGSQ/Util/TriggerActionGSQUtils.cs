@@ -44,6 +44,7 @@ public static class TriggerActionGSQUtils
             }
         }
         item.modData[MonsterGameStateQueries.MonsterBuffStacksItemKey] = monsterBuffStacksSb.ToString();
+        item.modData[MonsterGameStateQueries.MonsterStunTimeItemKey] = monster.stunTime.Value.ToString();
     }
 
     /// <summary>
@@ -73,6 +74,7 @@ public static class TriggerActionGSQUtils
         {
             item.modData[AbilityGameStateQueries.AbilityContextTagsItemKey] = string.Join(' ', contextTags);
         }
+        else item.modData[AbilityGameStateQueries.AbilityContextTagsItemKey] = "";
     }
 
     public static void PackProjectileInfo(this Item item, CustomProjectile projectile)

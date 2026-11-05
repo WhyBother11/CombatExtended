@@ -190,7 +190,7 @@ public class MonsterBuff
                     break;
             }
         }
-        var tas = data.AttachedToMonster
+        var tas = data.Attached
             ? new AttachedTextureTemporaryAnimatedSprite(
                 texturePath: data.Texture,
                 sourceRect: data.SourceRect,

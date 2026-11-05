@@ -46,7 +46,7 @@ public class AbilityData
     public bool Returnable = false;
     
     [ContentSerializer(Optional = true)] 
-    public bool ReturnOnWarp = false;
+    public bool ReturnOnWarp = true;
 
     [ContentSerializer(Optional = true)] 
     public string? ProjectileId;

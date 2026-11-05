@@ -1,4 +1,5 @@
 using System.Reflection.Emit;
+using CombatExtended.Framework.Core.Buffs;
 using CombatExtended.Framework.Core.Monsters;
 using CombatExtended.Framework.Core.Weapons;
 using CombatExtended.Framework.Data;
@@ -9,6 +10,7 @@ using CombatExtended.Framework.Util;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Netcode;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 using StardewValley.Tools;
@@ -58,14 +60,19 @@ public static class DamageFormulaPatch
     /// <param name="isBomb">Whether damage comes from bomb.</param>
     /// <param name="isProjectile">Whether damage comes from projectile.</param>
     /// <param name="who">Player instance.</param>
+    /// <param name="critChance">The critical strike chance.</param>
+    /// <param name="critMultiplier">The critical strike multiplier.</param>
     [HarmonyPatch(typeof(GameLocation), nameof(GameLocation.damageMonster), typeof(Rectangle), typeof(int), typeof(int),
         typeof(bool), typeof(float), typeof(int), typeof(float), typeof(float), typeof(bool), typeof(Farmer), typeof(bool)
     )]
     [HarmonyPrefix]
-    private static void GameLocation_DamageMonster_Prefix(bool isBomb, bool isProjectile, Farmer who)
+    private static void GameLocation_DamageMonster_Prefix(bool isBomb, bool isProjectile, Farmer who, 
+        ref float critChance, ref float critMultiplier)
     {
         if (!isBomb && !isProjectile && who.CurrentItem is MeleeWeapon)
         {
+            critChance += BuffExtensionEnabler.CalculateTotalFlatCritChance();
+            critMultiplier += BuffExtensionEnabler.CalculateTotalFlatCritMultiplier();
             TriggerActionManager.Raise(
                 trigger: Triggers.PlayerAttacked,
                 location: who.currentLocation,

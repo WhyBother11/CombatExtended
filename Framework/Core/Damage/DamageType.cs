@@ -1,6 +1,7 @@
 using CombatExtended.Framework.Core.Monsters;
 using StardewValley;
 using StardewValley.Monsters;
+using Utility = CombatExtended.Framework.Util.Utility;
 
 namespace CombatExtended.Framework.Core.Damage;
 
@@ -25,6 +26,7 @@ public static class DamageType
         if (monster.Health <= 0)
         {
             monster.deathAnimation();
+            Utility.RaiseMonsterDeathTrigger(monster, monster.currentLocation);
         }
 
         return actualDamage;

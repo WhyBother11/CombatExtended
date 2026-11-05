@@ -33,20 +33,17 @@ if the end was reached.
 
 ### Projectile triggers
 
-All triggers here provide `Projectile context`. All triggers should be prepended with `WhyBother11.CombatExtended_`. To not clutter documentation, it is omitted here.
+### `WhyBother11.CombatExtended_ProjectileMonsterHit`
 
-### `ProjectileMonsterHit`
-
-Raised when *added by the mod* projectile hits an enemy.
+Raised when *added by the mod* projectile hits an enemy. Provides `Projectile context` and `Monster context`.
 
 ### Projectile trigger actions
 
-All trigger actions should be prepended with `WhyBother11.CombatExtended_`. To not clutter documentation, it is omitted here.
 Required arguments are surrounded with `<>`, while optional with `[]`.
 
-### `LaunchProjectile`
+### `WhyBother11.CombatExtended_LaunchProjectile`
 
-Format: `LaunchProjectile <ProjectileId> <Direction> [OptionalArg1] [OptionalArg2]`.
+Format: `WhyBother11.CombatExtended_LaunchProjectile <ProjectileId> <Direction> [OptionalArg1] [OptionalArg2]`.
 
 Used to launch a projectile. `ProjectileId` corresponds to projectile data from `Mods/WhyBother11.CombatExtended/Projectiles`. `Direction` with `OptionalArg1` and `OptionalArg2` 
 handle in which direction should projectile be fired. This can be one of following:
@@ -60,12 +57,11 @@ up, while `90` in the right direction).
 
 ### Projectile game state queries
 
-All game state queries should be prepended with `WhyBother11.CombatExtended_`. To not clutter documentation, it is omitted here.
 Required arguments are surrounded with `<>`, while optional with `[]`. If argument has `+` after it, then it can be added multiple times, and if argument is required, it should be present at least one time.
 
-#### `PROJECTILE_ID`
+#### `WhyBother11.CombatExtended_PROJECTILE_ID`
 
-Format: `PROJECTILE_ID <ProjectileId>+`
+Format: `WhyBother11.CombatExtended_PROJECTILE_ID <ProjectileId>+`
 
 Can be used only in `Projectile context`. Used to check ID of projectile in context. `ProjectileId` corresponds to multiple possible projectile IDs to check against.
 Query returns `true` if any `ProjectileId` is equal to ID of projectile in context, `false` otherwise.

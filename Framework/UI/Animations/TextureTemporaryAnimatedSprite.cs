@@ -1,8 +1,10 @@
-using Microsoft.Xna.Framework;
 using StardewValley;
 
 namespace CombatExtended.Framework.UI.Animations;
 
+/// <summary>
+/// Utility class extending <see cref="TemporaryAnimatedSprite"/> with constructor where most arguments have default values.
+/// </summary>
 public class TextureTemporaryAnimatedSprite : TemporaryAnimatedSprite
 {
     public TextureTemporaryAnimatedSprite(
