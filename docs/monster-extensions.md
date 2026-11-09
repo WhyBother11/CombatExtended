@@ -1,4 +1,4 @@
-## Monster extensions
+# Monster extensions
 
 Monster extension data is located in `Mods/WhyBother11.CombatExtended/MonsterExtensionData`. This is a dictionary with key being existing monster name (as defined in `Data/Monsters`).
 The value is data model described below. They are used to extend vanilla monsters. `assets/monster_extensions.json` already includes entries for
@@ -7,20 +7,20 @@ all vanilla monsters plus entry for `Haunted Skull` that is not present in vanil
 Custom monsters can be added as well. For new monster classes added by C# the key should be monster's `Name`. For monsters added by FarmTypeManager or SpaceCore 
 the key should be monster's texture name (`Sprite` for FTM and `MonsterTextureOverride` for SpaceCore).
 
-### MonsterExtensionData
+## MonsterExtensionData
 
-| Field              | Type     | Description                                                                                                                                                                                       |
-|--------------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Tags`             | `string` | The space delimited string if tag IDs that should be applied to this monster.                                                                                                                     |
-| `ExtraArmourClass` | `int`    | The extra armour class for this monster (the default for every monster is `2`). Can be negative. Every armour point corresponds to 5% miss chance that stacks with monster's native `missChance`. |
+| Field              | Type     | Description                                                                                                                                                                                                    |
+|--------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Tags`             | `string` | *(Optional)* The space delimited string of tag IDs that should be applied to this monster.                                                                                                                     |
+| `ExtraArmourClass` | `int`    | *(Optional)* The extra armour class for this monster (the default for every monster is `2`). Can be negative. Every armour point corresponds to 5% miss chance that stacks with monster's native `missChance`. |
 
-### Monster triggers
+## Monster triggers
 
 ### `WhyBother11.CombatExtended_OnMonsterDeath`
 
 Raised when monster takes any damage and its health drops below 0. Provies `Monster context`.
 
-### Monster game state queries
+## Monster game state queries
 
 Required arguments are surrounded with `<>`, while optional with `[]`. If argument has `+` after it, then it can be added multiple times, and if argument is required, it should be present at least one time.
 

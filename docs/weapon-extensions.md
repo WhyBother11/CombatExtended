@@ -1,24 +1,25 @@
-## Weapon extensions
+# Weapon extensions
 
-Weapon extension data is located in `Mods/WhyBother11.CombatExtended/WeaponExtensionData`. This is a dictionary with key being existing weapon id and value being
-data model described below. They are used to extend vanilla weapons.
+Weapon extension data is located in `Mods/WhyBother11.CombatExtended/WeaponExtensionData`. This is a dictionary with key being existing 
+*unqualified* weapon ID and value being data model described below. They are used to extend vanilla weapons.
 
-### WeaponExtensionData
+## WeaponExtensionData
 
-| Field            | Type                                  | Description                                                                                                                       |
-|------------------|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| `Abilities`      | `string`                              | *(Optional)* The space delimited string of ability IDs that should be available when this weapon is equipped.                     |
-| `DamageTypes`    | `List<DamageTypeWeaponExtensionData>` | *(Optional)* The list of data models for extra damage instances dealt to hit enemies. The data model is described below.          |
-| `States`         | `Dictionary<string, WeaponStateData>` | *(Optional)* The dictionary of data models for weapon states. The key is weapon state ID and value is data model described below. |
-| `ActionPoints`   | `string`                              | *(Optional)* The space delimited string of action point IDs that should be available when this weapon is equipped.                |
-| `ActionsOnEquip` | `List<string>`                        | *(Optional)* The list of actions that should be                                                                                   |
-|                  |                                       |                                                                                                                                   |
+| Field              | Type                                  | Description                                                                                                                                                                                                                                                                         |
+|--------------------|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Abilities`        | `string`                              | *(Optional)* The space delimited string of ability IDs that should be available while this weapon is equipped.                                                                                                                                                                      |
+| `DamageTypes`      | `List<DamageTypeWeaponExtensionData>` | *(Optional)* The list of data models for extra unconditional damage (with specified damage type) added to weapon's minimum and maximum damage when dealing damage to enemies. Damage added here is subject to game's normal damage formula. The data model used is described below. |
+| `States`           | `Dictionary<string, WeaponStateData>` | *(Optional)* The dictionary of data models for weapon states. The key is weapon state ID and value is data model described below.                                                                                                                                                   |
+| `ActionPoints`     | `string`                              | *(Optional)* The space delimited string of action point IDs that should be available when this weapon is equipped.                                                                                                                                                                  |
+| `ActionsOnEquip`   | `List<string>`                        | *(Optional)* The list of actions that should be triggered when the weapon is equipped.                                                                                                                                                                                              |
+| `ActionsOnUnequip` | `List<string>`                        | *(Optional)* The list of actions that should be triggered when the weapon is unequipped.                                                                                                                                                                                            |
 
 ### DamageTypeWeaponExtensionData
 
 | Field       | Type     | Description                                                                       |
 |-------------|----------|-----------------------------------------------------------------------------------|
-| `Type`      | `string` | The associated damage type id from `Mods/WhyBother11.CombatExtended/DamageTypes`. |
+| `Id`        | `string` | The unique ID of this entry with the list.                                        |
+| `Type`      | `string` | The associated damage type ID from `Mods/WhyBother11.CombatExtended/DamageTypes`. |
 | `MinDamage` | `int`    | The minimum damage of this damage instance.                                       |
 | `MaxDamage` | `int`    | The maximum damage of this damage instance.                                       |
 
@@ -47,9 +48,9 @@ inventory, its state is restored to default (but will be set to any currently ac
 
 `WeaponStateData` fields will override corresponding fields for affected weapon. If the field is not present here, it will be left intact.
 
-`DamageTypeWeaponExtensionData` can have multiple damage instances with the same `DamageType`. They will be treated as separate damage instances.
+`DamageTypeWeaponExtensionData` can have multiple damage instances with the same `DamageType`. They will count towards the same damage type.
 
-### Weapon trigger actions
+## Weapon trigger actions
 
 Required arguments are surrounded with `<>`, while optional with `[]`.
 
@@ -60,7 +61,7 @@ Format: `WhyBother11.CombatExtended_SetWeaponState <WeaponId> <StateId>`
 Used to change current weapon state. `WeaponId` corresponds to weapon whose state should be changed. If `StateId` is `_default`, the weapon is reverted to default state,
 as defined in `Data/Weapons`. Otherwise, if `StateId` is present in this weapon's entry in `Mods/WhyBother11.CombatExtended/WeaponExtensionData`, this state is applied to the weapon.
 
-### Weapon game state queries
+## Weapon game state queries
 
 Required arguments are surrounded with `<>`, while optional with `[]`. If argument has `+` after it, then it can be added multiple times, and if
 argument is required, it should be present at least one time.

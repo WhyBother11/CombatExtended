@@ -1,11 +1,10 @@
-## Action points
+# Action points
 
-Action points represent any arbitrary points that can be spent to do actions, replenished manually or overtime.
-
-Action point data is located in `Mods/WhyBother11.CombatExtended/ActionPoints`. This is a dictionary with key being action point id and value being
+Action points represent any arbitrary points that can be spent to do actions, replenished manually or overtime. Action point data 
+is located in `Mods/WhyBother11.CombatExtended/ActionPoints`. This is a dictionary with key being action point id and value being
 data model described below.
 
-### ActionPointData
+## ActionPointData
 
 | Field           | Type     | Description                                                                                                                                  |
 |-----------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------|
@@ -16,7 +15,30 @@ data model described below.
 | `SpriteIndex`   | `int`    | The index within `Texture` of icon for this action point.                                                                                    |
 | `ReplenishTime` | `float`  | The time (in seconds) for one action point to be replenished. If set to `-1`, action points are not replenished with time. Defaults to `-1`. |
 
-### Action points trigger actions
+Example:
+
+```json
+{
+    "Changes": [
+        {
+            "Action": "EditData",
+            "Target": "Mods/WhyBother11.CombatExtended/ActionPoints",
+            "Entries": {
+                "{{ModID}}_MjolnirActionPoint": {
+                    "DisplayName": "<Display name of action point>",
+                    "Description": "<Description of action point>",
+                    "MaxAmount": 100,
+                    "ReplenishTime": 30,
+                    "Texture": "Mods/{{ModID}}/ActionPoints",
+                    "SpriteIndex": 0
+                }
+            }
+        }
+    ]
+}
+```
+
+## Action points trigger actions
 
 Required arguments are surrounded with `<>`, while optional with `[]`.
 
@@ -59,7 +81,7 @@ Used to override maximum amount of action point. `ActionPointId` corresponds to 
 
 Used to restore maximum amount of action point back to the defined `MaxAmount` in `Mods/WhyBother11.CombatExtended/ActionPoints`. `ActionPointId` corresponds to action point whose maximum amount should be restored.
 
-### Action points game state queries
+## Action points game state queries
 
 ### `WhyBother11.CombatExtended_ACTION_POINTS <ActionPointId> <Min> [Max]`
 

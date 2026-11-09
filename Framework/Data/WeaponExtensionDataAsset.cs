@@ -1,4 +1,3 @@
-using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Util;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI;
@@ -29,6 +28,8 @@ public class WeaponExtensionData
 public class DamageTypeWeaponExtensionData
 {
     #nullable disable
+    public string Id;
+    
     public string Type;
 
     public int MinDamage;
@@ -108,7 +109,6 @@ public class WeaponExtensionDataAsset : DataAsset<WeaponExtensionData>
     private Dictionary<string, List<DamageTypeWeaponExtensionData>>? _damageTypes;
     private Dictionary<string, List<DamageTypeWeaponExtensionData>> InstanceDamageTypes => _damageTypes ??= Data
         .Where(entry => entry.Value.DamageTypes != null)
-        .Where(entry => entry.Key != DamageType.Physical)
         .ToDictionary(
             entry => entry.Key,
             entry => entry.Value.DamageTypes!

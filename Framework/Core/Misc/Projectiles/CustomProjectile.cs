@@ -37,6 +37,7 @@ public class CustomProjectile : Projectile
     private readonly bool _destroyOnWallContact;
 
     public CustomProjectile(
+        string id,
         float xVelocity,
         float yVelocity,
         Vector2 position,
@@ -48,7 +49,7 @@ public class CustomProjectile : Projectile
         bool destroyOnWallContact = false,
         ProjectileAnimator? animator = null)
     {
-        Id = data.Id;
+        Id = id;
         Data = data;
         Owner = owner;
         maxTravelDistance.Value = data.MaxDistance * Game1.tileSize;
@@ -77,7 +78,7 @@ public class CustomProjectile : Projectile
             _animator = new ProjectileAnimator(
                 Helper.GameContent.Load<Texture2D>(data.Texture), data.SpriteIndex!.Value,
                 data.Animation?.Split(' ').Select(int.Parse).ToArray(), tailLength.Value);
-        else Log.Error($"Projectile {data.Id} has no item or texture with sprite index set");
+        else Log.Error($"Projectile {id} has no item or texture with sprite index set");
         damagesMonsters.Value = true;
         _onDestroy = onDestroy;
         _destroyOnWallContact = destroyOnWallContact;
@@ -158,12 +159,12 @@ public class CustomProjectile : Projectile
         return xVelocityValue <= 0 ? FacingDirection.Right : FacingDirection.Left;
     }
 
-    public static CustomProjectile Launch(GameLocation loc, Vector2 position, Vector2 velocity, ProjectileData data, 
-        Item? item = null, Action<GameLocation, Farmer>? onDestroy = null, bool destroyOnWallContact = false)
+    public static CustomProjectile Launch(GameLocation loc, Vector2 position, Vector2 velocity, string projectileId, 
+        ProjectileData data, Item? item = null, Action<GameLocation, Farmer>? onDestroy = null, bool destroyOnWallContact = false)
     {
         var projectile = new CustomProjectile(
             xVelocity: velocity.X, yVelocity: velocity.Y, position: position, location: loc, 
-            owner: Game1.player, data: data, onDestroy: onDestroy, item: item, destroyOnWallContact: destroyOnWallContact
+            owner: Game1.player, id: projectileId, data: data, onDestroy: onDestroy, item: item, destroyOnWallContact: destroyOnWallContact
         );
         loc.projectiles.Add(projectile);
         return projectile;

@@ -31,7 +31,7 @@ public static class ProjectileTriggerActions
                 var targetPoint = Helper.Input.GetCursorPosition().AbsolutePixels;
                 var startingPoint = Game1.player.Position;
                 var velocity = SUtility.getVelocityTowardPoint(startingPoint, targetPoint, projectileData.Velocity);
-                CustomProjectile.Launch(Game1.player.currentLocation, startingPoint, velocity, projectileData);
+                CustomProjectile.Launch(Game1.player.currentLocation, startingPoint, velocity, projectileId, projectileData);
                 break;
             case "_closestMonster":
                 var radius = 5f;
@@ -60,7 +60,7 @@ public static class ProjectileTriggerActions
                 {
                     targetPoint = closest.Position;
                     velocity = SUtility.getVelocityTowardPoint(startingPoint, targetPoint, projectileData.Velocity);
-                    CustomProjectile.Launch(location, startingPoint, velocity, projectileData);
+                    CustomProjectile.Launch(location, startingPoint, velocity, projectileId, projectileData);
                 }
                 break;
             default:
@@ -75,7 +75,7 @@ public static class ProjectileTriggerActions
                 //targetPoint = startingPoint + new Vector2(MathF.Cos(angleRadians), MathF.Sin(angleRadians));
                 targetPoint = startingPoint + new Vector2(MathF.Sin(angleRadians), MathF.Cos(angleRadians));
                 velocity = SUtility.getVelocityTowardPoint(startingPoint, targetPoint, projectileData.Velocity);
-                CustomProjectile.Launch(Game1.player.currentLocation, startingPoint, velocity, projectileData);
+                CustomProjectile.Launch(Game1.player.currentLocation, startingPoint, velocity, projectileId, projectileData);
                 break;
         }
         return true;

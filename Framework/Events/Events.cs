@@ -9,6 +9,10 @@ public static class Events
     public static event EventHandler<WeaponUnequippedEventArgs>? OnWeaponUnequipped;
     
     public static event EventHandler<WeaponSwitchedEventArgs>? OnWeaponSwitched;
+    
+    public static event EventHandler<MonsterTakenDamageEventArgs>? OnMonsterTakenDamage;
+    
+    public static event EventHandler<MonsterAttackedEventArgs>? OnMonsterAttacked; 
 
     internal static void RaiseWeaponEquipped(WeaponEquippedEventArgs args)
     {
@@ -23,5 +27,15 @@ public static class Events
     internal static void RaiseWeaponSwitched(WeaponSwitchedEventArgs args)
     {
         OnWeaponSwitched?.Invoke(null, args);
+    }
+
+    internal static void RaiseMonsterTakenDamage(MonsterTakenDamageEventArgs args)
+    {
+        OnMonsterTakenDamage?.Invoke(null, args);
+    }
+
+    internal static void RaiseMonsterAttacked(MonsterAttackedEventArgs args)
+    {
+        OnMonsterAttacked?.Invoke(null, args);
     }
 }

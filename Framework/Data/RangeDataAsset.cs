@@ -7,6 +7,8 @@ namespace CombatExtended.Framework.Data;
 public class RangeTileData
 {
     #nullable disable
+    public string Id;
+    
     public string Type;
 
     public string RelativeTo;
@@ -26,6 +28,10 @@ public class RangeTileData
     
     public class Line
     {
+        #nullable disable
+        public string Id;
+        #nullable restore
+        
         public int Angle;
         
         [ContentSerializer(Optional = true)]
@@ -40,11 +46,13 @@ public class RangeTileData
     
     public class Rectangle
     {
-    #nullable disable
+        #nullable disable
+        public string Id;
+        
         public Coordinate From;
 
         public Coordinate To;
-    #nullable restore
+        #nullable restore
     }
     
     public class Coordinate
@@ -56,6 +64,10 @@ public class RangeTileData
     
     public class CursorLine
     {
+        #nullable disable
+        public string Id;
+        #nullable restore
+        
         [ContentSerializer(Optional = true)] 
         public Coordinate? Delta;
         

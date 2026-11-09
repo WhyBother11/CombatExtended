@@ -7,7 +7,6 @@ namespace CombatExtended.Framework.Data;
 #pragma warning disable CS8618
 public class ProjectileData
 {
-    public string Id;
     
     [ContentSerializer(Optional = true)]
     public int MinDamage = 0;

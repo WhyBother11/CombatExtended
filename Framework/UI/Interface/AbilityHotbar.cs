@@ -16,13 +16,15 @@ public class AbilityHotbar : IClickableMenu
     
     private readonly Texture2D _hotbarTexture = Helper.ModContent.Load<Texture2D>("assets/hotbar_tiles.png");
 
-    private const int Size = 56;
+    private const int Size = 28;
     private const int AbilitySize = 16;
-    private const int AbilityPositionDelta = (Size - AbilitySize * 2)/2;
+    private const int AbilityPositionDelta = (Size - AbilitySize)/2;
 
-    private const int ScaledSize = Size * 2;
+    private const int ScaledSize = Size * 4;
     private const int ScaledAbilitySize = AbilitySize * 4;
-    private const int ScaledAbilityPositionDelta = AbilityPositionDelta * 2;
+    private const int ScaledAbilityPositionDelta = AbilityPositionDelta * 4;
+    
+    private const float HotbarHeightRatio = 0.6f;
     
     private int Selected { get; set; } = -1;
     
@@ -43,7 +45,7 @@ public class AbilityHotbar : IClickableMenu
     private void UpdatePosition()
     {
         xPositionOnScreen = 16;
-        _rowAmount = (int) Math.Min(_abilities.Count, Game1.uiViewport.Height * 0.6 / ScaledSize);
+        _rowAmount = (int) Math.Min(_abilities.Count, Game1.uiViewport.Height * HotbarHeightRatio / ScaledSize);
         _colAmount = _rowAmount == 0 ? 0 : (int)MathF.Ceiling((float)_abilities.Count / _rowAmount);
         yPositionOnScreen = Game1.uiViewport.Height / 2 - _rowAmount * ScaledSize / 2;
         width = ScaledSize * _colAmount;
@@ -77,8 +79,8 @@ public class AbilityHotbar : IClickableMenu
         }
         if (Hovered != -1)
         {
-            var description = Game1.parseText(_abilities[Hovered].Description, Game1.smallFont, 260);
-            var displayName = Game1.parseText(_abilities[Hovered].DisplayName, Game1.smallFont, 260);
+            var description = Game1.parseText(_abilities[Hovered].Description, Game1.smallFont, DrawUtil.TooltipWidth);
+            var displayName = Game1.parseText(_abilities[Hovered].DisplayName, Game1.smallFont, DrawUtil.TooltipWidth);
             drawToolTip(b, description, displayName, null);
         }
     }
@@ -87,11 +89,11 @@ public class AbilityHotbar : IClickableMenu
     {
         var yIndex = index % _rowAmount;
         var position = new Vector2(xPositionOnScreen + xOffset, yPositionOnScreen + yIndex * ScaledSize);
-        b.Draw(_hotbarTexture, position, new Rectangle(index == Selected ? Size : 0, 0, Size, Size), Color.White, scale: 2f);
+        b.Draw(_hotbarTexture, position, new Rectangle(index == Selected ? Size : 0, 0, Size, Size), Color.White, scale: 4f);
         var abilityPosition = new Vector2(position.X + ScaledAbilityPositionDelta, position.Y + ScaledAbilityPositionDelta);
         var abilitySourceRect = Game1.getSourceRectForStandardTileSheet(ability.Texture, ability.SpriteIndex,
             AbilitySize, AbilitySize);
-        b.Draw(ability.Texture, abilityPosition, abilitySourceRect, scale: 4);
+        b.Draw(ability.Texture, abilityPosition, abilitySourceRect, scale: 4f);
 
         if (ability.IsCooldownEndHandled) return;
         var shouldHandleDuration = ability is ContinuousAbility { IsActive: true };

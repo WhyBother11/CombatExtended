@@ -1,10 +1,10 @@
-## Ranges
+# Ranges
 
 Ranges are used in a variety of trigger actions to specify what tiles should be used to apply effect to. Range data is located in 
 `Mods/WhyBother11.CombatExtended/Ranges`. This is a dictionary with key being projectile id and value being
 data model described below.
 
-### RangeData
+## RangeData
 
 | Field   | Type                  | Description                                                                                       |
 |---------|-----------------------|---------------------------------------------------------------------------------------------------|
@@ -12,35 +12,39 @@ data model described below.
 
 ### RangeTileData
 
-| Field         | Type              | Description                                                                                         |
-|---------------|-------------------|-----------------------------------------------------------------------------------------------------|
-| `Type`        | `string`          | `Add` if tiles that match described parameters below should be added to range, `Remove` if removed. |
-| `RelativeTo`  | `string`          | Relative to what tile should this data be calculated. Can be one of `cursor`, `player`, `special`.  |
-| `Rectangles`  | `List<Rectangle>` | *(Optional)* List of rectangles that should be used to calculate tiles.                             |
-| `Radius`      | `int`             | *(Optional)* Radius in tiles that should be used to calculate tiles.                                |
-| `Lines`       | `List<Line>`      | *(Optional)* List of lines that should be used to calculate tiles.                                  |
-| `CursorLines` | `List<CursorLine` | *(Optional)* List of lines aimed at cursor that should be used to calculate tiles.                  |
+| Field         | Type                            | Description                                                                                         |
+|---------------|---------------------------------|-----------------------------------------------------------------------------------------------------|
+| `Id`          | `string`                        | The unique ID of this range builder within the list.                                                |
+| `Type`        | `string`                        | `Add` if tiles that match described parameters below should be added to range, `Remove` if removed. |
+| `RelativeTo`  | `string`                        | Relative to what tile should this data be calculated. Can be one of `cursor`, `player`, `special`.  |
+| `Rectangles`  | `List<RangeTileData_Rectangle>` | *(Optional)* List of rectangles that should be used to calculate tiles.                             |
+| `Radius`      | `int`                           | *(Optional)* Radius in tiles that should be used to calculate tiles.                                |
+| `Lines`       | `List<RangeTileData_Line>`      | *(Optional)* List of lines that should be used to calculate tiles.                                  |
+| `CursorLines` | `List<RangeTileData_CursorLine` | *(Optional)* List of lines aimed at cursor that should be used to calculate tiles.                  |
 
-#### Rectangle
+#### RangeTileData_Rectangle
 
 | Field  | Type         | Description                                                   |
 |--------|--------------|---------------------------------------------------------------|
+| `Id`   | `string`     | The unique ID of this rectangle within the list.              |
 | `From` | `Coordinate` | *(Optional)* The left- and topmost tile of this rectange.     |
 | `To`   | `Coordinate` | *(Optional)* The right- and bottommost tile of this rectange. |
 
-#### Line
+#### RangeTileData_Line
 
 | Field       | Type         | Description                                                                |
 |-------------|--------------|----------------------------------------------------------------------------|
+| `Id`        | `string`     | The unique ID of this line within the list.                                |
 | `Angle`     | `int`        | The angle of this line in degrees. Relative to x axis and right direction. |
 | `MaxLength` | `int`        | *(Optional)* Length of this line in tiles. Defaults to `30`.               |
 | `Width`     | `int`        | *(Optional)* Width of this line in tiles. Defaults to `1`.                 |
 | `Delta`     | `Coordinate` | *(Optional)* The delta to apply to this line.                              |
 
-#### CursorLine
+#### RangeTileData_CursorLine
 
 | Field       | Type         | Description                                                  |
 |-------------|--------------|--------------------------------------------------------------|
+| `Id`        | `string`     | The unique ID of this cursor line within the list.           |
 | `MaxLength` | `int`        | *(Optional)* Length of this line in tiles. Defaults to `30`. |
 | `Width`     | `int`        | *(Optional)* Width of this line in tiles. Defaults to `1`.   |
 | `Delta`     | `Coordinate` | *(Optional)* The delta to apply to this line.                |

@@ -1,9 +1,9 @@
-## Projectiles
+# Projectiles
 
 Projectile data is located in `Mods/WhyBother11.CombatExtended/Projectiles`. This is a dictionary with key being projectile id and value being
 data model described below.
 
-### ProjectileData
+## ProjectileData
 
 Either `ItemId` or `Texture` with `SpriteIndex` should be set.
 
@@ -25,19 +25,19 @@ Either `ItemId` or `Texture` with `SpriteIndex` should be set.
 | `SpriteIndex`      | `int`    | *(Optional)* The index within `Texture` of sprite for this projectile.                                                                      |
 | `Animation`        | `string` | *(Optional)* A custom animation for this projectile. The format is described below.                                                         |
 
-#### Projectile animation
+### Projectile animation
 
 Projectile animation specs is a string in the format of `[<SpriteIndex> <FrameAmount>]+`. `SpriteIndex` corresponds to a sprite from `Texture`. This sprite is
 drawn for `FrameAmount` for frames. Once it was drawn `FrameAmount` of times, the next pair is handled, looping back to the beginning
 if the end was reached.
 
-### Projectile triggers
+## Projectile triggers
 
 ### `WhyBother11.CombatExtended_ProjectileMonsterHit`
 
 Raised when *added by the mod* projectile hits an enemy. Provides `Projectile context` and `Monster context`.
 
-### Projectile trigger actions
+## Projectile trigger actions
 
 Required arguments are surrounded with `<>`, while optional with `[]`.
 
@@ -55,7 +55,7 @@ to `true`. Otherwise, projectile will be fired from player position.
 - In other cases, `Direction` is assumed to be an angle in degrees, relative to the vector pointed up (e.g. `0` will launch projectile
 up, while `90` in the right direction).
 
-### Projectile game state queries
+## Projectile game state queries
 
 Required arguments are surrounded with `<>`, while optional with `[]`. If argument has `+` after it, then it can be added multiple times, and if argument is required, it should be present at least one time.
 

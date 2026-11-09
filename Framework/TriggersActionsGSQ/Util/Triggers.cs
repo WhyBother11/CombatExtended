@@ -22,5 +22,7 @@ public static class Triggers
     
     public static readonly string ProjectileMonsterHit = "ProjectileMonsterHit".PrependId();
     
-    public static readonly string OnMonsterDeath = "OnMonsterDeath".PrependId();
+    public static readonly string MonsterDied = "MonsterDied".PrependId();
+    
+    public static readonly string SpecialMoveTriggered = "SpecialMoveTriggered".PrependId();
 }

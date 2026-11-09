@@ -214,14 +214,6 @@ public static class BuffExtensionEnabler
             yield return buff;
         }
     }
-
-    [HarmonyPatch(typeof(Farmer), nameof(Farmer.doneEating))]
-    [HarmonyPrefix]
-    private static void Ugh(Farmer __instance)
-    {
-        var obj = __instance.itemToEat as SObject;
-        Log.Error($"Ugh {string.Join(' ', obj!.GetFoodOrDrinkBuffs().Select(b => b.customFields.Keys.ToList()))}");
-    }
     
     [HarmonyPatch(typeof(Buff), nameof(Buff.update))]
     [HarmonyPostfix]

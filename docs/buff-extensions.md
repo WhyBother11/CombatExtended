@@ -1,9 +1,9 @@
-## Buff extensions
+# Buff extensions
 
 Buff extension data is located in `Mods/WhyBother11.CombatExtended/BuffExtensionData`. This is a dictionary with key being existing buff id and value being
 data model described below. They are used to extend vanilla buffs.
 
-### BuffExtensionData
+## BuffExtensionData
 
 | Field             | Type                         | Description                                                                                                                                                                                                                              |
 |-------------------|------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -27,19 +27,80 @@ data model described below. They are used to extend vanilla buffs.
 | `FlatCriticalChance`     | `float` | *(Optional)* The extra flat critical strike chance. Applied after `CriticalChanceMultiplier` takes effect but before vanilla Scout profession.                                                                                                |
 | `FlatCriticalMultiplier` | `float` | *(Optional)* The extra flat critical strike multiplier. Applied after `CriticalChanceMultiplier` takes effect but before vanilla Scout profession.                                                                                            |
 
-Those stats can also be used for food (or edible objects in general) buffs. For this you should target `CustomFields` of entry in `Buffs` list of 
+Example:
+
+```json
+{
+    "Changes": [
+        // don't forget to add {{ModID}}_YourCustomBuff buff entry into Data/Buffs
+        {
+            "Action": "EditData",
+            "Target": "Mods/WhyBother11.CombatExtended/BuffExtensionData",
+            "Entries": {
+                "{{ModID}}_YourCustomBuff": {
+                    "ExtraAttributes": {
+                        "ArmourClass": 2,
+                        "FlatCriticalMultiplier": 2.5
+                    },
+                    "StackableData": {
+                        "MaxStacks": 10,
+                        "IndependentStacks": true,
+                        "AttributesPerStack": {
+                            "Speed": 0.2,
+                            "FarmingLevel": 0.5
+                        },
+                        "ExtraAttributesPerStack": {
+                            "ArmourClass": 2,
+                            "FlatCriticalMultiplier": 2.5
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
+```
+
+### Remarks
+
+Added by mod stats can also be used for food (or edible objects in general) buffs. For this you should target `CustomFields` of entry in `Buffs` list of 
 corresponding food's data in `Data/Objects` by including the following keys: `WhyBother11.CombatExtended_ArmourClass`, 
 `WhyBother11.CombatExtended_FlatCriticalChance` or `FlatCriticalMultiplier`, each for corresponding extra buff attribute. 
-The key (`float` type) is the buff extension stat.
+The key (`float` type) is the buff extension stat value. `ArmourClass` buff stat has a custom icon and will be displayed alongside
+vanilla buffs that are shown when hovering over buff icon (for example, `Speed`).
+
+Example:
+
+```json
+{
+    "Changes": [
+        {
+            "Action": "EditData",
+            "Target": "Data/Objects",
+            "Entries": {
+                "{{ModID}}_YourItem": {
+                    "Id": "{{ModID}}_YourItem",
+                    "Edibility": 123,
+                    ...
+                    "CustomFields": {
+                        "WhyBother11.CombatExtended_ArmourClass": "2",
+                        "WhyBother11.CombatExtended_FlatCriticalChance": "0.5"
+                    }        
+                }
+            }
+        }
+    ]
+}
+```
 
 
-### Buff triggers
+## Buff triggers
 
 ### `WhyBother11.CombatExtended_BuffApplied`
 
 Raised when buff is applied. This trigger passes buff id as target item's id.
 
-### Buff trigger actions
+## Buff trigger actions
 
 Required arguments are surrounded with `<>`, while optional with `[]`.
 
@@ -50,7 +111,7 @@ Format: `WhyBother11.CombatExtended_ChangeBuffStackLimit <BuffId> <Limit>`
 Used to change maximum amount of stacks. `BuffId` corresponds to buff whose maximum amount of stacks should be changed. `Limit` has `int` type and should not be
 negative, unless it is `-2`, in which case maximum stack amount will become unlimited.
 
-### Buff game state queries
+## Buff game state queries
 
 Required arguments are surrounded with `<>`, while optional with `[]`. If argument has `+` after it, then it can be added multiple times, and if
 argument is required, it should be present at least one time.

@@ -56,8 +56,6 @@ public class ActionPointIcons : IClickableMenu
         Hovered = -1;
         _actionPoints = ActionPointManager.ActionPoints.Values.ToList();
         // some stability ig
-        // todo : remove
-        //Log.Error(string.Join(' ', _actionPoints.Select(ap => ap.Id)));
         _actionPoints.Sort((ap1, ap2) => ap1.Id.CompareTo(ap2.Id));
         UpdatePosition();
     }

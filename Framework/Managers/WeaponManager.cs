@@ -39,7 +39,7 @@ public class WeaponManager
     {
         if (!e.IsMultipleOf(BaseTicks) || !Context.IsPlayerFree) return;
         
-        var weapon = Utility.CurrentWeapon();
+        Utility.TryGetCurrentWeapon(out var weapon);
         if (weapon is null && _weapon is not null)
         {
             var args = new WeaponUnequippedEventArgs(_weapon);

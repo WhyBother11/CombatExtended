@@ -54,7 +54,7 @@ public class ThrowAbilityImpl : Ability
             _projectile = null;
             Helper.Events.Player.Warped -= OnWarped_ClearAnyThrownItemInstanceAndReturn;
         };
-        _projectile = CustomProjectile.Launch(location, player.Position, velocity, projectileData, item, onDestroy, true);
+        _projectile = CustomProjectile.Launch(location, player.Position, velocity, ProjectileId, projectileData, item, onDestroy, true);
         if (Returnable || ReturnOnWarp)
             Helper.Events.Player.Warped += OnWarped_ClearAnyThrownItemInstanceAndReturn;
     }

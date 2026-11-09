@@ -3,18 +3,18 @@ using CombatExtended.Framework.Core.Buffs;
 using CombatExtended.Framework.Core.Monsters;
 using CombatExtended.Framework.Core.Weapons;
 using CombatExtended.Framework.Data;
+using CombatExtended.Framework.Events.Args;
 using CombatExtended.Framework.TriggersActionsGSQ.Damage;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.UI.Vanilla;
 using CombatExtended.Framework.Util;
 using HarmonyLib;
-using Microsoft.Xna.Framework;
 using Netcode;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 using StardewValley.Tools;
 using StardewValley.Triggers;
+using Utility = CombatExtended.Framework.Util.Utility;
 
 namespace CombatExtended.Framework.Core.Damage;
 
@@ -22,36 +22,18 @@ namespace CombatExtended.Framework.Core.Damage;
 public static class DamageFormulaPatch
 {
     
-    private static readonly Dictionary<string, Func<Farmer, MeleeWeapon?, Monster, int, int>> FinalDamageAlteringFuncs = new ();
-    
     private static readonly Dictionary<string, Action<Farmer, MeleeWeapon?, Monster, bool, int>> MonsterTakenDamageListeners = new ();
 
     private static MeleeWeapon? _weapon;
     private static Dictionary<string, int>? _damageTypeRolls;
     private static Dictionary<string, int>? _resultDamageAmounts;
+    private static List<DamageModifierData>? _damageModifiers;
+    private static int _prevStageResultAmount;
 
-    /// <summary>
-    /// Add function to alter damage to monster before it receives it.
-    /// </summary>
-    /// <remarks>Function arguments are: farmer, their weapon if any, monster that have taken damage, damage to monster.</remarks>
-    /// <remarks>Function result is damage that monster should receive.</remarks>
-    /// <param name="name">Unique name for the function to use in logging.</param>
-    /// <param name="func">Function to alter damage.</param>
-    public static void AddFinalDamageAlteringFunction(string name, Func<Farmer, MeleeWeapon?, Monster, int, int> func)
-    {
-        FinalDamageAlteringFuncs[name] = func;
-    }
-
-    /// <summary>
-    /// Add listener to run arbitrary logic after monster have taken damage.
-    /// </summary>
-    /// <remarks>Listener arguments are: farmer, their weapon if any, monster that have taken damage, whether damage was crit and damage to monster.</remarks>
-    /// <param name="name">Unique name for the listener to use in logging.</param>
-    /// <param name="listener">Listener action.</param>
-    public static void AddMonsterTakenDamageListener(string name, Action<Farmer, MeleeWeapon?, Monster, bool, int> listener)
-    {
-        MonsterTakenDamageListeners[name] = listener;
-    }
+    private const string DamageRollStage = "damageRoll";
+    private const string DamageRollMultStage = "damageRollMultiplier";
+    private const string AdditiveModifierStage = "additiveModifier";
+    private const string MultiplicativeModifierStage = "multiplicativeModifier";
 
     #region DamageMonsterPatches
     /// <summary>
@@ -119,7 +101,7 @@ public static class DamageFormulaPatch
                 new CodeInstruction(OpCodes.Ldarg_S, 11),
                 new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DamageFormulaPatch), nameof(RaiseAttackHitAnyMonsterTrigger)))
             );
-            //find damageAmount = Game1.random.Next(minDamage, maxDamage + 1);
+            // match damageAmount = Game1.random.Next(minDamage, maxDamage + 1);
             matcher.MatchEndForward(
                 new CodeMatch(OpCodes.Ldsfld, AccessTools.Field(typeof(Game1), nameof(Game1.random))),
                 new CodeMatch(OpCodes.Ldarg_2),
@@ -144,7 +126,62 @@ public static class DamageFormulaPatch
                 new CodeInstruction(OpCodes.Ldarg_S, 11),
                 new CodeInstruction(OpCodes.Ldloc_S, 4),
                 new CodeInstruction(OpCodes.Ldloc_S, 9),
+                new CodeInstruction(OpCodes.Ldloc_S, 8),
+                new CodeInstruction(OpCodes.Ldarg_0),
+                new CodeInstruction(OpCodes.Ldloc_S, 2),
                 new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DamageFormulaPatch), nameof(RollExtraDamageTypes))),
+                new CodeInstruction(OpCodes.Stloc_S, 9)
+            );
+            // match damageAmount = (crit ? ((int)((float)damageAmount * critMultiplier)) : damageAmount);
+            matcher.MatchStartForward(
+                new CodeMatch(instr => instr.opcode == OpCodes.Ldloc_S && instr.MatchByIndex(8)),
+                new CodeMatch(OpCodes.Brtrue_S),
+                new CodeMatch(instr => instr.opcode == OpCodes.Ldloc_S && instr.MatchByIndex(9)),
+                new CodeMatch(OpCodes.Br_S),
+                new CodeMatch(instr => instr.opcode == OpCodes.Ldloc_S && instr.MatchByIndex(9)),
+                new CodeMatch(OpCodes.Conv_R4),
+                new CodeMatch(instr => instr.opcode == OpCodes.Ldarg_S && instr.MatchByIndex(8)),
+                new CodeMatch(OpCodes.Mul),
+                new CodeMatch(OpCodes.Conv_I4),
+                new CodeMatch(instr => instr.opcode == OpCodes.Stloc_S && instr.MatchByIndex(9))
+            ).ThrowIfNotMatch("Cannot find instructions for critical damage multiplication.");
+            var labels = matcher.Instruction.ExtractLabels();
+            // insert damageAmount = DamageFormulaPatch.MultiplyDamageRolls(damageAmount);
+            matcher.InsertAndAdvance(
+                new CodeInstruction(OpCodes.Ldloc_S, 9).WithLabels(labels),
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DamageFormulaPatch), nameof(MultiplyDamageRolls))),
+                new CodeInstruction(OpCodes.Stloc_S, 9)
+            );
+            
+            // match end of damageAmount = Math.Max(1, damageAmount + ((who != null) ? (who.Attack * 3) : 0));
+            matcher.MatchStartForward(
+                new CodeMatch(instr => instr.opcode == OpCodes.Ldloc_S && instr.MatchByIndex(9)),
+                new CodeMatch(instr => instr.opcode == OpCodes.Ldarg_S && instr.MatchByIndex(10)),
+                new CodeMatch(OpCodes.Brtrue_S),
+                new CodeMatch(OpCodes.Ldc_I4_0)
+            ).ThrowIfNotMatch("Cannot find instructions for beginning of attack adding.");
+            // insert damageAmount = DamageFormulaPatch.AddAdditiveModifiers(damageAmount);
+            labels = matcher.Instruction.ExtractLabels();
+            matcher.InsertAndAdvance(
+                new CodeInstruction(OpCodes.Ldloc_S, 9).WithLabels(labels),
+                new CodeInstruction(OpCodes.Call,
+                    AccessTools.Method(typeof(DamageFormulaPatch), nameof(AddAdditiveModifiers))),
+                new CodeInstruction(OpCodes.Stloc_S, 9));
+            // match end of damageAmount = Math.Max(1, damageAmount + ((who != null) ? (who.Attack * 3) : 0));
+            matcher.MatchEndForward(
+                new CodeMatch(instr => instr.opcode == OpCodes.Ldarg_S && instr.MatchByIndex(10)),
+                new CodeMatch(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(Farmer), nameof(Farmer.Attack))),
+                new CodeMatch(OpCodes.Ldc_I4_3),
+                new CodeMatch(OpCodes.Mul),
+                new CodeMatch(OpCodes.Add),
+                new CodeMatch(OpCodes.Call, AccessTools.Method(typeof(Math), nameof(Math.Max), new []{typeof(int), typeof(int)})),
+                new CodeMatch(instr => instr.opcode == OpCodes.Stloc_S && instr.MatchByIndex(9)))
+                .ThrowIfNotMatch("Cannot find end of instructions for attack adding.")
+                .Advance(1);
+            // insert damageAmount = DamageFormulaPatch.MultiplyDamage(damageAmount);
+            matcher.InsertAndAdvance(
+                new CodeInstruction(OpCodes.Ldloc_S, 9),
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DamageFormulaPatch), nameof(MultiplyDamage))),
                 new CodeInstruction(OpCodes.Stloc_S, 9)
             );
             
@@ -160,7 +197,7 @@ public static class DamageFormulaPatch
                 new CodeMatch(OpCodes.Ldloc_2)
             );
             var takeDamageLabels = matcher.Instruction.ExtractLabels();
-            // insert damageAmount = DamageFormulaPatch.AlterFinalDamage(Farmer farmer, MeleeWeapon? weapon, Monster monster, int damage)
+            // insert damageAmount = DamageFormulaPatch.AlterFinalDamage(who, weapon, monster, damage)
             matcher.Insert(
                 new CodeInstruction(OpCodes.Ldarg_S, 10).WithLabels(takeDamageLabels),
                 new CodeInstruction(OpCodes.Ldloc_S, 4),
@@ -173,9 +210,9 @@ public static class DamageFormulaPatch
             matcher.MatchEndForward(
                 new CodeMatch(OpCodes.Callvirt, takeDamageMethod)
             );
-            // after damageAmount = DamageFormulaPatch.AlterFinalDamage(Farmer farmer, MeleeWeapon? weapon, Monster monster, int damage)
+            // after damageAmount = DamageFormulaPatch.AlterFinalDamage(who, weapon, monster, damageAmount)
             matcher.Advance(1);
-            // insert AfterMonsterTakenDamage listener after damage
+            // insert DamageFormulaPatch.AfterMonsterTakenDamage(who, weapon, monster, isCrit, damageAmount)
             matcher.Insert(
                 new CodeInstruction(OpCodes.Ldarg_S, 10),
                 new CodeInstruction(OpCodes.Ldloc_S, 4),
@@ -185,6 +222,7 @@ public static class DamageFormulaPatch
                 new CodeInstruction(OpCodes.Call,
                     AccessTools.Method(typeof(DamageFormulaPatch), nameof(AfterMonsterTakenDamage)))
             );
+            
             // find removeDamageDebris(monster);
             matcher.MatchEndForward(
                 new CodeMatch(OpCodes.Ldarg_0),
@@ -200,23 +238,21 @@ public static class DamageFormulaPatch
                 new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DamageFormulaPatch), nameof(DisplayExtraDamageTypeDebris))),
                 new CodeInstruction(OpCodes.Stloc_S, 9)
             );
+            
             var debrisType = AccessTools.Method(typeof(NetCollection<Debris>), nameof(NetCollection<Debris>.Add));
             // end of debris.Add(new Debris(damageAmount, new Vector2(monsterBox.Center.X + 16, monsterBox.Center.Y), crit ? Color.Yellow : new Color(255, 130, 0), crit ? (1f + (float)damageAmount / 300f) : 1f, monster));
             matcher.MatchStartForward(
                 new CodeMatch(OpCodes.Callvirt, debrisType)
             ).ThrowIfInvalid("Cannot find end of instructions for creating damage number debris and adding them.");
             matcher.Advance(1);
+            
             // insert damageAmount = DamageFormulaPatch.RestoreDamageVariableAfterDebrisDisplay(damageAmount)
             matcher.Insert(
                 new CodeInstruction(OpCodes.Ldloc_S, 9),
                 new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DamageFormulaPatch), nameof(RestoreDamageVariableAfterDebrisDisplay))),
                 new CodeInstruction(OpCodes.Stloc_S, 9)
             );
-            foreach (var codeInstruction in matcher.Instructions())
-            {
-                File.AppendAllText("/home/dmitry/desktop/yt.txt", codeInstruction + "\n");
-            }
-            
+            matcher.FileIL();
             return matcher.InstructionEnumeration();
         } catch(Exception e)
         {
@@ -225,6 +261,13 @@ public static class DamageFormulaPatch
         }
     }
 
+    /// <summary>
+    /// Raise <see cref="Triggers.AttackHitAnyMonster"/> when player attack hit any monster, once for every such attack.
+    /// </summary>
+    /// <param name="attackHitAnyMonsterTriggerFired">Flag used to track if the trigger was fired already.</param>
+    /// <param name="who">The attacking player.</param>
+    /// <param name="isBomb">Whether damage comes from the bomb.</param>
+    /// <param name="isProjectile">Whether damage comes from the projectile.</param>
     private static void RaiseAttackHitAnyMonsterTrigger(ref bool attackHitAnyMonsterTriggerFired, Farmer who, 
         bool isBomb, bool isProjectile)
     {
@@ -254,8 +297,12 @@ public static class DamageFormulaPatch
     /// <param name="isProjectile">Whether damage comes from projectile.</param>
     /// <param name="weapon">Player's weapon instance.</param>
     /// <param name="damageAmount">Weapon damage roll.</param>
+    /// <param name="isCrit">Whether damage is critical.</param>
+    /// <param name="loc">Location of monster to be damaged.</param>
+    /// <param name="monster">Monster to be damaged.</param>
     /// <returns>Result damage amount.</returns>
-    private static int RollExtraDamageTypes(bool isBomb, bool isProjectile, MeleeWeapon? weapon, int damageAmount)
+    private static int RollExtraDamageTypes(bool isBomb, bool isProjectile, MeleeWeapon? weapon, int damageAmount, 
+        bool isCrit, GameLocation loc, Monster monster)
     {
         // do not handle non weapon damage
         if (isBomb || isProjectile || weapon is null)
@@ -265,16 +312,59 @@ public static class DamageFormulaPatch
         }
         _weapon = weapon;
         var extraDamageTypes = WeaponStateEnabler.GetExtraDamageTypesWithState(weapon.ItemId);
-        if (!extraDamageTypes.Any()) return damageAmount;
         var totalDamage = damageAmount;
         foreach (var type in extraDamageTypes)
         {
             var damage = Game1.random.Next(type.MinDamage, type.MaxDamage + 1);
             totalDamage += damage;
-            _damageTypeRolls![type.Type] = damage;
+            if (_damageTypeRolls!.ContainsKey(type.Type))
+                _damageTypeRolls[type.Type] += damage;
+            else _damageTypeRolls[type.Type] = damage;
         }
+        // set _damageModifiers here to not check conditions in subsequent stages
+        _damageModifiers = new List<DamageModifierData>();
+        var item = ItemRegistry.Create("(O)168");
+        item.PackMonsterInfo(monster);
+        item.modData[DamageGameStateQueries.IsCritItemKey] = isCrit.ToString();
+        foreach (var (_, modifiers) in DamageModifiersDataAsset.Data)
+        {
+            if (GameStateQuery.CheckConditions(modifiers.Condition, targetItem: item, location: loc))
+                _damageModifiers.AddRange(modifiers.Modifiers);
+        }
+        // group modifiers by their group
+        var grouped = _damageModifiers
+            .GroupBy(m => m.Group)
+            .SelectMany(g => g)
+            .ToList();
+        _damageModifiers = grouped;
+        _prevStageResultAmount = totalDamage;
+        totalDamage = AddDamageForStage(DamageRollStage, totalDamage);
+        _prevStageResultAmount = totalDamage;
         return totalDamage;
     }
+
+    private static int MultiplyDamageRolls(int damageAmount)
+    {
+        if (_damageModifiers is null || _damageTypeRolls is null) return damageAmount;
+        var result = MultiplyDamageForStage(DamageRollMultStage, damageAmount);
+        return result;
+    }
+
+    private static int MultiplyDamage(int damageAmount)
+    {
+        if (_damageModifiers is null || _damageTypeRolls is null) return damageAmount;
+        var result = MultiplyDamageForStage(MultiplicativeModifierStage, damageAmount);
+        return result;
+    }
+
+    private static int AddAdditiveModifiers(int damageAmount)
+    {
+        if (_damageModifiers is null || _damageTypeRolls is null) return damageAmount;
+        var result = AddDamageForStage(AdditiveModifierStage, damageAmount);
+        _prevStageResultAmount = result;
+        return result;
+    }
+    
     #endregion
 
     #region DamageDebrisDisplay
@@ -290,6 +380,8 @@ public static class DamageFormulaPatch
         _resultDamageAmounts = null;
         _damageTypeRolls = null;
         _weapon = null;
+        _damageModifiers = null;
+        _prevStageResultAmount = 0;
         return result;
     }
 
@@ -304,12 +396,113 @@ public static class DamageFormulaPatch
             if (type == DamageType.Physical) continue;
             var damageTypeColor = DamageTypeDataAsset.DamageTypeColors[type];
             DamageNumbersDebris.Display(location, monster, damage, damageTypeColor, offSetX, offSetY);
-            offSetX += 16;
-            offSetY += 16;
+            offSetX += 24;
+            offSetY += 24;
         }
         return _resultDamageAmounts[DamageType.Physical];
     }
     #endregion
+
+    private static int MultiplyDamageForStage(string stage, int damage)
+    {
+        if (_damageModifiers is null || _damageTypeRolls is null) return damage;
+        if (damage != _prevStageResultAmount)
+        {
+            // assume something was added to damage, adjust damage numbers accordingly
+            var diff = damage - _prevStageResultAmount;
+            _damageTypeRolls[DamageType.Physical] += diff;
+        }
+        var prevGroup = _damageModifiers.FirstOrDefault()?.Group;
+        if (prevGroup is null) 
+            return damage;
+        var damageTypeGroupMults = new Dictionary<string, float>();
+        foreach (var damageModifierData in _damageModifiers)
+        {
+            if (damageModifierData.Stage != stage) continue;
+            if (damageModifierData.DamageType is not "_all" &&
+                !DamageTypeDataAsset.Exists(damageModifierData.DamageType))
+            {
+                Log.Error($"Unknown damage type: {damageModifierData.DamageType}.");
+                continue;
+            }
+
+            var maxValue = damageModifierData.MaxValue ?? damageModifierData.MinValue;
+            // to be added with 1 for a proper group modifier value
+            var additiveMult = Utility.InclusiveFloatSemiRandom(damageModifierData.MinValue, maxValue, Game1.random) - 1;
+            // group ended, apply group modifier
+            if (damageModifierData.Group != prevGroup)
+            {
+                foreach (var (damageType, additiveGroupMult) in damageTypeGroupMults)
+                {
+                    _damageTypeRolls[damageType] = (int)(_damageTypeRolls[damageType] * (1 + additiveGroupMult));
+                }
+                damageTypeGroupMults.Clear();
+                prevGroup = damageModifierData.Group;
+            }
+            
+            if (damageModifierData.DamageType != "_all")
+            {
+                if (!damageTypeGroupMults.TryAdd(damageModifierData.DamageType, additiveMult))
+                    damageTypeGroupMults[damageModifierData.DamageType] += additiveMult;
+            }
+            else
+            {
+                foreach (var (damageTypeId, _) in _damageTypeRolls)
+                {
+                    if (!damageTypeGroupMults.TryAdd(damageTypeId, additiveMult)) 
+                        damageTypeGroupMults[damageTypeId] += additiveMult;
+                }
+            }
+        }
+        
+        // handle last group
+        foreach (var (damageType, additiveGroupMult) in damageTypeGroupMults)
+        {
+            _damageTypeRolls[damageType] = (int)(_damageTypeRolls[damageType] * Math.Max(0, 1 + additiveGroupMult));
+        }
+
+        var result = _damageTypeRolls.Values.Sum();
+        _prevStageResultAmount = result;
+        return result;
+    }
+
+    private static int AddDamageForStage(string stage, int damage)
+    {
+        if (_damageModifiers is null || _damageTypeRolls is null) return damage;
+        var result = damage;
+        if (damage != _prevStageResultAmount)
+        {
+            // well that's a possibility
+            if (_prevStageResultAmount == 0) 
+                _damageTypeRolls[DamageType.Physical] = damage;
+            else
+            {
+                // assume something multiplied the damage, adjust damage numbers accordingly
+                var mult = (float)damage / _prevStageResultAmount;
+                foreach (var (type, roll) in _damageTypeRolls)
+                {
+                    _damageTypeRolls[type] = (int)(roll * mult);
+                }
+            }
+        }
+        foreach (var damageModifierData in _damageModifiers)
+        {
+            if (damageModifierData.Stage != stage || damageModifierData.DamageType is "_all") continue;
+            if (!DamageTypeDataAsset.Exists(damageModifierData.DamageType))
+            {
+                Log.Error($"Unknown damage type: {damageModifierData.DamageType}.");
+                continue;
+            }
+            var minDamage = (int)damageModifierData.MinValue;
+            var maxDamage = (int)(damageModifierData.MaxValue ?? minDamage);
+            var randDamage = Game1.random.Next(minDamage, maxDamage + 1);
+            result += randDamage;
+            if (!_damageTypeRolls.TryAdd(damageModifierData.DamageType, randDamage)) 
+                _damageTypeRolls[damageModifierData.DamageType] += randDamage;
+        }
+        _prevStageResultAmount = result;
+        return result;
+    }
 
     /// <summary>
     /// Get resulting damage for each <see cref="DamageType"/> with resistances applied.
@@ -325,49 +518,27 @@ public static class DamageFormulaPatch
         foreach (var (type, damage) in _damageTypeRolls)
         {
             var resistance = monster.GetResistances();
-            result[type] = (int)((float)damageAmount * damage / total * resistance.GetMult(type));
+            // assume before there were only multipliers
+            result[type] = 
+                total == 0 ? 0 :
+                (int)((float)damageAmount * damage / total * resistance.GetMult(type));
         }
         return result;
     }
 
     private static int AlterFinalDamage(Farmer farmer, MeleeWeapon? weapon, Monster monster, int damage)
     {
-        var result = damage;
-        if (weapon is not null && _weapon is not null && _resultDamageAmounts is not null)
-        {
-            var resultDamages = GetDamageWithResistancesApplied(weapon, monster, damage);
-            _resultDamageAmounts = resultDamages;
-            result = resultDamages.Values.Sum();
-        }
-
-        foreach (var (name, func) in FinalDamageAlteringFuncs)
-        {
-            try
-            {
-                result = func(farmer, weapon, monster, result);
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Failed to execute final damage altering function {name}", e);
-            }
-        }
-        return result;
+        if (weapon is null || _weapon is null || _damageTypeRolls is null || _damageModifiers is null) 
+            return damage;
+        var resultDamages = GetDamageWithResistancesApplied(weapon, monster, damage);
+        _resultDamageAmounts = resultDamages;
+        return resultDamages.Values.Sum();
     }
 
     private static void AfterMonsterTakenDamage(Farmer farmer, MeleeWeapon? weapon, Monster monster, bool isCrit, int damage)
     {
         TriggerMonsterAttackedEffects(farmer, weapon, monster, isCrit, damage);
-        foreach (var (name, listener) in MonsterTakenDamageListeners)
-        {
-            try
-            {
-                listener(farmer, weapon, monster, isCrit, damage);
-            }
-            catch (Exception e)
-            {
-                Log.Error($"Failed to execute monster taken damage listener {name}", e);
-            }
-        }
+        Event.RaiseMonsterTakenDamage(new MonsterTakenDamageEventArgs(farmer, weapon, monster, damage, isCrit));
     }
 
     private static void TriggerMonsterAttackedEffects(Farmer farmer, MeleeWeapon? weapon, Monster monster, bool isCrit,
@@ -387,6 +558,7 @@ public static class DamageFormulaPatch
             player: farmer,
             targetItem: item
         );
+        Event.RaiseMonsterAttacked(new MonsterAttackedEventArgs(farmer, weapon, monster, damage, isCrit));
     }
     #endregion
 }

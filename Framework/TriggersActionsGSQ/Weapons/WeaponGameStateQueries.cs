@@ -21,8 +21,7 @@ public static class WeaponGameStateQueries
     [GSQ]
     private static bool CURRENT_WEAPON(string[] query, GameStateQueryContext context)
     {
-        var currentWeapon = Utility.CurrentWeapon();
-        if (currentWeapon is null) return false;
+        if (!Utility.TryGetCurrentWeapon(out var currentWeapon)) return false;
         if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var weapons, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
@@ -40,8 +39,7 @@ public static class WeaponGameStateQueries
     [GSQ]
     private static bool CURRENT_WEAPON_TYPE(string[] query, GameStateQueryContext context)
     {
-        var currentWeapon = Utility.CurrentWeapon();
-        if (currentWeapon is null) return false;
+        if (!Utility.TryGetCurrentWeapon(out var currentWeapon)) return false;
         if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var weaponTypes, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);

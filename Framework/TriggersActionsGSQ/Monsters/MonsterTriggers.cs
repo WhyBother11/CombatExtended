@@ -7,5 +7,5 @@ public static class MonsterTriggers
 {
     
     [Trigger]
-    private static void OnMonsterDeath() {}
+    private static void MonsterDied() {}
 }

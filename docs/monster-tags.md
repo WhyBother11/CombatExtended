@@ -1,4 +1,4 @@
-## Monster tags
+# Monster tags
 
 Monster tags are similar to item context tags. They can be used to broadly categorise monsters, define resistances to different damage types
 and apply actions based on tags.
@@ -6,7 +6,7 @@ and apply actions based on tags.
 Monster tag data is located in `Mods/WhyBother11.CombatExtended/Tags`. This is a dictionary with key being tag id and value being
 data model described below. `assets/tags.json` already includes a lot of built-in tags to use.
 
-### TagData
+## TagData
 
 | Field         | Type                   | Description                                                                                                                                                       |
 |---------------|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|

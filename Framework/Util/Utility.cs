@@ -187,7 +187,7 @@ public static class Utility
     }
 
     /// <summary>
-    /// Raise <see cref="Triggers.OnMonsterDeath"/> for local player./>
+    /// Raise <see cref="Triggers.MonsterDied"/> for local player./>
     /// </summary>
     /// <param name="monster">The monster for which to raise trigger.</param>
     /// <param name="loc">The location for which to raise trigger.</param>
@@ -196,7 +196,7 @@ public static class Utility
         var item = ItemRegistry.Create("(O)168");
         item.PackMonsterInfo(monster);
         TriggerActionManager.Raise(
-            trigger: Triggers.OnMonsterDeath,
+            trigger: Triggers.MonsterDied,
             triggerArgs: new object[] { monster },
             location: loc,
             player: Game1.player,
@@ -247,6 +247,27 @@ public static class Utility
         };
     }
 
+    /// <summary>
+    /// Just for personal use, write IL instructions into <paramref name="path"/>.
+    /// </summary>
+    /// <param name="matcher"></param>
+    /// <param name="path"></param>
+    public static void FileIL(this CodeMatcher matcher, string path = "/desktop/test.txt")
+    {
+        foreach (var codeInstruction in matcher.Instructions())
+        {
+            File.AppendAllText(path, codeInstruction + "\n");
+        }
+    }
+
+    /// <summary>
+    /// Match argument or local variable index of operand when matching instructions, so they are matched independently of
+    /// index type used in operand.
+    /// </summary>
+    /// <param name="codeInstruction">The code instructions whose index should be checked.</param>
+    /// <param name="index">The index to be matched against.</param>
+    /// <returns>Whether code instruction has <paramref name="index"/>.</returns>
+    /// <exception cref="ArgumentException">Unsupported type of operand.</exception>
     public static bool MatchByIndex(this CodeInstruction codeInstruction, int index)
     {
         if (codeInstruction.operand is int idx) return idx == index;
@@ -256,12 +277,35 @@ public static class Utility
     }
 
     /// <summary>
-    /// Get player's current weapon, if any
+    /// Randomise a semi-random float between <paramref name="min"/> and <paramref name="max"/> inclusively.
+    /// Essentially splits difference between them into 100 equal segments and chooses a random number of subsequent segments to add to minimum.
     /// </summary>
-    /// <returns>Player's weapon if any, <c>null</c> otherwise.</returns>
-    public static MeleeWeapon? CurrentWeapon()
+    /// <param name="min">The minimum possible value.</param>
+    /// <param name="max">The maximum possible value.</param>
+    /// <param name="r">The <see cref="Random"/> to use.</param>
+    /// <returns>A random float number between provided numbers.</returns>
+    public static float InclusiveFloatSemiRandom(float min, float max, Random r)
     {
-        return Game1.player.ActiveItem is MeleeWeapon weapon ? weapon : null;
+        var diff = max - min;
+        var random = r.Next(0, 101);
+        var delta = diff / 100;
+        return MathF.Min(max, min + delta * random);
+    }
+
+    /// <summary>
+    /// Try to get player's current weapon, if any.
+    /// </summary>
+    /// <param name="weapon">Player current weapon, if any.</param>
+    /// <returns>Whether player's active item is a weapon.</returns>
+    public static bool TryGetCurrentWeapon([MaybeNullWhen(false)] out MeleeWeapon weapon)
+    {
+        if (Game1.player.ActiveItem is MeleeWeapon activeWeapon)
+        {
+            weapon = activeWeapon;
+            return true;
+        }
+        weapon = null;
+        return false;
     }
 
     /// <summary>

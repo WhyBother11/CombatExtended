@@ -9,15 +9,15 @@
     },
     "Fire": {
         "DisplayName": "Fire",
-        "Color": "255 64 0"
+        "Color": "255 50 0"
     },
     "Lightning": {
         "DisplayName": "Lightning",
-        "Color": "5 0 150"
+        "Color": "255 200 0"
     },
     "Radiant": {
         "DisplayName": "Radiant",
-        "Color": "255 220 0"
+        "Color": "255 255 140"
     },
     "Poison": {
         "DisplayName": "Poison",

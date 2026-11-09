@@ -12,6 +12,8 @@ public static class DrawUtil
     public const int DigitWidth = 5;
     public const int DigitHeight = 7;
 
+    public const int TooltipWidth = 260;
+
     public static void DrawNumber(this SpriteBatch batch, char number, Vector2 position, float scale)
     {
         var num = int.Parse(number.ToString());

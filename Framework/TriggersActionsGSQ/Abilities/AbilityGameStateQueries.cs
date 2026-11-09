@@ -53,7 +53,6 @@ public static class AbilityGameStateQueries
         }
         foreach (var abilityId in abilities)
         {
-            //if (AbilityManager.WeaponAbilities.TryGetValue(abilityId, out var ability))
             if (AbilityManager.WeaponAbilities.TryGetValue(abilityId, out var ability))
                 if (ability is ContinuousAbility { IsActive: true }) return true;
             foreach (var weaponId in AbilityManager.PreviousWeaponAbilities.Keys)

@@ -22,6 +22,7 @@ public static class MiscGameStateQueries
         return false;
     }
     
+    [GSQ]
     private static bool VOLCANO_DUNGEON_LEVEL(string[] query, GameStateQueryContext context)
     {
         if (!ArgUtility.TryGetInt(query, 1, out var min, out var error))

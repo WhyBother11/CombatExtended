@@ -142,7 +142,7 @@ public static class DamageTriggerActions
         if (hp >= 0) 
             player.health = Math.Min(player.maxHealth, player.health + hp);
         else player.takeDamage(Math.Abs(hp), false, null);
-        if (ArgUtility.TryGetBool(args, 2, out var show, out _)) 
+        if (ArgUtility.TryGetBool(args, 2, out var show, out _) && show) 
             player.currentLocation.debris.Add(new Debris(hp, player.getStandingPosition(), 
                 hp >= 0 ? Color.Lime : Color.Red, 1f, player));
         return true;
