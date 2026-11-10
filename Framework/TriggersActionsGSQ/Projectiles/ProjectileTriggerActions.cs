@@ -33,36 +33,6 @@ public static class ProjectileTriggerActions
                 var velocity = SUtility.getVelocityTowardPoint(startingPoint, targetPoint, projectileData.Velocity);
                 CustomProjectile.Launch(Game1.player.currentLocation, startingPoint, velocity, projectileId, projectileData);
                 break;
-            case "_closestMonster":
-                var radius = 5f;
-                var fromMonster = false;
-                GameLocation location;
-                if (ArgUtility.TryGetFloat(args, 3, out var radiusArg, out _))
-                    radius = radiusArg;
-                if (ArgUtility.TryGetBool(args, 4, out var fromMonsterArg, out _))
-                    fromMonster = fromMonsterArg;
-                Monster? monster = null;
-                Vector2 startingTile;
-                if (ctx.TriggerArgs.Length > 0 && ctx.TriggerArgs[0] is Monster argMonster && fromMonster)
-                {
-                    startingPoint = argMonster.Position;
-                    startingTile = argMonster.Tile;
-                    monster = argMonster;
-                    location = argMonster.currentLocation;
-                }
-                else
-                {
-                    startingPoint = Game1.player.Position;
-                    startingTile = Game1.player.Tile;
-                    location = Game1.player.currentLocation;
-                }
-                if (Utility.TryFindClosestMonster(location, startingTile, radius, out var closest, monster))
-                {
-                    targetPoint = closest.Position;
-                    velocity = SUtility.getVelocityTowardPoint(startingPoint, targetPoint, projectileData.Velocity);
-                    CustomProjectile.Launch(location, startingPoint, velocity, projectileId, projectileData);
-                }
-                break;
             default:
                 if (!float.TryParse(direction, out var angle))
                 {
@@ -78,6 +48,48 @@ public static class ProjectileTriggerActions
                 CustomProjectile.Launch(Game1.player.currentLocation, startingPoint, velocity, projectileId, projectileData);
                 break;
         }
+        return true;
+    }
+
+    [TriggerAction]
+    private static bool LaunchProjectileMonsterClosest(string[] args, TriggerActionContext ctx, out string error)
+    {
+        if (!ArgUtility.TryGet(args, 1, out var projectileId, out error)) 
+            return false;
+        if (!ProjectileDataAsset.Data.TryGetValue(projectileId, out var projectileData))
+        {
+            error = $"Unknown projectile id: {projectileId}.";
+            return false;
+        }
+        if (!ArgUtility.TryGetFloat(args, 2, out var radius, out _))
+            return false;
+        var fromMonster = false;
+        GameLocation location;
+        if (ArgUtility.TryGetBool(args, 3, out var fromMonsterArg, out _))
+            fromMonster = fromMonsterArg;
+        Monster? monster = null;
+        Vector2 startingTile;
+        Vector2 startingPoint;
+        if (ctx.TriggerArgs.Length > 0 && ctx.TriggerArgs[0] is Monster argMonster && fromMonster)
+        {
+            startingPoint = argMonster.Position;
+            startingTile = argMonster.Tile;
+            monster = argMonster;
+            location = argMonster.currentLocation;
+        }
+        else
+        {
+            startingPoint = Game1.player.Position;
+            startingTile = Game1.player.Tile;
+            location = Game1.player.currentLocation;
+        }
+        if (Utility.TryFindClosestMonster(location, startingTile, radius, out var closest, monster))
+        {
+            var targetPoint = closest.Position;
+            var velocity = SUtility.getVelocityTowardPoint(startingPoint, targetPoint, projectileData.Velocity);
+            CustomProjectile.Launch(location, startingPoint, velocity, projectileId, projectileData);
+        }
+
         return true;
     }
 }

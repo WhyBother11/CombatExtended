@@ -52,19 +52,23 @@ inventory, its state is restored to default (but will be set to any currently ac
 
 ## Weapon trigger actions
 
-Required arguments are surrounded with `<>`, while optional with `[]`.
+Required arguments are surrounded with `<>`, while optional with `[]`. If optional argument has `*` after it, it is optional
+only under certain conditions. If argument has `+` after it, then it can be added multiple times, and if argument is required,
+it should be present at least one time. `int` type arguments are prefixed with `#`, `float` with `%`, `bool` with `?`.
 
 ### `WhyBother11.CombatExtended_SetWeaponState`
 
 Format: `WhyBother11.CombatExtended_SetWeaponState <WeaponId> <StateId>`
 
-Used to change current weapon state. `WeaponId` corresponds to weapon whose state should be changed. If `StateId` is `_default`, the weapon is reverted to default state,
-as defined in `Data/Weapons`. Otherwise, if `StateId` is present in this weapon's entry in `Mods/WhyBother11.CombatExtended/WeaponExtensionData`, this state is applied to the weapon.
+Used to change current weapon state. `WeaponId` corresponds to weapon whose state should be changed. If `StateId` is `_default`, 
+the weapon is reverted to default state, as defined in `Data/Weapons`. Otherwise, if `StateId` is present in this weapon's entry 
+in `Mods/WhyBother11.CombatExtended/WeaponExtensionData`, this state is applied to the weapon.
 
 ## Weapon game state queries
 
-Required arguments are surrounded with `<>`, while optional with `[]`. If argument has `+` after it, then it can be added multiple times, and if
-argument is required, it should be present at least one time.
+Required arguments are surrounded with `<>`, while optional with `[]`. If optional argument has `*` after it, it is optional
+only under certain conditions. If argument has `+` after it, then it can be added multiple times, and if argument is required,
+it should be present at least one time. `int` type arguments are prefixed with `#`, `float` with `%`, `bool` with `?`.
 
 ### `WhyBother11.CombatExtended_CURRENT_WEAPON`
 
@@ -85,5 +89,5 @@ Query returns `true` if any `WeaponType` is equal to type of currently held weap
 
 Format: `WhyBother11.CombatExtended_WEAPON_STATE <WeaponId> <StateId>`
 
-Used to check weapon's current state. `WeaponId` corresponds to a weapon whose state should be checked. `StateId` is ID of state to check, including `_default`
-to check that weapon has no active state. Query returns `true` if given weapon has specified state, `false` otherwise.
+Used to check weapon's current state. `WeaponId` corresponds to a weapon whose state should be checked. `StateId` is ID of state to check, 
+including `_default` to check that weapon has no active state. Query returns `true` if given weapon has specified state, `false` otherwise.

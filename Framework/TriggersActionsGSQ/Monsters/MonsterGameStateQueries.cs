@@ -16,11 +16,11 @@ public static class MonsterGameStateQueries
     public static readonly string MonsterStunTimeItemKey = "Monster_StunTime".PrependId();
 
     /// <summary>
-    /// Check monster's health from <paramref name="context"/>'s <see cref="GameStateQueryContext.CustomFields"/>.
+    /// Check if monster's health is between provided arguments.
     /// </summary>
-    /// <param name="query">GSQ query.</param>
-    /// <param name="context">See <see cref="GameStateQuery"/>.</param>
-    /// <returns>GSQ evaluation result</returns>
+    /// <param name="query">The game state query.</param>
+    /// <param name="context">See <see cref="GameStateQueryContext"/>.</param>
+    /// <returns>The GSQ evaluation result</returns>
     [GSQ]
     private static bool MONSTER_HEALTH(string[] query, GameStateQueryContext context)
     {
@@ -41,11 +41,11 @@ public static class MonsterGameStateQueries
     }
 
     /// <summary>
-    /// Check monster's tags from <paramref name="context"/>'s <see cref="GameStateQueryContext.CustomFields"/>.
+    /// Check if monster has one of provided monster tags.
     /// </summary>
-    /// <param name="query">GSQ</param>
-    /// <param name="context"><see cref="GameStateQuery"/></param>
-    /// <returns>GSQ result</returns>
+    /// <param name="query">The game state query.</param>
+    /// <param name="context">See <see cref="GameStateQueryContext"/>.</param>
+    /// <returns>The GSQ evaluation result</returns>
     [GSQ]
     private static bool MONSTER_HAS_TAG(string[] query, GameStateQueryContext context)
     {
@@ -61,6 +61,12 @@ public static class MonsterGameStateQueries
         return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster tags.");
     }
 
+    /// <summary>
+    /// Check if monster's name matches one of provided arguments.
+    /// </summary>
+    /// <param name="query">The game state query.</param>
+    /// <param name="context">See <see cref="GameStateQueryContext"/>.</param>
+    /// <returns>The GSQ evaluation result</returns>
     [GSQ]
     private static bool MONSTER_NAME(string[] query, GameStateQueryContext context)
     {
@@ -75,6 +81,12 @@ public static class MonsterGameStateQueries
         return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster name.");
     }
     
+    /// <summary>
+    /// Check if monster has one of provided monster buffs.
+    /// </summary>
+    /// <param name="query">The game state query.</param>
+    /// <param name="context">See <see cref="GameStateQueryContext"/>.</param>
+    /// <returns>The GSQ evaluation result</returns>
     [GSQ]
     private static bool MONSTER_HAS_BUFF(string[] query, GameStateQueryContext context)
     {
@@ -90,6 +102,12 @@ public static class MonsterGameStateQueries
         return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster buffs.");
     }
 
+    /// <summary>
+    /// Check if monster has specified amount of stacks for provided monster buff.
+    /// </summary>
+    /// <param name="query">The game state query.</param>
+    /// <param name="context">See <see cref="GameStateQueryContext"/>.</param>
+    /// <returns>The GSQ evaluation result</returns>
     [GSQ]
     private static bool MONSTER_BUFF_STACKS(string[] query, GameStateQueryContext context)
     {
@@ -114,15 +132,21 @@ public static class MonsterGameStateQueries
         return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain amount of monster buffs.");
     }
 
+    /// <summary>
+    /// Check if monster's stun time matches provided arguments.
+    /// </summary>
+    /// <param name="query">The game state query.</param>
+    /// <param name="context">See <see cref="GameStateQueryContext"/>.</param>
+    /// <returns>The GSQ evaluation result</returns>
     [GSQ]
     private static bool MONSTER_STUN_TIME(string[] query, GameStateQueryContext context)
     {
         var min = int.MinValue;
         var max = int.MaxValue;
-        if (ArgUtility.TryGetInt(query, 1, out var argMin, out _))
-            min = argMin;
-        if (ArgUtility.TryGetInt(query, 2, out var argMax, out _))
-            max = argMax;
+        if (ArgUtility.TryGetFloat(query, 1, out var argMin, out _))
+            min = argMin.ToMilliseconds();
+        if (ArgUtility.TryGetFloat(query, 2, out var argMax, out _))
+            max = argMax.ToMilliseconds();
         if (context.TargetItem?.modData.TryGetValue(MonsterStunTimeItemKey, out var modDataStunTime) ?? false)
         {
             var stunTime = int.Parse(modDataStunTime);

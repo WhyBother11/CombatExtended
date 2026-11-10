@@ -102,30 +102,42 @@ Raised when buff is applied. This trigger passes buff id as target item's id.
 
 ## Buff trigger actions
 
-Required arguments are surrounded with `<>`, while optional with `[]`.
+Required arguments are surrounded with `<>`, while optional with `[]`. If optional argument has `*` after it, it is optional
+only under certain conditions. If argument has `+` after it, then it can be added multiple times, and if argument is required,
+it should be present at least one time. `int` type arguments are prefixed with `#`, `float` with `%`, `bool` with `?`.
 
 ### `WhyBother11.CombatExtended_ChangeBuffStackLimit`
 
-Format: `WhyBother11.CombatExtended_ChangeBuffStackLimit <BuffId> <Limit>`
+Format: `WhyBother11.CombatExtended_ChangeBuffStackLimit <BuffId> <#Limit>`
 
-Used to change maximum amount of stacks. `BuffId` corresponds to buff whose maximum amount of stacks should be changed. `Limit` has `int` type and should not be
-negative, unless it is `-2`, in which case maximum stack amount will become unlimited.
+Used to change maximum amount of stacks. `BuffId` corresponds to buff whose maximum amount of stacks should be changed. 
+`Limit` should not be negative, unless it is `-2`, in which case maximum stack amount will become unlimited.
+
+### `WhyBother11.CombatExtended_AddArmourClass`
+
+Format: `WhyBother11.CombatExtended_AddArmourClass <#Amount>`
+
+Used to add armour class to current player directly. Any added armour class will be cleared upon day ending. `Amount` specifies
+how much armour class should be added.
 
 ## Buff game state queries
 
-Required arguments are surrounded with `<>`, while optional with `[]`. If argument has `+` after it, then it can be added multiple times, and if
-argument is required, it should be present at least one time.
+Required arguments are surrounded with `<>`, while optional with `[]`. If optional argument has `*` after it, it is optional
+only under certain conditions. If argument has `+` after it, then it can be added multiple times, and if argument is required,
+it should be present at least one time. `int` type arguments are prefixed with `#`, `float` with `%`, `bool` with `?`.
 
 ### `WhyBother11.CombatExtended_BUFF_STACKS`
 
-Format: `WhyBother11.CombatExtended_BUFF_STACKS <BuffId> <Min> [Max]`
+Format: `WhyBother11.CombatExtended_BUFF_STACKS <BuffId> <#Min> [#Max]`
 
-Used to check current amount of stacks for given buff. `BuffId` corresponds to the buff whose stack amount should be checked. `Min` and `Max` (defaults to `int` max value) have `int` type
-and are used to define minimum and maximum possible amount of stacks respectively. Query returns `true` if buff's current stack amount is between `Min` and `Max`
+Used to check current amount of stacks for given buff. `BuffId` corresponds to the buff whose stack amount should be checked. `Min` and `Max` (defaults to `int` max value) 
+are used to define minimum and maximum possible amount of stacks respectively. Query returns `true` if buff's current stack amount 
+is between `Min` and `Max` inclusively, `false` otherwise.
 
 ### `WhyBother11.CombatExtended_BUFF_MAX_STACKS`
 
-Format: `WhyBother11.CombatExtended_BUFF_MAX_STACKS <BuffId> <Min> [Max]`
+Format: `WhyBother11.CombatExtended_BUFF_MAX_STACKS <BuffId> <#Min> [#Max]`
 
-Used to check current maximum amount of stacks for given buff. `BuffId` corresponds to the buff whose maximum stack amount should be checked. `Min` and `Max` (defaults to `int` max value) have `int` type
-and are used to define minimum and maximum possible amount of max stacks respectively. Query returns `true` if buff's current maximum stack amount is between `Min` and `Max`
+Used to check current maximum amount of stacks for given buff. `BuffId` corresponds to the buff whose maximum stack amount should be checked. 
+`Min` and `Max` (defaults to `int` max value) are used to define minimum and maximum possible amount of max stacks respectively. 
+Query returns `true` if buff's current maximum stack amount is between `Min` and `Max` inclusively, `false` otherwise.

@@ -1,3 +1,4 @@
+using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Util;
 using StardewValley;
 using StardewValley.Delegates;
@@ -31,6 +32,26 @@ public static class BuffTriggerActions
         if (limit == -2)
             StackableBuffManager.ChangeStackLimit(buffId, int.MaxValue);
         else StackableBuffManager.ChangeStackLimit(buffId, limit);
+        return true;
+    }
+
+    /// <summary>
+    /// Trigger action to add provided armour class amount to current player until the end of the day.
+    /// </summary>
+    /// <param name="args">Trigger actions args.</param>
+    /// <param name="ctx"><see cref="TriggerActionContext"/>.</param>
+    /// <param name="error">The error if ran unsuccessfully.</param>
+    /// <returns>Whether trigger action was ran successfully.</returns>
+    [TriggerAction]
+    private static bool AddArmourClass(string[] args, TriggerActionContext ctx, out string error)
+    {
+        if (!ArgUtility.TryGetInt(args, 1, out var ac, out error))
+        {
+            return false;
+        }
+
+        ArmourClass.AddFarmerArmourClass(ac);
+
         return true;
     }
 }

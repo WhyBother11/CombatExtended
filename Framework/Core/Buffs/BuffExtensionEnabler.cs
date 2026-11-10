@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
@@ -37,6 +38,11 @@ public static class BuffExtensionEnabler
                 string.Format(helper.Translation.Get("string.buff.armour-class.description"), 
                 (int) value)
             ));
+        helper.Events.GameLoop.DayEnding += (_, _) =>
+        {
+            Extensions.Value.Clear();
+            ArmourClass.ClearFarmerArmourClass();
+        };
     }
 
     /// <summary>

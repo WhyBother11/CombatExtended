@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.1
+
+### Changed
+
+- `WhyBother11.CombatExtended_DamageMonster` trigger action's arguments.
+- Extracted launching projectile towards closest monster from trigger action `WhyBother11.CombatExtended_LaunchProjectile`
+into new trigger action `WhyBother11.CombatExtended_LaunchProjectileMonsterClosest`.
+- `WhyBother11.CombatExtended_DAMAGE_IS_CRIT` and `WhyBother11.CombatExtended_DAMAGE_RESULT` GSQ's arguments.
+
+### Removed
+
+- `WhyBother.CombatExtended_AlterResistance` trigger action.
+
 ## 0.6.0
 
 ### Added

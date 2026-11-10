@@ -54,6 +54,12 @@ public static class WeaponGameStateQueries
         return weaponTypes.Any(type => currentWeaponStrType == type);
     }
 
+    /// <summary>
+    /// Check if provided weapon is currently on one of provided weapon states.
+    /// </summary>
+    /// <param name="query">The game state query.</param>
+    /// <param name="context">See <see cref="GameStateQuery"/>.</param>
+    /// <returns>The GSQ evaluation result.</returns>
     [GSQ]
     private static bool WEAPON_STATE(string[] query, GameStateQueryContext context)
     {

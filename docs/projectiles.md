@@ -39,25 +39,34 @@ Raised when *added by the mod* projectile hits an enemy. Provides `Projectile co
 
 ## Projectile trigger actions
 
-Required arguments are surrounded with `<>`, while optional with `[]`.
+Required arguments are surrounded with `<>`, while optional with `[]`. If optional argument has `*` after it, it is optional
+only under certain conditions. If argument has `+` after it, then it can be added multiple times, and if argument is required,
+it should be present at least one time. `int` type arguments are prefixed with `#`, `float` with `%`, `bool` with `?`.
 
 ### `WhyBother11.CombatExtended_LaunchProjectile`
 
-Format: `WhyBother11.CombatExtended_LaunchProjectile <ProjectileId> <Direction> [OptionalArg1] [OptionalArg2]`.
+Format: `WhyBother11.CombatExtended_LaunchProjectile <ProjectileId> <Direction>`.
 
-Used to launch a projectile. `ProjectileId` corresponds to projectile data from `Mods/WhyBother11.CombatExtended/Projectiles`. `Direction` with `OptionalArg1` and `OptionalArg2` 
-handle in which direction should projectile be fired. This can be one of following:
+Used to launch a projectile. `ProjectileId` corresponds to projectile data from `Mods/WhyBother11.CombatExtended/Projectiles`.
+`Direction` handles in which direction should projectile be fired. This can be one of following:
 
 - `_cursor`: fires projectile from player position in direction of cursor.
-- `_closestMonster`: fires projectile towards closest monster in a radius of `OptionalArg1` tiles (expects `float` type, defaults 
-to `5`). This can be additionally used in `Monster context` to launch projectile from a monster position. To enable this, set `OptionalArg2`
-to `true`. Otherwise, projectile will be fired from player position.
 - In other cases, `Direction` is assumed to be an angle in degrees, relative to the vector pointed up (e.g. `0` will launch projectile
 up, while `90` in the right direction).
 
+### `WhyBother11.CombatExtended_LaunchProjectileMonsterClosest`
+
+Format: `WhyBother11.CombatExtended_LaunchProjectileMonsterClosest <ProjectileId> <%Radius> [?FromMonster]`
+
+Used to launch a projectile towards closest monster. `ProjectileId` corresponds to projectile data from `Mods/WhyBother11.CombatExtended/Projectiles`.
+`Radius` specifies a radius in tiles of closest monster search, and if there are any, the projectile will be sent towards closest one.
+If used in `Monster context`, `FromMonster` specifies if projectile should be sent from monster's position, default `false`.
+
 ## Projectile game state queries
 
-Required arguments are surrounded with `<>`, while optional with `[]`. If argument has `+` after it, then it can be added multiple times, and if argument is required, it should be present at least one time.
+Required arguments are surrounded with `<>`, while optional with `[]`. If optional argument has `*` after it, it is optional
+only under certain conditions. If argument has `+` after it, then it can be added multiple times, and if argument is required,
+it should be present at least one time. `int` type arguments are prefixed with `#`, `float` with `%`, `bool` with `?`.
 
 #### `WhyBother11.CombatExtended_PROJECTILE_ID`
 

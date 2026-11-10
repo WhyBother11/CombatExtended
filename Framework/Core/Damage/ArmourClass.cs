@@ -47,6 +47,11 @@ public static class ArmourClass
     {
         FarmerArmourClass.Value += armourClass;
     }
+
+    public static void ClearFarmerArmourClass()
+    {
+        FarmerArmourClass.Value = 0;
+    }
     #endregion
 
     #region FarmerArmourClassPatches

@@ -25,27 +25,17 @@ public static class DamageTriggerActions
     private static bool DamageMonster(string[] args, TriggerActionContext ctx, out string error)
     {
         if (!ArgUtility.TryGet(args, 1, out var damageTypeId, out error) ||
-            !ArgUtility.TryGetInt(args, 3, out var arg3, out error))
+            !ArgUtility.TryGetInt(args, 2, out var min, out error) ||
+            !ArgUtility.TryGetInt(args, 3, out var max, out error))
         {
             return false;
         }
-
-        var minDamage = 0;
-        int maxDamage;
-        if (args.Length >= 5)
-        {
-            minDamage = arg3;
-            if (!ArgUtility.TryGetInt(args, 4, out var arg4, out error))
-                return false;
-            maxDamage = arg4;
-        }
-        else maxDamage = arg3;
-        var damageAmount = Game1.random.Next(minDamage, maxDamage + 1);
+        var damageAmount = Game1.random.Next(min, max + 1);
         
         var triggerArgs = ctx.TriggerArgs;
         var player = Game1.player;
         
-        if (ArgUtility.TryGet(args, 2, out var rangeId, out _))
+        if (ArgUtility.TryGet(args, 4, out var rangeId, out _))
         {
             if (!RangeDataAsset.Exists(rangeId))
             {
@@ -74,70 +64,15 @@ public static class DamageTriggerActions
         return true;
     }
 
-    /// <summary>
-    /// Trigger action to lower or increase monster's resistance to provided damage type.
-    /// </summary>
-    /// <param name="args">Trigger actions args.</param>
-    /// <param name="ctx"><see cref="TriggerActionContext"/>.</param>
-    /// <param name="error">The error if ran unsuccessfully.</param>
-    /// <returns>Whether trigger action was ran successfully.</returns>
-    [TriggerAction]
-    private static bool AlterResistance(string[] args, TriggerActionContext ctx, out string error)
-    {
-        if (!ArgUtility.TryGet(args, 1, out var damageType, out error) ||
-            !ArgUtility.TryGetInt(args, 2, out var diff, out error))
-        {
-            return false;
-        }
-
-        if (!DamageTypeDataAsset.Exists(damageType))
-        {
-            error = $"Unknown damage type {damageType}";
-            return false;
-        }
-
-        diff = Math.Clamp(diff, -5, 5);
-        var triggerArgs = ctx.TriggerArgs;
-        if (triggerArgs.Length == 1 && triggerArgs[0] is Monster monster)
-        {
-            var combined = monster.GetResistances();
-            var absDiff = Math.Abs(diff);
-            if (diff < 0)
-                combined.LowerResistance(damageType, absDiff);
-            else combined.IncreaseResistance(damageType, absDiff);
-            monster.UpdateResistance(combined);
-        }
-
-        return true;
-    }
-    
-    /// <summary>
-    /// Trigger action to add provided armour class amount to current player until the end of the day.
-    /// </summary>
-    /// <param name="args">Trigger actions args.</param>
-    /// <param name="ctx"><see cref="TriggerActionContext"/>.</param>
-    /// <param name="error">The error if ran unsuccessfully.</param>
-    /// <returns>Whether trigger action was ran successfully.</returns>
-    [TriggerAction]
-    private static bool AddArmourClass(string[] args, TriggerActionContext ctx, out string error)
-    {
-        if (!ArgUtility.TryGetInt(args, 1, out var ac, out error))
-        {
-            return false;
-        }
-
-        ArmourClass.AddFarmerArmourClass(ac);
-
-        return true;
-    }
-
     [TriggerAction]
     private static bool AddPlayerHealth(string[] args, TriggerActionContext ctx, out string error)
     {
-        if (!ArgUtility.TryGetInt(args, 1, out var hp, out error))
+        if (!ArgUtility.TryGetInt(args, 1, out var minHp, out error) ||
+            !ArgUtility.TryGetInt(args, 1, out var maxHp, out error))
         {
             return false;
         }
+        var hp = Game1.random.Next(minHp, maxHp + 1);
         var player = Game1.player;
         if (hp >= 0) 
             player.health = Math.Min(player.maxHealth, player.health + hp);
