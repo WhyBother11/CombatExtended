@@ -12,7 +12,7 @@ public class ContinuousAbility : Ability
     
     public int DurationTicks { get; private set; }
 
-    public uint DoContinuousEffectEveryTick { get; set; }
+    public int DoContinuousEffectEveryTick { get; set; }
     
     public int DurationTicksElapsed { get; set; }
     
@@ -32,7 +32,7 @@ public class ContinuousAbility : Ability
         string texture,
         int spriteIndex,
         float durationSeconds,
-        uint doEffectEveryTick = 0,
+        int doEffectEveryTick = 0,
         bool effectAttachedToWeapon = false
     ) : base(id, displayName, description, cooldown, texture, spriteIndex)
     {
@@ -47,7 +47,7 @@ public class ContinuousAbility : Ability
     {
         DurationTicks = data.Duration!.Value.ToTicks();
         EffectAttachedToWeapon = data.AttachedToWeapon;
-        DoContinuousEffectEveryTick = (uint) data.DoEffectEveryTick;
+        DoContinuousEffectEveryTick = data.DoEffectEverySec?.ToTicks() ?? 0;
         DurationTicksElapsed = DurationTicks;
     }
     

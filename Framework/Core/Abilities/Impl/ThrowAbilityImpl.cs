@@ -17,6 +17,8 @@ public class ThrowAbilityImpl : Ability
 
     public string ProjectileId { get; set; }
     
+    public float? Angle { get; set; }
+    
     private CustomProjectile? _projectile;
     
     private ThrowAbilityImpl(string id, AbilityData data) : base(id, data)
@@ -24,6 +26,7 @@ public class ThrowAbilityImpl : Ability
         Returnable = data.Returnable;
         ReturnOnWarp = data.ReturnOnWarp;
         ProjectileId = data.ProjectileId!;
+        Angle = data.Angle;
     }
 
     protected override void OnTrigger(Farmer player, GameLocation location, Vector2 cursorTile, Vector2 playerTile)
@@ -41,8 +44,16 @@ public class ThrowAbilityImpl : Ability
             item = item.getOne();
         }
         else player.removeItemFromInventory(item);
-        var velocity = SUtility.getVelocityTowardPoint(player.Position, 
-            Helper.Input.GetCursorPosition().AbsolutePixels, projectileData.Velocity);
+
+        var startingPoint = Game1.player.Position;
+        Vector2 targetPoint;
+        if (Angle is not null)
+        {
+            var angleRadians = MathHelper.ToRadians(Angle.Value);
+            targetPoint = startingPoint + new Vector2(MathF.Sin(angleRadians), MathF.Cos(angleRadians));
+        }
+        else targetPoint = Helper.Input.GetCursorPosition().AbsolutePixels;
+        var velocity = SUtility.getVelocityTowardPoint(startingPoint, targetPoint, projectileData.Velocity);
         Action<GameLocation, Farmer> onDestroy = (loc, f) =>
         {
             if (Returnable)

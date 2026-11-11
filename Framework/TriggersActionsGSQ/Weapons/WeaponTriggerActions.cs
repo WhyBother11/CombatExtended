@@ -1,4 +1,5 @@
 using CombatExtended.Framework.Core.Weapons;
+using CombatExtended.Framework.Data;
 using CombatExtended.Framework.Util;
 using StardewValley;
 using StardewValley.Delegates;
@@ -26,19 +27,19 @@ public static class WeaponTriggerActions
         {
             return false;
         }
+
+        if (state != "_default" ||
+            !WeaponExtensionDataAsset.WeaponStates.TryGetValue(weaponId, out var states) ||
+            !states.ContainsKey(state))
+        {
+            return false;
+        }
         var weapons = Game1.player.Items.OfType<MeleeWeapon>()
             .Where(weapon => weapon.ItemId == weaponId).ToList();
         if (state == "_default")
             weapons.ForEach(WeaponStateEnabler.RestoreToDefault);
         else
-            weapons.ForEach(weapon =>
-            {
-                Utility.TryWithWarning<ArgumentException>(Log, () =>
-                {
-                    var stateData = WeaponStateEnabler.GetWeaponStateData(weapon.ItemId, state);
-                    WeaponStateEnabler.ApplyState(weapon, stateData); 
-                });
-            });
+            weapons.ForEach(weapon => WeaponStateEnabler.ApplyState(weapon, state));
         return true;
     }
 }

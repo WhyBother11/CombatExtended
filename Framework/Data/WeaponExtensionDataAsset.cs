@@ -42,7 +42,7 @@ public class WeaponStateData
 {
     
     #nullable disable
-    public string Id;
+    //public string Id;
     #nullable restore
 
     [ContentSerializer(Optional = true)] 

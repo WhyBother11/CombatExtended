@@ -14,6 +14,25 @@ the key should be monster's texture name (`Sprite` for FTM and `MonsterTextureOv
 | `Tags`             | `string` | *(Optional)* The space delimited string of tag IDs that should be applied to this monster.                                                                                                                     |
 | `ExtraArmourClass` | `int`    | *(Optional)* The extra armour class for this monster (the default for every monster is `2`). Can be negative. Every armour point corresponds to 5% miss chance that stacks with monster's native `missChance`. |
 
+Example for monster added with framework:
+
+```json
+{
+    "Changes": [
+        {
+            "Action": "EditData",
+            "Target": "Mods/WhyBother11.CombatExtended/MonsterExtensionData",
+            "Entries": {
+                "<Texture Asset Name>": {
+                    "Tags": "Flying Ghost <YourCustomTag>",
+                    "ExtraArmourClass": 5    
+                }
+            }
+        }
+    ]
+}
+```
+
 ## Monster triggers
 
 ### `WhyBother11.CombatExtended_MonsterDied`
@@ -83,12 +102,12 @@ data model described below. `assets/tags.json` already includes a lot of built-i
 
 ## TagData
 
-| Field         | Type                   | Description                                                                                                                                                       |
-|---------------|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Id`          | `string`               | The ID of this tag.                                                                                                                                               |
-| `Priority`    | `int`                  | Used to define order in which tags are applied. Entries with lower `Priority` will be applied first, letting entries with higher priority override their changes. |
-| `Condition`   | `string`               | *(Optional)* The GSQ to check if this tag should be applied. This should generally be used for the broadest tags, for example tags depending on location.         |
-| `Resistances` | `List<ResistanceData>` | *(Optional)* The list of data models to define resistances. The data model is described below.                                                                    |
+| Field         | Type                   | Description                                                                                                                                                                                                                              |
+|---------------|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Id`          | `string`               | The ID of this tag.                                                                                                                                                                                                                      |
+| `Priority`    | `int`                  | Used to define order in which tags are applied. Entries with lower `Priority` will be applied first, letting entries with higher priority override their changes.                                                                        |
+| `Condition`   | `string`               | *(Optional)* The GSQ to check if this tag should be applied. This should generally be used for the broadest tags, for example tags depending on location. This is run once per monster when it spawns or player enters location with it. |
+| `Resistances` | `List<ResistanceData>` | *(Optional)* The list of data models to define resistances. The data model is described below.                                                                                                                                           |
 
 ### ResistanceData
 
@@ -96,3 +115,29 @@ data model described below. `assets/tags.json` already includes a lot of built-i
 |---------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `Type`  | `string` | The ID of damage type, as defined in `Mods/WhyBother11.CombatExtended/DamageTypes` to which resistance should apply.                                                                                                                           |
 | `Value` | `string` | The resistance value for `Type` damage type. Can be one of: `Immune` (takes no damage), `Resistant` (50% of damage), `Enduring` (75% of damage), `Normal` (no damage changes), `Sensitive` (150% of damage) and `Vulnerable` (200% of damage). |
+
+Example:
+
+```json
+{
+    "Changes": [
+        {
+            "Action": "EditData",
+            "Target": "Mods/WhyBother11.CombatExtended/Tags",
+            "Entries": {
+                "CustomTag": {
+                    "Id": "CustomTag",
+                    "Priority": -100,
+                    "Condition": "LOCATION_NAME Here Woods",
+                    "Resistances": [
+                        {
+                            "Type": "Physical",
+                            "Value": "Resistant"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+```

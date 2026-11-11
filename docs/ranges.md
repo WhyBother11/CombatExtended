@@ -50,10 +50,60 @@ data model described below.
 | `Delta`     | `Coordinate` | *(Optional)* The delta to apply to this line.                |
 
 #### Coordinate
+
 | Field | Type         | Description                                     |
 |-------|--------------|-------------------------------------------------|
 | `X`   | `int`        | *(Optional)* The X coordinate. Defaults to `0`. |
 | `Y`   | `int`        | *(Optional)* The Y coordinate. Defaults to `0`. |
+
+Example:
+
+```json
+{
+    "Changes": [
+        {
+            "Action": "EditData",
+            "Target": "Mods/WhyBother11.CombatExtended/Ranges",
+            "Entries": {
+                "{{ModID}}_YourRange": {
+                    "Tiles": [
+                        {
+                            "Id": "CircleRange",
+                            "Type": "Add",
+                            "RelativeTo": "player",
+                            "Radius": 6
+                        },
+                        {
+                            "Id": "RectangleRemove",
+                            "Type": "Remove",
+                            "RelativeTo": "player",
+                            "Rectangles": [
+                                {
+                                    "Id": "Rectangle1",
+                                    "From": { "X": -1, "Y": -1 },
+                                    "To": { "X": 1, "Y": 1 }
+                                }
+                            ]
+                        },
+                        {
+                            "Id": "LineRange",
+                            "Type": "Add",
+                            "RelativeTo": "cursor",
+                            "Lines": [
+                                {
+                                    "Id": "Line1",
+                                    "Angle": 0,
+                                    "Width": 3
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
 
 ### Range calculation
 

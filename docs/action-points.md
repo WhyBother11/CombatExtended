@@ -6,14 +6,14 @@ data model described below.
 
 ## ActionPointData
 
-| Field           | Type     | Description                                                                                                                                  |
-|-----------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| `MaxAmount`     | `int`    | The maximum amount of this action point.                                                                                                     |
-| `DisplayName`   | `string` | The text for in-game display name of this action point.                                                                                      |
-| `Description`   | `string` | The text for in-game description name of this action point.                                                                                  |
-| `Texture`       | `string` | The asset name containing icon for this action point.                                                                                        |
-| `SpriteIndex`   | `int`    | The index within `Texture` of icon for this action point.                                                                                    |
-| `ReplenishTime` | `float`  | The time (in seconds) for one action point to be replenished. If set to `-1`, action points are not replenished with time. Defaults to `-1`. |
+| Field           | Type     | Description                                                                                                                                               |
+|-----------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `MaxAmount`     | `int`    | The maximum amount of this action point.                                                                                                                  |
+| `DisplayName`   | `string` | The text for in-game display name of this action point.                                                                                                   |
+| `Description`   | `string` | The text for in-game description name of this action point.                                                                                               |
+| `Texture`       | `string` | The asset name containing icon for this action point. The icon should be 16x16.                                                                           |
+| `SpriteIndex`   | `int`    | The index within `Texture` of icon for this action point.                                                                                                 |
+| `ReplenishTime` | `float`  | *(Optional)* The time (in seconds) for one action point to be replenished. If set to `-1`, action points are not replenished with time. Defaults to `-1`. |
 
 Example:
 
@@ -25,11 +25,11 @@ Example:
             "Target": "Mods/WhyBother11.CombatExtended/ActionPoints",
             "Entries": {
                 "{{ModID}}_MjolnirActionPoint": {
-                    "DisplayName": "<Display name of action point>",
-                    "Description": "<Description of action point>",
+                    "DisplayName": "Example",
+                    "Description": "ExampleActionPoint",
                     "MaxAmount": 100,
                     "ReplenishTime": 30,
-                    "Texture": "Mods/{{ModID}}/ActionPoints",
+                    "Texture": "<Action Point Texture Asset Name>",
                     "SpriteIndex": 0
                 }
             }

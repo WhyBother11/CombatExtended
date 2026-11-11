@@ -28,17 +28,17 @@ public class AbilityData
 
     [ContentSerializer(Optional = true)]
     public List<string>? ContextTags;
-    
-    [ContentSerializer(Optional = true)]
-    public bool AttachedToWeapon = false;
 
     #region DataAbilityContinious
 
+    [ContentSerializer(Optional = true)]
+    public bool AttachedToWeapon = false;
+    
     [ContentSerializer(Optional = true)] 
     public float? Duration;
 
     [ContentSerializer(Optional = true)]
-    public int DoEffectEveryTick = 0;
+    public int? DoEffectEverySec;
     #endregion
 
     #region DataAbilityThrow
@@ -50,6 +50,10 @@ public class AbilityData
 
     [ContentSerializer(Optional = true)] 
     public string? ProjectileId;
+
+    [ContentSerializer(Optional = true)] 
+    public float? Angle;
+
     #endregion
 }
 

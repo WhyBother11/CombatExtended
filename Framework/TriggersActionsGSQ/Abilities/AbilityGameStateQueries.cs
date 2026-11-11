@@ -60,6 +60,8 @@ public static class AbilityGameStateQueries
                 if (AbilityManager.PreviousWeaponAbilities[weaponId].TryGetValue(abilityId, out ability))
                     if (ability is ContinuousAbility { IsActive: true }) return true;
             }
+            if (AbilityManager.FarmerAbilities.TryGetValue(abilityId, out var playerAbility))
+                if (playerAbility is ContinuousAbility { IsActive: true }) return true;
         }
         return false;
     }

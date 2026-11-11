@@ -39,13 +39,14 @@ public static class WeaponStateEnabler
     public static string GetWeaponState(string weaponId) => CurrentStates.GetValueOrDefault(weaponId, "_default");
     
     /// <summary>
-    /// Applies present weapon stats and texture from <paramref name="stateData"/> to given <paramref name="weapon"/>.
+    /// Apply weapon stats and texture from <paramref name="stateId"/> to given <paramref name="weapon"/>.
     /// </summary>
     /// <param name="weapon">Weapon whose state should change.</param>
-    /// <param name="stateData">Weapon state data.</param>
-    public static void ApplyState(MeleeWeapon weapon, WeaponStateData stateData)
+    /// <param name="stateId">ID of weapon state.</param>
+    public static void ApplyState(MeleeWeapon weapon, string stateId)
     {
-        Update(weapon.ItemId, stateData.Id);
+        Update(weapon.ItemId, stateId);
+        var stateData = WeaponExtensionDataAsset.WeaponStates[weapon.ItemId][stateId];
         if (stateData.Texture is not null)
             CachedOverrideTextures[weapon.ItemId] = Helper.GameContent.Load<Texture2D>(stateData.Texture);
         if (stateData.MinDamage is not null)
@@ -175,8 +176,7 @@ public static class WeaponStateEnabler
                      .Where(weapon => CurrentStates.ContainsKey(weapon.ItemId)))
         { 
             var stateId = CurrentStates[weapon.ItemId];
-            var stateData = GetWeaponStateData(weapon.ItemId, stateId);
-            ApplyState(weapon, stateData);
+            ApplyState(weapon, stateId);
         }
 
         foreach (var weapon in e.Removed.OfType<MeleeWeapon>()

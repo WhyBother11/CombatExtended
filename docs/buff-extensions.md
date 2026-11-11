@@ -79,7 +79,7 @@ Example:
             "Target": "Data/Objects",
             "Entries": {
                 "{{ModID}}_YourItem": {
-                    "Id": "{{ModID}}_YourItem",
+                    "Name": "{{ModID}}_YourItem",
                     "Edibility": 123,
                     ...
                     "CustomFields": {

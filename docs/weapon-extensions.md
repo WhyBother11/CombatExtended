@@ -41,6 +41,58 @@ Weapon extension data is located in `Mods/WhyBother11.CombatExtended/WeaponExten
 | `CritMultiplier` | `float`                               | *(Optional)* Overrides the multiplier applied to the base damage for a critical hit. |
 | `DamageTypes`    | `List<DamageTypeWeaponExtensionData>` | *(Optional)* Overrides list of extra damage instances dealt to hit enemies.          |
 
+Example:
+
+```json
+{
+    "Changes": [
+        {
+            "Action": "EditData",
+            "Target": "Mods/WhyBother11.CombatExtended/WeaponExtensionData",
+            "Entries": {
+                "{{ModID}}_YourWeapon": {
+                    "Abilities": "{{ModID}}_Ability1 {{ModID}}_Ability2",
+                    "ActionPoints": "{{ModID}}_ActionPoint1",
+                    "DamageTypes": [
+                        {
+                            "Id": "LightningDamage",
+                            "Type": "Lightning",
+                            "MinDamage": 5,
+                            "MaxDamage": 10
+                        }
+                    ],
+                    "States": {
+                        "State1": {
+                            "MinDamage": 100,
+                            "MaxDamage": 120,
+                            "Speed": 6
+                        },
+                        "State2": {
+                            "MinDamage": 50,
+                            "MaxDamage": 60,
+                            "Speed": 6,
+                            "Texture": "<Texture Asset Name>",
+                            "SpriteIndex": 0,
+                            "DamageTypes": [
+                                {
+                                    "Id": "LightningDamage",
+                                    "Type": "Lightning",
+                                    "MinDamage": 50,
+                                    "MaxDamage": 60
+                                }
+                            ],
+                        }
+                    },
+                    "ActionsOnEquip": [
+                        "AddBuff <BuffId>"
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
+
 ### Remarks
 
 Any active state is applied to all instances of corresponding weapon and only while it's in player's inventory. When weapon is removed from

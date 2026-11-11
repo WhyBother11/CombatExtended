@@ -90,7 +90,7 @@ public class AbilityManager
         AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
         if (ability is ContinuousAbility continuousAbility)
             _doContinuousEffectUintTicks[continuousAbility.Id] =
-                Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
+                (uint)Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
     }
 
     /// <summary>
@@ -217,7 +217,7 @@ public class AbilityManager
             {
                 if (ability is ContinuousAbility continuousAbility)
                     _doContinuousEffectUintTicks[continuousAbility.Id] =
-                        Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
+                        (uint)Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
             }
         }
         AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
