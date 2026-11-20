@@ -57,6 +57,7 @@ public class AbilityManager
     
     public static void Register(IModHelper helper)
     {
+        PerScreenInstance.Value = new AbilityManager();
         helper.Events.GameLoop.UpdateTicked += PerScreenInstance.Value.OnUpdateTicked_UpdateAbilities;
         helper.Events.Display.RenderedWorld += PerScreenInstance.Value.OnRenderedWorld_DrawHighlightedTiles;
         helper.Events.Player.Warped += PerScreenInstance.Value.OnWarped_ClearHighlightedTiles;
@@ -173,6 +174,7 @@ public class AbilityManager
             cursorTile: cursorTile,
             playerTile: playerTile);
         RaiseAbilityTriggerAction(Triggers.AbilityTriggered, ability, player);
+        HandleNativeAbilityActions(Triggers.AbilityTriggered, ability, player);
     }
 
     /// <summary>
@@ -267,10 +269,11 @@ public class AbilityManager
         var player = Game1.player;
         // not to cause illegal state exception
         List<(string, Ability, Farmer)> triggers = new ();
+        List<Action> actions = new();
         
         foreach (var (_, ability) in WeaponAbilities)
         {
-            HandleAbility(ability, player, triggers, e, true);
+            HandleAbility(ability, player, triggers, actions, e, true);
         }
         
         // update all previous weapon abilities cooldowns and trigger continuous effects
@@ -278,10 +281,15 @@ public class AbilityManager
         {
             foreach (var (_, ability) in abilities)
             {
-                HandleAbility(ability, player, triggers, e);
+                HandleAbility(ability, player, triggers, actions, e);
             }
         }
-        triggers.ForEach(tr => RaiseAbilityTriggerAction(tr.Item1, tr.Item2, tr.Item3));
+        triggers.ForEach(tr =>
+        {
+            RaiseAbilityTriggerAction(tr.Item1, tr.Item2, tr.Item3);
+            HandleNativeAbilityActions(tr.Item1, tr.Item2, tr.Item3);
+        });
+        actions.ForEach(a => a.Invoke());
     }
 
     /// <summary>
@@ -312,6 +320,7 @@ public class AbilityManager
 
     private void HandleAbility(Ability ability, Farmer player,
         List<(string, Ability, Farmer)> triggers,
+        List<Action> actions,
         UpdateTickedEventArgs e, bool activeWeapon = false)
     {
         if (ability is ContinuousAbility continuousAbility)
@@ -319,14 +328,18 @@ public class AbilityManager
             var isActive = IsContinuousAbilityActive(continuousAbility);
             if (isActive && continuousAbility.DoContinuousEffectEveryTick > 0 &&
                 (!activeWeapon || !continuousAbility.EffectAttachedToWeapon) &&
-                e.IsMultipleOf(_doContinuousEffectUintTicks[continuousAbility.Id]))
+                continuousAbility.DurationTicksElapsed % _doContinuousEffectUintTicks[continuousAbility.Id] == 0)
+                //e.IsMultipleOf(_doContinuousEffectUintTicks[continuousAbility.Id]))
             {
-                continuousAbility.OnContinuousTrigger(player, player.currentLocation);
+                actions.Add(() => continuousAbility.OnContinuousTrigger(player, player.currentLocation));
+                //continuousAbility.OnContinuousTrigger(player, player.currentLocation);
+                triggers.Add((Triggers.AbilityEffectTriggered, continuousAbility, player));
             }
             // if end was not handled, handle it and start cooldown elapsing
             if (!isActive && !continuousAbility.IsEndHandled)
             {
-                continuousAbility.End(player, player.currentLocation);
+                actions.Add(() => continuousAbility.End(player, player.currentLocation));
+                //continuousAbility.End(player, player.currentLocation);
                 triggers.Add((Triggers.AbilityEnded, continuousAbility, player));
                 return;
             }
@@ -336,8 +349,9 @@ public class AbilityManager
         // for continuous ability cooldown elapsing started
         if (!IsAbilityCooldownActive(ability) && !ability.IsCooldownEndHandled)
         {
-            ability.EndCooldown(player, player.currentLocation);
-            triggers.Add((Triggers.CooldownEnded, ability, player));
+            actions.Add(() => ability.EndCooldown(player, player.currentLocation));
+            //ability.EndCooldown(player, player.currentLocation);
+            triggers.Add((Triggers.AbilityCooldownEnded, ability, player));
             return;
         }
         ability.CooldownTicksElapsed += BaseTicks;
@@ -386,5 +400,33 @@ public class AbilityManager
         item.PackAbilityInfo(ability);
         
         TriggerActionManager.Raise(trigger, triggerArgs, player.currentLocation, player, item);
+    }
+
+    private static void HandleNativeAbilityActions(string trigger, Ability ability, Farmer player)
+    {
+        var (condition, triggerActions) = trigger switch
+        {
+            _ when trigger == Triggers.AbilityTriggered => (ability.TriggerActionCondition,
+                ability.ActionsOnTrigger),
+            _ when trigger == Triggers.AbilityCooldownEnded => (ability.CooldownEndActionCondition,
+                ability.ActionsOnCooldownEnd),
+            _ when trigger == Triggers.AbilityEnded && ability is ContinuousAbility continuousAbility =>
+                (continuousAbility.EndActionCondition, continuousAbility.ActionsOnEnd),
+            _ when trigger == Triggers.AbilityEffectTriggered && ability is ContinuousAbility continuousAbility =>
+                (continuousAbility.EffectActionCondition, continuousAbility.ActionsOnEffect),
+            _ => throw new ArgumentException($"Unknown trigger {trigger}, bonk the author.")
+        };
+        if (triggerActions is not null)
+        {
+            var shouldRun = true;
+            if (condition is not null)
+                shouldRun = GameStateQuery.CheckConditions(condition);
+            if (shouldRun)
+                triggerActions.ForEach(action =>
+                {
+                    if (!TriggerActionManager.TryRunAction(action, out var error, out var exception))
+                        Log.Error($"Failed to run action {action} from ability '{ability.Id}': {error}'", exception);
+                });
+        }
     }
 }

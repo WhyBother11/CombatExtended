@@ -16,7 +16,11 @@ public class MonsterBuffAttributes
     
     public float ArmourClass { get; set; }
     
+    public float Weight { get; set; }
+    
     public float StunTime { get; set; }
+    
+    public float Speed { get; set; }
     
     public List<DamageData> Damages { get; set; } = new ();
     
@@ -51,7 +55,9 @@ public class MonsterBuffAttributes
         if (data.MaxHealth is not null) attrs.MaxHealth = data.MaxHealth.Value;
         if (data.MissChance is not null) attrs.MissChance = data.MissChance.Value;
         if (data.ArmourClass is not null) attrs.ArmourClass = data.ArmourClass.Value;
+        if (data.Weight is not null) attrs.Weight = data.Weight.Value;
         if (data.StunTime is not null) attrs.StunTime = data.StunTime.Value;
+        if (data.Speed is not null) attrs.Speed = data.Speed.Value;
         if (data.DamageData is not null) attrs.Damages = data.DamageData.Select(GetDamageData).ToList();
         if (data.ResistanceData is not null) attrs.Resistances = data.ResistanceData.Select(GetResistanceData).ToList();
         return attrs;

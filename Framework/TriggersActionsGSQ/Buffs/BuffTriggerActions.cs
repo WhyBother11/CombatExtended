@@ -1,3 +1,4 @@
+using CombatExtended.Framework.Core.Buffs;
 using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Util;
 using StardewValley;

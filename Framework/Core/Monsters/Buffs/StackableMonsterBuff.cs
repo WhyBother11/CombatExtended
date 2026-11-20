@@ -24,26 +24,6 @@ public class StackableMonsterBuff : MonsterBuff
     
     public MonsterBuffAttributes EffectsPerStack { get; set; }
 
-    protected StackableMonsterBuff(
-        string id,
-        string displayName,
-        string description,
-        float duration,
-        bool isDebuff,
-        int maxStacks,
-        MonsterBuffAttributes? attributes = null,
-        MonsterBuffAttributes? effectAttributes = null,
-        int doEffectEveryTick = 0,
-        int doAnimationEveryTick = 0,
-        MonsterBuffAttributes? attributesPerStack = null,
-        MonsterBuffAttributes? effectAttributesPerStack = null
-    ) : base(id, displayName, description, duration, isDebuff, attributes, effectAttributes, doEffectEveryTick, doAnimationEveryTick)
-    {
-        MaxStacks = maxStacks;
-        AttributesPerStack = attributesPerStack ?? new MonsterBuffAttributes();
-        EffectsPerStack = effectAttributesPerStack ?? new MonsterBuffAttributes();
-    }
-
     protected StackableMonsterBuff(string id, MonsterBuffData data) : base(id, data)
     {
         if (data.StackableData is null)
@@ -138,7 +118,9 @@ public class StackableMonsterBuff : MonsterBuff
             MaxHealth = attributes.MaxHealth * effectiveStacks,
             MissChance = attributes.MissChance * effectiveStacks,
             ArmourClass = attributes.ArmourClass * effectiveStacks,
+            Weight = attributes.Weight * effectiveStacks,
             StunTime = attributes.StunTime * effectiveStacks,
+            Speed = attributes.Speed * effectiveStacks,
             Damages = attributes.Damages.Select(damage => new MonsterBuffAttributes.DamageData
             {
                 DamageType = damage.DamageType,

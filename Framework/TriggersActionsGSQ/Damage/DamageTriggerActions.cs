@@ -3,7 +3,6 @@ using CombatExtended.Framework.Core.Monsters;
 using CombatExtended.Framework.Core.Util;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Delegates;
 using StardewValley.Monsters;
@@ -25,11 +24,12 @@ public static class DamageTriggerActions
     private static bool DamageMonster(string[] args, TriggerActionContext ctx, out string error)
     {
         if (!ArgUtility.TryGet(args, 1, out var damageTypeId, out error) ||
-            !ArgUtility.TryGetInt(args, 2, out var min, out error) ||
-            !ArgUtility.TryGetInt(args, 3, out var max, out error))
+            !ArgUtility.TryGetInt(args, 2, out var min, out error))
         {
             return false;
         }
+
+        ArgUtility.TryGetOptionalInt(args, 3, out var max, out _, min);
         var damageAmount = Game1.random.Next(min, max + 1);
         
         var triggerArgs = ctx.TriggerArgs;
@@ -57,7 +57,11 @@ public static class DamageTriggerActions
             if (argMonster.Health <= 0 || !argMonster.ShouldBeInteractedWith())
                 return true;
             if (damageTypeId == DamageType.Physical || !DamageTypeDataAsset.Exists(damageTypeId))
+            {
                 argMonster.takeDamage(damageAmount, 0, 0, false, 0.0, player);
+                argMonster.currentLocation.debris.Add(new Debris(damageAmount, new Vector2(argMonster.GetBoundingBox().Center.X + 16, 
+                    argMonster.GetBoundingBox().Center.Y), new Color(255, 130, 0), 1f, argMonster));
+            }
             else DamageType.TakeExtraTypePureDamage(argMonster, damageAmount, damageTypeId, player);
         }
 
@@ -67,17 +71,15 @@ public static class DamageTriggerActions
     [TriggerAction]
     private static bool AddPlayerHealth(string[] args, TriggerActionContext ctx, out string error)
     {
-        if (!ArgUtility.TryGetInt(args, 1, out var minHp, out error) ||
-            !ArgUtility.TryGetInt(args, 1, out var maxHp, out error))
-        {
+        if (!ArgUtility.TryGetInt(args, 1, out var minHp, out error)) 
             return false;
-        }
+        ArgUtility.TryGetOptionalInt(args, 2, out var maxHp, out _, minHp);
         var hp = Game1.random.Next(minHp, maxHp + 1);
         var player = Game1.player;
         if (hp >= 0) 
             player.health = Math.Min(player.maxHealth, player.health + hp);
         else player.takeDamage(Math.Abs(hp), false, null);
-        if (ArgUtility.TryGetBool(args, 2, out var show, out _) && show) 
+        if (ArgUtility.TryGetBool(args, 3, out var show, out _) && show) 
             player.currentLocation.debris.Add(new Debris(hp, player.getStandingPosition(), 
                 hp >= 0 ? Color.Lime : Color.Red, 1f, player));
         return true;

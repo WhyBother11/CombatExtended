@@ -21,6 +21,7 @@ public class CooldownManager
     
     public static void Register(IModHelper helper)
     {
+        PerScreenInstance.Value = new CooldownManager();
         helper.Events.GameLoop.UpdateTicked += PerScreenInstance.Value.OnUpdateTicked_HandleTimers;
     }
     

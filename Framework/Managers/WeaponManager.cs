@@ -21,6 +21,7 @@ public class WeaponManager
     
     public static void Register(IModHelper helper)
     {
+        PerScreenInstance.Value = new WeaponManager();
         helper.Events.GameLoop.UpdateTicked += PerScreenInstance.Value.OnUpdateTicked_HandleCurrentWeapon;
     }
     

@@ -1,7 +1,7 @@
 using CombatExtended.Framework.Core.Abilities;
+using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
-using StardewValley;
 using StardewValley.Delegates;
 using GameStateQuery = StardewValley.GameStateQuery;
 
@@ -12,7 +12,6 @@ public static class AbilityGameStateQueries
 {
     
     public static readonly string AbilityIdItemKey = "Ability_Id".PrependId();
-    public static readonly string AbilityContextTagsItemKey = "Ability_ContextTags".PrependId();
 
     [GSQ]
     private static bool ABILITY_ID(string[] query, GameStateQueryContext context)
@@ -36,12 +35,11 @@ public static class AbilityGameStateQueries
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(AbilityContextTagsItemKey, out var contextTagsStr) == true)
+        if (context.TargetItem?.modData.TryGetValue(AbilityIdItemKey, out var modDataAbilityId) ?? false)
         {
-            var abilityContextTags = ArgUtility.SplitBySpace(contextTagsStr);
-            return contextTags.Any(abilityContextTags.Contains);
+            return contextTags.Any(tag => AbilityDataAsset.HasContextTag(modDataAbilityId, tag));
         }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain ability context tags");
+        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain ability id to check context tags");
     }
 
     [GSQ]

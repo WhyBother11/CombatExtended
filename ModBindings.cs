@@ -23,6 +23,16 @@ public static class ModBindings
     
     public static IMonsterBuffManager MonsterBuffManager => ModEntry.Instance.MonsterBuffManager;
     
+    public static MonsterStatusManager MonsterStatusManager
+    {
+        get
+        {
+            if (!Context.IsMainPlayer)
+                throw new InvalidOperationException("MonsterStatusManager requested for non-host player.");
+            return ModEntry.Instance.MonsterStatusManager;
+        }
+    }
+
     public static AbilityManager AbilityManager => AbilityManager.Instance;
     
     public static StackableBuffManager StackableBuffManager => StackableBuffManager.Instance;

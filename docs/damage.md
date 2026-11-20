@@ -135,6 +135,8 @@ damage. If just attacking monsters with `Serpent` tag (which is a more broad cas
 so total group multiplier if using `Infinity Blade` is `1.4`. There's also `1.1` multiplier for `Physical` damage that 
 has different group, so in total multiplier for `Physical` damage is `1.4 * 1.1 = 1.54`, while for any other damage type it is `1.4`.
 
+# Triggers, trigger actions, GSQs stuff
+
 ## Damage triggers
 
 ### `WhyBother11.CombatExtended_AttackHitMonster`
@@ -164,18 +166,19 @@ it should be present at least one time. `int` type arguments are prefixed with `
 
 ### `WhyBother11.CombatExtended_DamageMonster`
 
-Format: `WhyBother11.CombatExtended_DamageMonster <DamageTypeId> <#Min> <#Max> [RangeId]*`
+Format: `WhyBother11.CombatExtended_DamageMonster <DamageTypeId> <#Min> [#Max] [RangeId]*`
 
 Used to deal damage to monster. `DamageTypeId` corresponds to damage type from `Mods/WhyBother11.CombatExtended/DamageTypes`.
-Min and max specify minimum and maximum amount of damage respectively. `RangeId` specifies range from `Mods/WhyBother11.CombatExtended/Range` in which monsters should be
-damaged. Can be omitted in `Monster context`, in which case damage is dealt only to context monster.
+`Min` and `Max` (defaults to `Min`) specify minimum and maximum amount of damage respectively. `RangeId` specifies range 
+from `Mods/WhyBother11.CombatExtended/Range` in which monsters should be damaged. Can be omitted in `Monster context`, 
+in which case damage is dealt only to context monster.
 
 ### `WhyBother11.CombatExtended_AddPlayerHealth`
 
-Format: `WhyBother11.CombatExtended_AddPlayerHealth <#Min> <#Max> [%Show]`
+Format: `WhyBother11.CombatExtended_AddPlayerHealth <#Min> [#Max] [?Show]`
 
-Used to add to or subtract from player's health. `Min` and `Max` specify minimum and maximum amount of health to add/subtract.
-`Show` defaults to `false` and specifies if damage numbers (as when fairy trinket heals) should be shown.
+Used to add to or subtract from player's health. `Min` and `Max` (defaults to `Min`) specify minimum and maximum amount 
+of health to add/subtract. `Show` (defaults to `false`) specifies if damage numbers (as when fairy trinket heals) should be shown.
 
 ## Damage game state queries
 
@@ -197,5 +200,3 @@ Format: `WhyBother11.CombatExtended_DAMAGE_IS_CRIT`
 
 Can be used only in `Damage context`. Used to check if weapon attack resulted in critical hit. Query returns `true` if 
 attack resulted in critical hit, `false` otherwise.
-
-

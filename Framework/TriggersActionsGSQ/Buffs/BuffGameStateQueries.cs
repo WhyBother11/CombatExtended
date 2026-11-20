@@ -17,9 +17,7 @@ public class BuffGameStateQueries
             return GameStateQuery.Helpers.ErrorResult(query, error); 
         }
 
-        var max = int.MaxValue;
-        if (ArgUtility.TryGetInt(query, 3, out var argMax, out _))
-            max = argMax;
+        ArgUtility.TryGetOptionalInt(query, 3, out var max, out _, int.MaxValue);
         var stacks = StackableBuffManager.GetStacks(buffId);
         return stacks >= min && stacks <= max;
     }
@@ -33,9 +31,7 @@ public class BuffGameStateQueries
             return GameStateQuery.Helpers.ErrorResult(query, error); 
         }
 
-        var max = int.MaxValue;
-        if (ArgUtility.TryGetInt(query, 3, out var argMax, out _))
-            max = argMax;
+        ArgUtility.TryGetOptionalInt(query, 3, out var max, out _, int.MaxValue);
         var maxStacks = StackableBuffManager.GetMaxStacks(buffId);
         return maxStacks >= min && maxStacks <= max;
     }

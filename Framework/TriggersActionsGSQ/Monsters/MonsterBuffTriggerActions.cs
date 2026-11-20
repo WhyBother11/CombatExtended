@@ -2,7 +2,6 @@ using CombatExtended.Framework.Core.Monsters;
 using CombatExtended.Framework.Core.Util;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Delegates;
 using StardewValley.Monsters;
@@ -30,9 +29,7 @@ public static class MonsterBuffTriggerActions
             error = $"Unknown monster buff id: {monsterBuffId}.";
             return false;
         }
-
-        if (!ArgUtility.TryGetFloat(args, 2, out var chance, out error)) 
-            return false;
+        ArgUtility.TryGetOptionalFloat(args, 2, out var chance, out _, 1f);
         
         var triggerArgs = ctx.TriggerArgs;
         var player = Game1.player;
@@ -61,9 +58,11 @@ public static class MonsterBuffTriggerActions
 
         if (triggerArgs.Length == 1 && triggerArgs[0] is Monster argMonster)
         {
-            if (argMonster.Health > 0 && argMonster.ShouldBeInteractedWith() && Game1.random.NextDouble() < chance) 
+            if (argMonster.Health > 0 && argMonster.ShouldBeInteractedWith() && Game1.random.NextDouble() < chance)
+            {
                 MonsterBuffManager.ApplyBuff(argMonster, location, monsterBuffId,
                     player.GetCharacterType(), player.GetCharacterId());
+            }
             return true;
         }
 
@@ -103,6 +102,7 @@ public static class MonsterBuffTriggerActions
         if (triggerArgs.Length == 1 && triggerArgs[0] is Monster argMonster)
         {
             MonsterBuffManager.RemoveBuff(argMonster, location, monsterBuffId);
+            return true;
         }
 
         error = "No range was used in a context that does not have a single monster to apply buff to.";

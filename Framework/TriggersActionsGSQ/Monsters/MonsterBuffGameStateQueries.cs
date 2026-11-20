@@ -1,3 +1,4 @@
+using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
 using StardewValley;
@@ -9,7 +10,6 @@ namespace CombatExtended.Framework.TriggersActionsGSQ.Monsters;
 public static class MonsterBuffGameStateQueries
 {
     public static readonly string MonsterBuffIdItemKey = "MonsterBuff_Id".PrependId();
-    public static readonly string MonsterBuffContextTagsItemKey = "MonsterBuff_ContextTags".PrependId();
 
     [GSQ]
     private static bool MONSTER_BUFF_ID(string[] query, GameStateQueryContext context)
@@ -32,11 +32,10 @@ public static class MonsterBuffGameStateQueries
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(MonsterBuffContextTagsItemKey, out var contextTagsStr) == true)
+        if (context.TargetItem?.modData.TryGetValue(MonsterBuffIdItemKey, out var id) ?? false)
         {
-            var abilityContextTags = contextTagsStr.Split(' ');
-            return contextTags.Any(abilityContextTags.Contains);
+            return contextTags.Any(tag => MonsterBuffDataAsset.HasContextTag(id, tag));
         }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster buff context tags");
+        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster buff id to check context tags");
     }
 }

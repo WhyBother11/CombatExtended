@@ -29,6 +29,18 @@ public class AbilityData
     [ContentSerializer(Optional = true)]
     public List<string>? ContextTags;
 
+    [ContentSerializer(Optional = true)] 
+    public string? TriggerActionCondition;
+
+    [ContentSerializer(Optional = true)] 
+    public List<string>? ActionsOnTrigger;
+
+    [ContentSerializer(Optional = true)]
+    public string? CooldownEndActionCondition;
+    
+    [ContentSerializer(Optional = true)] 
+    public List<string>? ActionsOnCooldownEnd;
+
     #region DataAbilityContinious
 
     [ContentSerializer(Optional = true)]
@@ -39,6 +51,18 @@ public class AbilityData
 
     [ContentSerializer(Optional = true)]
     public int? DoEffectEverySec;
+
+    [ContentSerializer(Optional = true)] 
+    public string? EndActionCondition;
+    
+    [ContentSerializer(Optional = true)]
+    public List<string>? ActionsOnEnd;
+    
+    [ContentSerializer(Optional = true)] 
+    public string? EffectActionCondition;
+    
+    [ContentSerializer(Optional = true)]
+    public List<string>? ActionsOnEffect;
     #endregion
 
     #region DataAbilityThrow
@@ -53,7 +77,6 @@ public class AbilityData
 
     [ContentSerializer(Optional = true)] 
     public float? Angle;
-
     #endregion
 }
 
@@ -84,7 +107,7 @@ public class AbilityDataAsset : DataAsset<AbilityData>
 
     public static bool HasContextTag(string abilityId, string tag)
     {
-        return ContextTags.ContainsKey(tag);
+        return ContextTags.TryGetValue(abilityId, out var contextTags) && contextTags.Contains(tag);
     }
 
     protected override void OnInvalidated()

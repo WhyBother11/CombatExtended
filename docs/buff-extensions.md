@@ -1,14 +1,17 @@
 # Buff extensions
 
-Buff extension data is located in `Mods/WhyBother11.CombatExtended/BuffExtensionData`. This is a dictionary with key being existing buff id and value being
-data model described below. They are used to extend vanilla buffs.
+Buff extension data is located in `Mods/WhyBother11.CombatExtended/BuffExtensionData`. This is a dictionary with key 
+being existing buff id and value being data model described below. They are used to extend vanilla buffs.
 
 ## BuffExtensionData
 
-| Field             | Type                         | Description                                                                                                                                                                                                                              |
-|-------------------|------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `StackableData`   | `BuffExtensionStackableData` | *(Optional)* If present, buff can be stackable. Only applies to extra stacks (i.e. any extra stack after the first one, you still need to define `Effects` in `Data/Buffs` and it will be used to add the stats for first stack of buff. |
-| `ExtraAttributes` | `ExtraBuffAttributesData`    | *(Optional)* Analoguous to vanilla `BuffAttributesData` (`Effects` in `Data/Buffs`), used to add player stats added by this mod (e.g. `ArmourClass`).                                                                                    |
+| Field              | Type                         | Description                                                                                                                                                                                                                                                                 |
+|--------------------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `StackableData`    | `BuffExtensionStackableData` | *(Optional)* If present, buff can be stackable. Only applies to extra stacks (i.e. any extra stack after the first one, you still need to define `Effects` in `Data/Buffs` and it will be used to add the stats for first stack of buff. The data model is described below. |
+| `ExtraAttributes`  | `ExtraBuffAttributesData`    | *(Optional)* Analoguous to vanilla `BuffAttributesData` (`Effects` in `Data/Buffs`), used to add player stats added by this mod (e.g. `ArmourClass`). The data model is described below.                                                                                    |
+| `DoEffectEverySec` | `float`                      | *(Optional)* The time (in seconds) for buff effect to be triggered. If set to `0` or not set, no effect is triggered.                                                                                                                                                       |
+| `ActionsOnEffect`  | `List<string>`               | *(Optional)* The list of actions that should be triggered when the buff's effect is triggered (as per `DoEffectEverySec`).                                                                                                                                                  |
+| `MaxEffectAmount`  | `int`                        | *(Optional)* How many times should buff's effect be triggered. If set to `-2` there's no limit. Defaults to `-2`.                                                                                                                                                           |
 
 ### BuffExtensionStackableData
 
@@ -53,7 +56,11 @@ Example:
                             "ArmourClass": 2,
                             "FlatCriticalMultiplier": 2.5
                         }
-                    }
+                    },
+                    "DoEffectEverySec": 1,
+                    "ActionsOnEffect": [
+                        "WhyBother11.CombatExtended_AddPlayerHealth 5 5 true"
+                    ]
                 }
             }
         }
@@ -93,12 +100,7 @@ Example:
 }
 ```
 
-
-## Buff triggers
-
-### `WhyBother11.CombatExtended_BuffApplied`
-
-Raised when buff is applied. This trigger passes buff id as target item's id.
+# Triggers, trigger actions, GSQs stuff
 
 ## Buff trigger actions
 
@@ -117,8 +119,8 @@ Used to change maximum amount of stacks. `BuffId` corresponds to buff whose maxi
 
 Format: `WhyBother11.CombatExtended_AddArmourClass <#Amount>`
 
-Used to add armour class to current player directly. Any added armour class will be cleared upon day ending. `Amount` specifies
-how much armour class should be added.
+Used to add armour class to current player directly. Any added armour class will be cleared upon day ending. It also does
+not count as buff. `Amount` specifies how much armour class should be added.
 
 ## Buff game state queries
 

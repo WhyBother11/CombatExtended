@@ -25,7 +25,10 @@ public class MonsterBuffData
     public float? DoAnimationEverySec;
 
     [ContentSerializer(Optional = true)] 
-    public string? TemporaryAnimatedSprite;
+    public List<string>? AnimationTemporaryAnimatedSprites;
+
+    [ContentSerializer(Optional = true)] 
+    public List<string>? TemporaryAnimatedSprites;
 
     [ContentSerializer(Optional = true)] 
     public MonsterBuffAttributesData? Attributes;
@@ -35,6 +38,12 @@ public class MonsterBuffData
 
     [ContentSerializer(Optional = true)] 
     public MonsterBuffStackableData? StackableData;
+
+    [ContentSerializer(Optional = true)] 
+    public string? ApplyCondition;
+    
+    [ContentSerializer(Optional = true)] 
+    public List<string>? ContextTags;
     
     public class MonsterBuffStackableData
     {
@@ -73,6 +82,12 @@ public class MonsterBuffAttributesData
     public float? StunTime;
 
     [ContentSerializer(Optional = true)] 
+    public float? Speed;
+    
+    [ContentSerializer(Optional = true)] 
+    public float? Weight;
+
+    [ContentSerializer(Optional = true)] 
     public List<DamageAttributesData>? DamageData;
 
     [ContentSerializer(Optional = true)] 
@@ -81,6 +96,8 @@ public class MonsterBuffAttributesData
     public class ResistanceAttributesData
     {
         #nullable disable
+        public string Id;
+        
         public string DamageType;
 
         public float Delta;
@@ -90,6 +107,8 @@ public class MonsterBuffAttributesData
     public class DamageAttributesData
     {
         #nullable disable
+        public string Id;
+        
         public string DamageType;
 
         public float Damage;
@@ -103,6 +122,16 @@ public class MonsterBuffAttributesData
 [DataAsset("MonsterBuffs")]
 public class MonsterBuffDataAsset : DataAsset<MonsterBuffData>
 {
+    
+    private Dictionary<string, List<string>>? _contextTags;
+    private Dictionary<string, List<string>> InstanceContextTags => _contextTags ??= Data
+        .Where(entry => entry.Value.ContextTags != null)
+        .ToDictionary(
+            entry => entry.Key, 
+            entry => entry.Value.ContextTags!);
+
+    public static Dictionary<string, List<string>> ContextTags => ((MonsterBuffDataAsset)_instance).InstanceContextTags;
+    
     private MonsterBuffDataAsset(string path) : base(path) {}
     
     public static void RegisterAsset(IModHelper helper, string path)
@@ -114,5 +143,10 @@ public class MonsterBuffDataAsset : DataAsset<MonsterBuffData>
     public static bool Exists(string monsterBuffId)
     {
         return Data.ContainsKey(monsterBuffId);
+    }
+
+    public static bool HasContextTag(string monsterBuffId, string tag)
+    {
+        return ContextTags.TryGetValue(monsterBuffId, out var contextTags) && contextTags.Contains(tag);
     }
 }

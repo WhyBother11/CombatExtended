@@ -13,4 +13,4 @@ The existing contexts are:
 - `Monster buff context`;
 - `Projectile context`;
 - `Ability context`;
-- `Attack context`.
+- `Damage context`.

@@ -85,28 +85,6 @@ public class AbilityHotbar : IClickableMenu
         }
     }
 
-    private void DrawAbility(SpriteBatch b, Ability ability, int index, int xOffset)
-    {
-        var yIndex = index % _rowAmount;
-        var position = new Vector2(xPositionOnScreen + xOffset, yPositionOnScreen + yIndex * ScaledSize);
-        b.Draw(_hotbarTexture, position, new Rectangle(index == Selected ? Size : 0, 0, Size, Size), Color.White, scale: 4f);
-        var abilityPosition = new Vector2(position.X + ScaledAbilityPositionDelta, position.Y + ScaledAbilityPositionDelta);
-        var abilitySourceRect = Game1.getSourceRectForStandardTileSheet(ability.Texture, ability.SpriteIndex,
-            AbilitySize, AbilitySize);
-        b.Draw(ability.Texture, abilityPosition, abilitySourceRect, scale: 4f);
-
-        if (ability.IsCooldownEndHandled) return;
-        var shouldHandleDuration = ability is ContinuousAbility { IsActive: true };
-        var color = shouldHandleDuration ? Color.Green : Color.Red;
-        var partToFill = shouldHandleDuration && ability is ContinuousAbility continuousAbility
-            ? GetDurationPartToFill(continuousAbility)
-            : GetCooldownPartToFill(ability);
-        var fillHeight = partToFill * ScaledAbilitySize;
-        var fillPosition = new Vector2(abilityPosition.X, abilityPosition.Y + ScaledAbilitySize - fillHeight);
-        var rect = new Rectangle((int)fillPosition.X, (int)fillPosition.Y, ScaledAbilitySize, (int) Math.Ceiling(fillHeight));
-        b.Draw(Game1.staminaRect, rect, color * 0.5f);
-    }
-
     public override void receiveLeftClick(int x, int y, bool playSound = true)
     {
         var yIndex = (y - yPositionOnScreen) / ScaledSize;
@@ -137,6 +115,34 @@ public class AbilityHotbar : IClickableMenu
         base.performHoverAction(x, y);
     }
 
+    public void Next() => Selected = (Selected + 1) % _abilities.Count;
+    
+    public void Previous() => Selected = (Selected - 1 + _abilities.Count) % _abilities.Count;
+
+    public bool IsSelected() => Selected != -1 && Selected < _abilities.Count;
+    
+    private void DrawAbility(SpriteBatch b, Ability ability, int index, int xOffset)
+    {
+        var yIndex = index % _rowAmount;
+        var position = new Vector2(xPositionOnScreen + xOffset, yPositionOnScreen + yIndex * ScaledSize);
+        b.Draw(_hotbarTexture, position, new Rectangle(index == Selected ? Size : 0, 0, Size, Size), Color.White, scale: 4f);
+        var abilityPosition = new Vector2(position.X + ScaledAbilityPositionDelta, position.Y + ScaledAbilityPositionDelta);
+        var abilitySourceRect = Game1.getSourceRectForStandardTileSheet(ability.Texture, ability.SpriteIndex,
+            AbilitySize, AbilitySize);
+        b.Draw(ability.Texture, abilityPosition, abilitySourceRect, scale: 4f);
+
+        if (ability.IsCooldownEndHandled) return;
+        var shouldHandleDuration = ability is ContinuousAbility { IsActive: true };
+        var color = shouldHandleDuration ? Color.Green : Color.Red;
+        var partToFill = shouldHandleDuration && ability is ContinuousAbility continuousAbility
+            ? GetDurationPartToFill(continuousAbility)
+            : GetCooldownPartToFill(ability);
+        var fillHeight = partToFill * ScaledAbilitySize;
+        var fillPosition = new Vector2(abilityPosition.X, abilityPosition.Y + ScaledAbilitySize - fillHeight);
+        var rect = new Rectangle((int)fillPosition.X, (int)fillPosition.Y, ScaledAbilitySize, (int) Math.Ceiling(fillHeight));
+        b.Draw(Game1.staminaRect, rect, color * 0.5f);
+    }
+
     public static void Register(IModHelper helper)
     {
         helper.Events.Display.RenderedHud += EventHandlers.OnRenderedHud_Draw;
@@ -144,6 +150,7 @@ public class AbilityHotbar : IClickableMenu
         helper.Events.Input.ButtonPressed += EventHandlers.OnButtonPressed;
         helper.Events.Input.ButtonsChanged += EventHandlers.OnButtonReleased_ClearHighlighting;
         helper.Events.Input.CursorMoved += EventHandlers.OnCursorMoved;
+        helper.Events.Input.MouseWheelScrolled += EventHandlers.OnMouseWheelScrolled;
         helper.Events.GameLoop.UpdateTicked += EventHandlers.OnUpdateTicked_RecalculateHighlightedTiles;
         helper.Events.GameLoop.ReturnedToTitle += (_, _) => { _hotbar = null; };
         helper.Events.GameLoop.DayEnding += (_, _) => { _hotbar = null; };
@@ -172,6 +179,9 @@ public class AbilityHotbar : IClickableMenu
 
         private static int _prevTileX;
         private static int _prevTileY;
+
+        private static int _mouseWheelPlusDelta;
+        private static int _mouseWheelMinusDelta;
 
         public static void OnRenderedHud_Draw(object? sender, RenderedHudEventArgs e)
         {
@@ -208,8 +218,7 @@ public class AbilityHotbar : IClickableMenu
                         Helper.Input.Suppress(controllerButtons.ToSButton());
                 }
             }
-            if (!_hotbarKeyHeld && Config.HotbarKey.IsDown() && hotbar.Selected != -1 &&
-                hotbar.Selected < hotbar._abilities.Count)
+            if (!_hotbarKeyHeld && Config.HotbarKey.IsDown() && hotbar.IsSelected())
             {
                 Log.Trace("Registered hotbar key holding with ability selected.");
                 _hotbarKeyHeld = true;
@@ -217,8 +226,13 @@ public class AbilityHotbar : IClickableMenu
                 AbilityManager.HighlightAbility(ability);
             }
 
-            if (Config.UseAbilityKey.IsDown() && hotbar.Selected != -1 &&
-                hotbar.Selected < hotbar._abilities.Count)
+            if (Config.HotbarKey.IsDown() && Config.HotbarNextKey.IsDown() && hotbar.IsSelected())
+            {
+                hotbar.Next();
+                AbilityManager.HighlightAbility(hotbar.Current);
+            }
+
+            if (Config.UseAbilityKey.IsDown() && hotbar.IsSelected())
             {
                 Log.Trace("Registered use ability key usage.");
                 var ability = hotbar.Current;
@@ -260,6 +274,26 @@ public class AbilityHotbar : IClickableMenu
                 AbilityManager.HighlightAbility(hotbar.Current);
         }
 
+        public static void OnMouseWheelScrolled(object? sender, MouseWheelScrolledEventArgs e)
+        {
+            if (!_hotbarKeyHeld || !Hotbar().IsSelected()) return;
+            Helper.Input.SuppressScrollWheel();
+            if (e.Delta >= 0) _mouseWheelMinusDelta -= e.Delta;
+            else _mouseWheelPlusDelta -= e.Delta;
+            
+            var hotbar = Hotbar();
+            if (_mouseWheelPlusDelta >= 64)
+                hotbar.Next();
+            else if (_mouseWheelMinusDelta <= -64)
+                hotbar.Previous();
+            if (_mouseWheelPlusDelta >= 64 || _mouseWheelMinusDelta <= -64)
+            {
+                AbilityManager.HighlightAbility(hotbar.Current);
+                _mouseWheelPlusDelta = 0;
+                _mouseWheelMinusDelta = 0;
+            }
+        }
+
         /// <summary>
         /// Recalculate affected tiles when the player moves to account for abilities relative to player.
         /// </summary>
@@ -279,7 +313,6 @@ public class AbilityHotbar : IClickableMenu
             }
         }
 
-        private static bool ShouldHighlight => 
-            _hotbarKeyHeld && Hotbar().Selected != -1 && Hotbar().Selected < Hotbar()._abilities.Count;
+        private static bool ShouldHighlight => _hotbarKeyHeld && Hotbar().IsSelected();
     }
 }

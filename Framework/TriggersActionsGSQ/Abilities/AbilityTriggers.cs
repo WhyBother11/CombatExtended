@@ -13,4 +13,7 @@ public class AbilityTriggers
     
     [Trigger]
     private static void AbilityCooldownEnded() {}
+    
+    [Trigger]
+    private static void AbilityEffectTriggered() {}
 }

@@ -1,7 +1,6 @@
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.UI.Animations;
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Extensions;
 using StardewValley.Monsters;
@@ -14,17 +13,17 @@ public class MonsterBuff
     public static readonly string MonsterModDataBuffsKey = $"{ModBindings.Id}_Buffs";
 
     /// <summary>
-    /// Unique id for this monster buff
+    /// Unique ID for this monster buff.
     /// </summary>
     public string Id { get; }
     
     /// <summary>
-    /// Name of this buff.
+    /// The name of this buff.
     /// </summary>
     public string DisplayName { get; set; }
     
     /// <summary>
-    /// Description for this buff.
+    /// The description for this buff.
     /// </summary>
     public string Description { get; set; }
     
@@ -51,7 +50,9 @@ public class MonsterBuff
     /// </summary>
     public int DoAnimationEveryTick { get; set; }
     
-    public string? TemporaryAnimatedSprite { get; set; }
+    public List<string>? AnimationTemporaryAnimatedSprite { get; set; }
+    
+    public List<string>? TemporaryAnimatedSprites { get; set; }
     
     public MonsterBuffAttributes Attributes { get; set; }
     
@@ -64,41 +65,14 @@ public class MonsterBuff
     
     public bool IsDurationEndHandled { get; set; }
     
-    protected readonly MonsterBuffData? Data;
-    
     protected readonly List<TemporaryAnimatedSprite> TasList = new ();
-    
-    protected MonsterBuff(
-        string id,
-        string displayName,
-        string description,
-        float duration,
-        bool isDebuff,
-        MonsterBuffAttributes? attributes = null,
-        MonsterBuffAttributes? effectAttributes = null,
-        int doEffectEveryTick = 0,
-        int doAnimationEveryTick = 0,
-        string? temporaryAnimatedSprite = null)
-    {
-        Id = id;
-        DisplayName = displayName;
-        Description = description;
-        DurationTicks = duration.ToTicks();
-        IsDebuff = isDebuff;
-        Attributes = attributes ?? MonsterBuffAttributes.CreateEmpty();
-        EffectAttributes = effectAttributes ?? MonsterBuffAttributes.CreateEmpty();
-        DoEffectEveryTick = doEffectEveryTick;
-        DoAnimationEveryTick = doAnimationEveryTick;
-        TemporaryAnimatedSprite = temporaryAnimatedSprite;
-        TicksElapsed = 0;
-    }
 
     protected MonsterBuff(string id, MonsterBuffData data)
     {
         Id = id;
         DisplayName = data.DisplayName;
         Description = data.Description;
-        DurationTicks = data.Duration.ToTicks();
+        DurationTicks = !data.Duration.Equals(-2) ? data.Duration.ToTicks() : int.MaxValue;
         IsDebuff = data.IsDebuff;
         
         if (data.Attributes is not null)
@@ -110,28 +84,37 @@ public class MonsterBuff
         
         DoEffectEveryTick = data.DoEffectEverySec?.ToTicks() ?? 0;
         DoAnimationEveryTick = data.DoAnimationEverySec?.ToTicks() ?? 0;
-        if (data.TemporaryAnimatedSprite is not null)
-        {
-            if (!CombatTemporaryAnimatedSpriteDataAsset.Data.ContainsKey(data.TemporaryAnimatedSprite)) 
-                Log.Error($"Unknown temporary animated sprite {TemporaryAnimatedSprite}");
-        }
-        TemporaryAnimatedSprite = data.TemporaryAnimatedSprite;
-        Data = data;
+        AnimationTemporaryAnimatedSprite = data.AnimationTemporaryAnimatedSprites;
+        TemporaryAnimatedSprites = data.TemporaryAnimatedSprites;
     }
 
     /// <summary>
-    /// Raised when buff is applied.
+    /// Handle applying this monster buff to <paramref name="monster"/>.
     /// </summary>
-    /// <param name="monster">Monster instance.</param>
-    /// <param name="location">Monster location.</param>
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="location">The monster location.</param>
     public void HandleApplied(Monster monster, GameLocation location)
     {
         AddBuffToMonster(monster);
         IsDurationEndHandled = false;
         monster.ApplyMonsterBuffAttributes(Attributes);
+        if (TemporaryAnimatedSprites is not null)
+        {
+            foreach (var tas in TemporaryAnimatedSprites)
+            {
+                if (CombatTemporaryAnimatedSpriteDataAsset.Data.TryGetValue(tas, out var data))
+                    StartTemporaryAnimatedSprite(monster, location, data);
+                else Log.Warn($"Unknown temporary animated sprite {tas}");
+            }
+        }
         OnApplied(monster, location);
     }
 
+    /// <summary>
+    /// Raised when buff is applied.
+    /// </summary>
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="location">The monster location.</param>
     protected virtual void OnApplied(Monster monster, GameLocation location) {}
     
     public virtual void OnRenewed(Monster monster, GameLocation location) {}
@@ -139,10 +122,9 @@ public class MonsterBuff
     /// <summary>
     /// Do some effect every <see cref="MonsterBuff.DoEffectEveryTick"/> ticks.
     /// </summary>
-    /// <param name="monster">Monster instance.</param>
-    /// <param name="location">Monster location.</param>
-    /// <param name="tick">Current tick.</param>
-    public virtual void DoEffect(Monster monster, GameLocation location, uint tick)
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="location">The monster location.</param>
+    public virtual void DoEffect(Monster monster, GameLocation location)
     {
         monster.ApplyMonsterBuffAttributes(EffectAttributes);
         EffectTimesTriggered++;
@@ -151,94 +133,24 @@ public class MonsterBuff
     /// <summary>
     /// Do some animations every <see cref="MonsterBuff.DoAnimationEveryTick"/> ticks.
     /// </summary>
-    /// <param name="monster">Monster instance.</param>
-    /// <param name="location">Monster location.</param>
-    /// <param name="tick">Current tick.</param>
-    public virtual void DoAnimation(Monster monster, GameLocation location, uint tick)
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="location">The monster location.</param>
+    public virtual void DoAnimation(Monster monster, GameLocation location)
     {
-        if (DoAnimationEveryTick <= 0 || TemporaryAnimatedSprite is null ||
-            !CombatTemporaryAnimatedSpriteDataAsset.Data.TryGetValue(TemporaryAnimatedSprite, out var data)) return;
-        var monsterX = monster.Position.X;
-        var monsterY = monster.Position.Y;
-        var position = new Vector2(monsterX, monsterY);
-        if (data.AnimationSpec is not null)
+        if (DoAnimationEveryTick <= 0 || AnimationTemporaryAnimatedSprite is null) return;
+        foreach (var tas in AnimationTemporaryAnimatedSprite)
         {
-            switch (data.AnimationSpec.SpawnArea)
-            {
-                case "Top":
-                    if (data.AnimationSpec.Type == "Random")
-                    {
-                        position.X = Game1.random.Next((int)monsterX, (int)monsterX + monster.Sprite.getWidth() * 4);
-                        position.Y = Game1.random.Next((int)monsterY, (int)monsterY + monster.Sprite.getHeight() * 2);
-                    }
-                    else position = monster.GetApproximatePositionOnTop();
-                    break;
-                case "Bottom":
-                    if (data.AnimationSpec.Type == "Random")
-                    {
-                        position.X = Game1.random.Next((int)monsterX, (int)monsterX + monster.Sprite.getWidth() * 4);
-                        position.Y = Game1.random.Next((int)monsterY + monster.Sprite.getHeight() * 2, (int)monsterY + monster.Sprite.getHeight() * 4);
-                    }
-                    else position = monster.GetApproximatePositionOnBottom();
-                    break;
-                case "Full":
-                    if (data.AnimationSpec.Type == "Random")
-                    {
-                        position.X = Game1.random.Next((int)monsterX, (int)monsterX + monster.Sprite.getWidth() * 4);
-                        position.Y = Game1.random.Next((int)monsterY, (int)monsterY + monster.Sprite.getHeight() * 4);
-                    }
-                    break;
-            }
+            if (CombatTemporaryAnimatedSpriteDataAsset.Data.TryGetValue(tas, out var data))
+                StartTemporaryAnimatedSprite(monster, location, data);
+            else Log.Warn($"Unknown animation temporary animated sprite {tas}");
         }
-        var tas = data.Attached
-            ? new AttachedTextureTemporaryAnimatedSprite(
-                texturePath: data.Texture,
-                sourceRect: data.SourceRect,
-                animationInterval: data.Interval,
-                animationLength: data.Frames,
-                numberOfLoops: data.Loops,
-                position: position,
-                layerDepth: 0f,
-                color: Color.White,
-                attachTo: monster,
-                scale: data.Scale,
-                alphaFade: data.AlphaFade
-            )
-            : new TextureTemporaryAnimatedSprite(
-                texturePath: data.Texture,
-                sourceRect: data.SourceRect,
-                animationInterval: data.Interval,
-                animationLength: data.Frames,
-                numberOfLoops: data.Loops,
-                position: position,
-                layerDepth: 0f,
-                color: Color.White,
-                scale: data.Scale,
-                alphaFade: data.AlphaFade
-            );
-        if (data.AnimationSpec is not null)
-        {
-            if (data.AnimationSpec.Movement is not null)
-            {
-                var time = data.Interval / 1000 * data.Frames * data.Loops * 64;
-                var motion = data.AnimationSpec.Movement switch
-                {
-                    "Down" => new Vector2(0f, (monsterY + monster.Sprite.getHeight() - position.Y) / time),
-                    "Up" => new Vector2(0f, -(monsterY + monster.Sprite.getHeight() - position.Y) / time),
-                    _ => Vector2.Zero
-                };
-                tas.motion = motion;
-            }
-        }
-        TasList.Add(tas);
-        location.temporarySprites.Add(tas);
     }
 
     /// <summary>
     /// End this monster buff.
     /// </summary>
-    /// <param name="monster">Monster instance.</param>
-    /// <param name="location">Monster location.</param>
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="location">The monster location.</param>
     public void End(Monster monster, GameLocation location)
     {
         RemoveBuffFromMonster(monster);
@@ -254,22 +166,22 @@ public class MonsterBuff
     /// <summary>
     /// Raised when buff expires.
     /// </summary>
-    /// <param name="monster">Monster instance.</param>
-    /// <param name="location">Monster location.</param>
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="location">The monster location.</param>
     protected virtual void OnEnd(Monster monster, GameLocation location) {}
 
     /// <summary>
     /// Raised when monster with this buff dies.
     /// </summary>
-    /// <param name="monster">Monster instance.</param>
-    /// <param name="location">Monster location.</param>
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="location">The monster location.</param>
     public virtual void OnMonsterDeath(Monster monster, GameLocation location) {}
 
     /// <summary>
     /// Used after <see cref="OnMonsterDeath"/> or <see cref="End"/> to stop buff animations.
     /// </summary>
-    /// <param name="monster">Monster instance.</param>
-    /// <param name="location">Monster location.</param>
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="location">The monster location.</param>
     public virtual void StopAnimating(Monster monster, GameLocation location)
     {
         foreach (var temporaryAnimatedSprite in TasList)
@@ -281,7 +193,7 @@ public class MonsterBuff
     /// <summary>
     /// Add buff into <paramref name="monster"/> modData.
     /// </summary>
-    /// <param name="monster">Monster instance.</param>
+    /// <param name="monster">The monster instance.</param>
     protected virtual void AddBuffToMonster(Monster monster)
     {
         if (!monster.modData.TryGetValue(MonsterModDataBuffsKey, out var buffsStr))
@@ -298,9 +210,9 @@ public class MonsterBuff
     }
 
     /// <summary>
-    /// Removes buff from <paramref name="monster"/> modData.
+    /// Remove buff from <paramref name="monster"/>'s modData.
     /// </summary>
-    /// <param name="monster">Monster instance.</param>
+    /// <param name="monster">The monster instance.</param>
     protected virtual void RemoveBuffFromMonster(Monster monster)
     {
         if (!monster.modData.TryGetValue(MonsterModDataBuffsKey, out var buffsStr))
@@ -314,6 +226,64 @@ public class MonsterBuff
         monster.modData[MonsterModDataBuffsKey] = string.Join(' ', buffs);
     } 
 
+    protected void StartTemporaryAnimatedSprite(Monster monster, GameLocation location, CombatTemporaryAnimatedSpriteData data)
+    {
+        var monsterX = monster.Position.X;
+        var monsterY = monster.Position.Y;
+        var position = Vector2.Zero;
+        switch (data.Area)
+        {
+            case "Top":
+                if (data.SpawnType == "Random")
+                {
+                    position.X = Game1.random.Next((int)monsterX, (int)monsterX + monster.Sprite.getWidth() * 4);
+                    position.Y = Game1.random.Next((int)monsterY, (int)monsterY + monster.Sprite.getHeight() * 2);
+                }
+                //else position = monster.GetApproximatePositionOnTop();
+                else position = monster.Position;
+                break;
+            case "Bottom":
+                if (data.SpawnType == "Random")
+                {
+                    position.X = Game1.random.Next((int)monsterX, (int)monsterX + monster.Sprite.getWidth() * 4);
+                    position.Y = Game1.random.Next((int)monsterY + monster.Sprite.getHeight() * 2,
+                        (int)monsterY + monster.Sprite.getHeight() * 4);
+                }
+                //else position = monster.GetApproximatePositionOnBottom();
+                else position = new Vector2(monster.Position.X, monster.Position.Y + monster.Sprite.getHeight() * 4);
+                break;
+            case "Full":
+                if (data.SpawnType == "Random")
+                {
+                    position.X = Game1.random.Next((int)monsterX, (int)monsterX + monster.Sprite.getWidth() * 4);
+                    position.Y = Game1.random.Next((int)monsterY, (int)monsterY + monster.Sprite.getHeight() * 4);
+                }
+                else position = monster.Position;
+                break;
+            default:
+                position = monster.Position;
+                break;
+        }
+        var tas = data.Attached
+            ? AttachedTextureTemporaryAnimatedSprite.FromData(data, position, monster)
+            : TextureTemporaryAnimatedSprite.FromData(data, position);
+        if (data.Movement is not null)
+        {
+            var time = data.Interval / 1000 * data.Frames * data.Loops * 64;
+            var motion = data.Movement switch
+            {
+                "Down" => new Vector2(0f, (monsterY + monster.Sprite.getHeight() - position.Y) / time),
+                "Up" => new Vector2(0f, -(monsterY + monster.Sprite.getHeight() - position.Y) / time),
+                "Right" => new Vector2((monsterX + monster.Sprite.getWidth() - position.X) / time, 0f),
+                "Left" => new Vector2(-(monsterX + monster.Sprite.getWidth() - position.X), 0f),
+                _ => Vector2.Zero
+            };
+            tas.motion = motion;
+        }
+        TasList.Add(tas);
+        location.temporarySprites.Add(tas);
+    }
+
     /// <summary>
     /// Create <see cref="MonsterBuff"/> instance based on buff id.
     /// </summary>
@@ -323,8 +293,6 @@ public class MonsterBuff
     /// <exception cref="ArgumentException">Buff id is unknown.</exception>
     public static MonsterBuff Create(string buffId, float durationSecondsOverride = 0)
     {
-        if (CustomMonsterBuffFactories.TryGetValue(buffId, out var factory))
-            return factory();
         if (!MonsterBuffDataAsset.Data.TryGetValue(buffId, out var data))
             throw new ArgumentException($"Unknown monster buff ID {buffId}");
         if (CustomDataMonsterBuffFactories.TryGetValue(buffId, out var dataFactory))
@@ -338,13 +306,7 @@ public class MonsterBuff
         return buff;
     }
     
-    private static readonly Dictionary<string, Func<MonsterBuff>> CustomMonsterBuffFactories = new ();
     private static readonly Dictionary<string, Func<MonsterBuffData, MonsterBuff>> CustomDataMonsterBuffFactories = new ();
-
-    public static void RegisterCustom(string abilityId, Func<MonsterBuff> factory)
-    {
-        CustomMonsterBuffFactories[abilityId] = factory;
-    }
     
     public static void RegisterCustom(string abilityId, Func<MonsterBuffData, MonsterBuff> factory)
     {

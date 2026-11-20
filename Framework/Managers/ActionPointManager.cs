@@ -38,6 +38,7 @@ public class ActionPointManager
 
     public static void Register(IModHelper helper)
     {
+        PerScreenInstance.Value = new ActionPointManager();
         helper.Events.GameLoop.UpdateTicked += PerScreenInstance.Value.OnUpdateTicked_HandleActionPointReplenish;
         Event.OnWeaponSwitched += PerScreenInstance.Value.OnWeaponSwitched_EnableActionPoints;
         Event.OnWeaponEquipped += PerScreenInstance.Value.OnWeaponEquipped_EnableActionPoints;

@@ -6,8 +6,8 @@ public static class Triggers
 {
     public static readonly string AbilityTriggered = "AbilityTriggered".PrependId();
     public static readonly string AbilityEnded = "AbilityEnded".PrependId();
-    public static readonly string CooldownEnded = "AbilityCooldownEnded".PrependId();
-    // TODO: ability continuous effect
+    public static readonly string AbilityCooldownEnded = "AbilityCooldownEnded".PrependId();
+    public static readonly string AbilityEffectTriggered = "AbilityEffectTriggered".PrependId();
     
     public static readonly string BuffApplied = "BuffApplied".PrependId();
     

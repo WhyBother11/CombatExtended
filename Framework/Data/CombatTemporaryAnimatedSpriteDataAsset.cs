@@ -14,11 +14,19 @@ public class CombatTemporaryAnimatedSpriteData
     [ContentSerializer(Optional = true)]
     public bool Attached = false;
 
+    public string? Movement;
+
+    public string Area;
+
     [ContentSerializer(Optional = true)]
-    public AnimationSpecData? AnimationSpec;
+    public string SpawnType = "Static";
+    
     
     [ContentSerializer(Optional = true)]
     public float Interval = 100f;
+
+    [ContentSerializer(Optional = true)] 
+    public Vector2 Delta = Vector2.Zero;
     
     [ContentSerializer(Optional = true)]
     public int Frames = 1;
@@ -46,15 +54,6 @@ public class CombatTemporaryAnimatedSpriteData
     
     [ContentSerializer(Optional = true)]
     public float RotationChange;
-
-    public class AnimationSpecData
-    {
-        public string Type;
-
-        public string SpawnArea;
-
-        public string? Movement;
-    }
 }
 #pragma warning restore CS8618
 

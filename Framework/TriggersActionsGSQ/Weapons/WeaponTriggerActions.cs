@@ -28,9 +28,9 @@ public static class WeaponTriggerActions
             return false;
         }
 
-        if (state != "_default" ||
-            !WeaponExtensionDataAsset.WeaponStates.TryGetValue(weaponId, out var states) ||
-            !states.ContainsKey(state))
+        if (state != "_default" &&
+            (!WeaponExtensionDataAsset.WeaponStates.TryGetValue(weaponId, out var states) ||
+            !states.ContainsKey(state)))
         {
             return false;
         }

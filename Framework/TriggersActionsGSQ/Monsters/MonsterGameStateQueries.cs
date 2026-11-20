@@ -14,6 +14,7 @@ public static class MonsterGameStateQueries
     public static readonly string MonsterBuffsItemKey = "Monster_Buffs".PrependId();
     public static readonly string MonsterBuffStacksItemKey = "Monster_Buffs_Stacks".PrependId();
     public static readonly string MonsterStunTimeItemKey = "Monster_StunTime".PrependId();
+    public static readonly string MonsterStatusesItemKey = "Monster_Statuses".PrependId();
 
     /// <summary>
     /// Check if monster's health is between provided arguments.
@@ -29,9 +30,7 @@ public static class MonsterGameStateQueries
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
         if (minHp <= 0) minHp = int.MinValue;
-        var maxHp = int.MaxValue;
-        if (ArgUtility.TryGetInt(query, 1, out var argMaxHp, out _))
-            maxHp = argMaxHp;
+        ArgUtility.TryGetOptionalInt(query, 2, out var maxHp, out _, int.MaxValue);
         if (context.TargetItem?.modData.TryGetValue(MonsterHealthItemKey, out var healthStr) ?? false)
         {
             var monsterHealth = int.Parse(healthStr);
@@ -113,11 +112,9 @@ public static class MonsterGameStateQueries
     {
         if (!ArgUtility.TryGet(query, 1, out var monsterBuffId, out var error))
             return GameStateQuery.Helpers.ErrorResult(query, error);
-        if (!ArgUtility.TryGetInt(query, 1, out var min, out error))
+        if (!ArgUtility.TryGetInt(query, 2, out var min, out error))
             return GameStateQuery.Helpers.ErrorResult(query, error);
-        var max = int.MaxValue;
-        if (ArgUtility.TryGetInt(query, 1, out var argMax, out error))
-            max = argMax;
+        ArgUtility.TryGetOptionalInt(query, 3, out var max, out _, int.MaxValue);
         if (context.TargetItem?.modData.TryGetValue(MonsterBuffStacksItemKey, out var monsterBuffsStacksStr) ?? false)
         {
             var itemMonsterBuffStacks = monsterBuffsStacksStr.Split(' ');
@@ -154,5 +151,19 @@ public static class MonsterGameStateQueries
             return stunTime >= min && stunTime <= max;
         }
         return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster stun time.");
+    }
+
+    private static bool MONSTER_HAS_STATUS(string[] query, GameStateQueryContext context)
+    {
+        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var statuses, out var error))
+        {
+            return GameStateQuery.Helpers.ErrorResult(query, error);
+        }
+        if (context.TargetItem?.modData.TryGetValue(MonsterStatusesItemKey, out var monsterStatusesStr) ?? false)
+        {
+            var itemMonsterStatuses = monsterStatusesStr.Split(' ');
+            return statuses.Any(itemMonsterStatuses.Contains);
+        }
+        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster statuses.");
     }
 }

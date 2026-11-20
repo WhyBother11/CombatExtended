@@ -102,6 +102,8 @@ inventory, its state is restored to default (but will be set to any currently ac
 
 `DamageTypeWeaponExtensionData` can have multiple damage instances with the same `DamageType`. They will count towards the same damage type.
 
+# Triggers, trigger actions, GSQs stuff
+
 ## Weapon trigger actions
 
 Required arguments are surrounded with `<>`, while optional with `[]`. If optional argument has `*` after it, it is optional

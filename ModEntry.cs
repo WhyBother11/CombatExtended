@@ -27,6 +27,8 @@ public class ModEntry : Mod
     public ModLog Log { get; private set; }
     
     public IMonsterBuffManager MonsterBuffManager { get; private set; }
+    
+    public MonsterStatusManager MonsterStatusManager { get; private set; }
     #nullable restore
 
     public override void Entry(IModHelper helper)
@@ -54,7 +56,8 @@ public class ModEntry : Mod
         ActionPointIcons.Register(helper);
         
         helper.Events.GameLoop.DayStarted += OnDayStarted_RegisterManagers;
-        helper.Events.GameLoop.DayEnding += OnDayEnding_UnregisterManagers;
+        helper.Events.GameLoop.DayEnding += (_, _) => { UnregisterManagers(); };
+        helper.Events.GameLoop.ReturnedToTitle += (_, _) => { UnregisterManagers(); };
         helper.Events.GameLoop.GameLaunched += OnGameLaunched_AddGmcmIntegration;
     }
 
@@ -121,6 +124,12 @@ public class ModEntry : Mod
             MonsterBuffManager = new FarmhandMonsterBuffManager();
             MonsterBuffManager.Register(Helper);
         }
+
+        if (Context.IsMainPlayer)
+        {
+            MonsterStatusManager = new MonsterStatusManager();
+            MonsterStatusManager.Register(Helper);
+        }
         
         WeaponManager.Register(Helper);
         CooldownManager.Register(Helper);
@@ -129,9 +138,11 @@ public class ModEntry : Mod
         ActionPointManager.Register(Helper);
     }
 
-    private void OnDayEnding_UnregisterManagers(object? sender, DayEndingEventArgs e)
+    private void UnregisterManagers()
     {
         MonsterBuffManager.Unregister(Helper);
+        if (Context.IsMainPlayer)
+            MonsterStatusManager.Unregister(Helper);
         WeaponManager.Unregister(Helper);
         CooldownManager.Unregister(Helper);
         AbilityManager.Unregister(Helper);

@@ -5,16 +5,20 @@
     },
     "Dust Spirit": {
         "Tags": "",
-        "ExtraArmourClass": -1
+        "ExtraArmourClass": -1,
+        "ExtraWeight": -2
     },
     "Bat": {
-        "Tags": "Flying Animal"
+        "Tags": "Flying Animal",
+        "ExtraWeight": -1
     },
     "Frost Bat": {
-        "Tags": "Flying Animal"
+        "Tags": "Flying Animal",
+        "ExtraWeight": -1
     },
     "Lava Bat": {
-        "Tags": "Flying Animal"
+        "Tags": "Flying Animal",
+        "ExtraWeight": -1
     },
     "Iridium Bat": {
         "Tags": "Flying Animal Iridium",
@@ -22,23 +26,28 @@
     },
     "Stone Golem": {
         "Tags": "Golem Construct",
-        "ExtraArmourClass": 2
+        "ExtraArmourClass": 2,
+        "ExtraWeight": 2
     },
     "Wilderness Golem": {
         "Tags": "Golem Construct",
-        "ExtraArmourClass": 2
+        "ExtraArmourClass": 2,
+        "ExtraWeight": 2
     },
     "Iridium Golem": {
         "Tags": "Golem Construct Iridium",
-        "ExtraArmourClass": 3
+        "ExtraArmourClass": 3,
+        "ExtraWeight": 3
     },
     "Grub": {
         "Tags": "Animal Insect",
-        "ExtraArmourClass": -1
+        "ExtraArmourClass": -1,
+        "ExtraWeight": -1
     },
     "Fly": {
         "Tags": "Flying Animal Insect",
-        "ExtraArmourClass": -1
+        "ExtraArmourClass": -1,
+        "ExtraWeight": -2
     },
     "Frost Jelly": {
         "Tags": "Slime Fire_Weak Ice_Enduring",
@@ -51,28 +60,33 @@
         "Tags": "Slime Fire_Enduring Ice_Weak"
     },
     "Ghost": {
-        "Tags": "Flying Undead Ghost"
+        "Tags": "Flying Undead Ghost",
+        "ExtraWeight": -1
     },
     "Carbon Ghost": {
-        "Tags": "Flying Undead Ghost"
+        "Tags": "Flying Undead Ghost",
+        "ExtraWeight": -1
     },
     "Duggy": {
         "Tags": ""
     },
     "Rock Crab": {
         "Tags": "Animal",
-        "ExtraArmourClass": 1
+        "ExtraArmourClass": 1,
+        "ExtraWeight": 1
     },
     "Truffle Crab": {
         "Tags": "Animal"
     },
     "Lava Crab": {
         "Tags": "Animal Fire_Enduring",
-        "ExtraArmourClass": 2
+        "ExtraArmourClass": 2,
+        "ExtraWeight": 1
     },
     "Iridium Crab": {
         "Tags": "Animal Iridium",
-        "ExtraArmourClass": 3
+        "ExtraArmourClass": 3,
+        "ExtraWeight": 2
     },
     "Squid Kid": {
         "Tags": "Ranged"
@@ -96,24 +110,28 @@
     },
     "Metal Head": {
         "Tags": "",
-        "ExtraArmourClass": 3
+        "ExtraArmourClass": 3,
+        "ExtraWeight": 3
     },
     "Bug": {
         "Tags": "Flying Animal Insect",
-        "ExtraArmourClass": -1
+        "ExtraArmourClass": -1,
+        "ExtraWeight": -1
     },
     "Mummy": {
         "Tags": "Undead Mummy"
     },
     "Big Slime": {
-        "Tags": "Slime"
+        "Tags": "Slime",
+        "ExtraWeight": 2
     },
     "Serpent": {
         "Tags": "Flying Serpent"
     },
     "Pepper Rex": {
         "Tags": "Animal Fire_Enduring",
-        "ExtraArmourClass": 2
+        "ExtraArmourClass": 2,
+        "ExtraWeight": 4
     },
     "Tiger Slime": {
         "Tags": "Slime",
@@ -124,7 +142,8 @@
     },
     "Hot Head": {
         "Tags": "",
-        "ExtraArmourClass": 2
+        "ExtraArmourClass": 2,
+        "ExtraWeight": 3
     },
     "Magma Sprite": {
         "Tags": "Flying MagmaSprite"
@@ -140,21 +159,25 @@
     },
     "Dwarvish Sentry": {
         "Tags": "Flying Construct",
-        "ExtraArmourClass": 3
+        "ExtraArmourClass": 3,
+        "ExtraWeight": 3
     },
     "Putrid Ghost": {
-        "Tags": "Flying Undead Ghost Poison_Immune"
+        "Tags": "Flying Undead Ghost Poison_Immune",
+        "ExtraWeight": -1
     },
     "Shadow Sniper": {
         "Tags": "Shadow Ranged"
     },
     "Spider": {
         "Tags": "Animal Insect",
-        "ExtraArmourClass": -1
+        "ExtraArmourClass": -1,
+        "ExtraWeight": -1
     },
     "Royal Serpent": {
         "Tags": "Flying Serpent",
-        "ExtraArmourClass": 1
+        "ExtraArmourClass": 1,
+        "ExtraWeight": 2
     },
     "Blue Squid": {
         "Tags": "Animal"

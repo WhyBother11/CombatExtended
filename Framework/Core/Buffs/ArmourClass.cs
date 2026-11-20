@@ -1,31 +1,16 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Emit;
-using CombatExtended.Framework.Core.Buffs;
-using CombatExtended.Framework.Data;
 using HarmonyLib;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CombatExtended.Framework.Core.Damage;
+namespace CombatExtended.Framework.Core.Buffs;
 
 [HarmonyPatch]
 public static class ArmourClass
 {
-    
-    public const int DefaultMonsterArmourClass = 3;
-
-    public const double MissChancePerOne = 0.05;
 
     private static readonly PerScreen<int> FarmerArmourClass = new (() => 0);
-    
-    public static float MonsterMissChanceWithArmourClass(Monster monster, int ac)
-    {
-        var missChance = monster.missChance.Value;
-        var result = Math.Min(missChance + MissChancePerOne * ac, 19 * MissChancePerOne);
-        return (float) result;
-    }
 
     #region FarmerArmourClass
     /// <summary>
@@ -113,34 +98,6 @@ public static class ArmourClass
             Game1.player.currentLocation.debris.Add(new Debris("MISS!!!", 1, debrisOrigin, Color.LightGray, 1f, 0.0f));
         }
         return result;
-    }
-    #endregion
-
-    #region Data
-    public static int GetExtraArmourClass(Monster monster)
-    {
-        return GetExtraArmourClass(monster.Name);
-    }
-    
-    private static int GetExtraArmourClass(string monsterName)
-    {
-        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterName) || 
-            MonsterExtensionDataAsset.Data[monsterName].ExtraArmourClass == null)
-            return 0;
-        return MonsterExtensionDataAsset.ExtraArmourClasses[monsterName];
-    }
-    
-    public static bool TryGetMonsterExtraArmourClass(string monsterId, [NotNullWhen(true)] out int? ac)
-    {
-        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterId) || 
-            MonsterExtensionDataAsset.Data[monsterId].ExtraArmourClass == null)
-        {
-            ac = null;
-            return false;
-        }
-
-        ac = GetExtraArmourClass(monsterId);
-        return true;
     }
     #endregion
 }

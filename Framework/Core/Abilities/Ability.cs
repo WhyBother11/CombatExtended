@@ -2,7 +2,6 @@ using CombatExtended.Framework.Core.Abilities.Impl;
 using CombatExtended.Framework.Core.Util;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
@@ -25,61 +24,43 @@ public class Ability
     /// Description for this ability.
     /// </summary>
     public string Description { get; set; }
-    
-    /// <summary>
-    /// How many seconds should pass before using this ability again.
-    /// </summary>
-    public float Cooldown { 
-        get => _cooldown;
-        set
-        {
-            _cooldown = value;
-            CooldownTicks = value.ToTicks();
-        }
-    }
-    private float _cooldown;
 
     public int CooldownTicks { get; private set; }
     
     public Texture2D Texture { get; set; }
     
     public int SpriteIndex { get; set; }
+    
+    public string? HighlightRangeId { get; set; }
+    
+    public string? TriggerActionCondition { get; set; }
+
+    public List<string>? ActionsOnTrigger { get; set; }
+
+    public string? CooldownEndActionCondition { get; set; }
+    
+    public List<string>? ActionsOnCooldownEnd { get; set; }
 
     public int CooldownTicksElapsed { get; set; }
 
-    public bool IsCooldownEndHandled { get; set; } = true;
-    
-    protected readonly AbilityData? Data;
+    public bool IsCooldownEndHandled { get; private set; } = true;
     
     private HashSet<ParsedVector>? _relativeTiles;
-    
-    protected Ability(
-        string id,
-        string displayName,
-        string description,
-        float cooldown,
-        string texture,
-        int spriteIndex)
-    {
-        Id = id;
-        DisplayName = displayName;
-        Description = description;
-        Cooldown = cooldown;
-        Texture = Helper.GameContent.Load<Texture2D>(texture);
-        SpriteIndex = spriteIndex;
-        CooldownTicksElapsed = CooldownTicks;
-    }
     
     protected Ability(string id, AbilityData data)
     {
         Id = id;
         DisplayName = data.DisplayName;
         Description = data.Description;
-        Cooldown = data.Cooldown;
+        CooldownTicks = data.Cooldown.ToTicks();
         Texture = Helper.GameContent.Load<Texture2D>(data.Texture);
         SpriteIndex = data.SpriteIndex;
         CooldownTicksElapsed = CooldownTicks;
-        Data = data;
+        HighlightRangeId = data.HighlightRangeId;
+        TriggerActionCondition = data.TriggerActionCondition;
+        ActionsOnTrigger = data.ActionsOnTrigger;
+        CooldownEndActionCondition = data.CooldownEndActionCondition;
+        ActionsOnCooldownEnd = data.ActionsOnCooldownEnd;
     }
 
     /// <summary>
@@ -122,8 +103,6 @@ public class Ability
 
     public static Ability Create(string abilityId)
     {
-        if (CustomAbilityFactories.TryGetValue(abilityId, out var factory))
-            return factory();
         if (!AbilityDataAsset.Data.TryGetValue(abilityId, out var abilityData))
             throw new ArgumentException($"Unknown ability ID {abilityId}");
         if (CustomDataAbilityFactories.TryGetValue(abilityId, out var dataFactory))
@@ -137,13 +116,7 @@ public class Ability
         };
     }
     
-    private static readonly Dictionary<string, Func<Ability>> CustomAbilityFactories = new ();
     private static readonly Dictionary<string, Func<AbilityData, Ability>> CustomDataAbilityFactories = new ();
-
-    public static void RegisterCustom(string abilityId, Func<Ability> factory)
-    {
-        CustomAbilityFactories[abilityId] = factory;
-    }
     
     public static void RegisterCustom(string abilityId, Func<AbilityData, Ability> factory)
     {
@@ -152,10 +125,10 @@ public class Ability
 
     private HashSet<ParsedVector> GetRelativeTiles()
     {
-        if (Data?.HighlightRangeId is null || !RangeDataAsset.Exists(Data.HighlightRangeId)) return new HashSet<ParsedVector>();
-        if (!RangeDataAsset.NonStaticRange(Data.HighlightRangeId)) 
+        if (HighlightRangeId is null || !RangeDataAsset.Exists(HighlightRangeId)) return new HashSet<ParsedVector>();
+        if (!RangeDataAsset.NonStaticRange(HighlightRangeId)) 
             return _relativeTiles ??= 
-                TileParser.ParseTiles(RangeDataAsset.Data[Data.HighlightRangeId].Tiles ?? new List<RangeTileData>());
-        return TileParser.ParseTiles(RangeDataAsset.Data[Data.HighlightRangeId].Tiles ?? new List<RangeTileData>());
+                TileParser.ParseTiles(RangeDataAsset.Data[HighlightRangeId].Tiles ?? new List<RangeTileData>());
+        return TileParser.ParseTiles(RangeDataAsset.Data[HighlightRangeId].Tiles ?? new List<RangeTileData>());
     }
 }

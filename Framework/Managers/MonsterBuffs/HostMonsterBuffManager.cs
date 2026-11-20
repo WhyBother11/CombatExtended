@@ -27,8 +27,6 @@ public class HostMonsterBuffManager : IMonsterBuffManager
     
     /// <summary>
     /// Single source of truth for all monster buffs.
-    /// <remarks>Key is <see cref="GameLocation.Name"/>.</remarks>
-    /// <remarks>Value is a dictionary of all tracked monsters with any buff applied.</remarks>
     /// </summary>
     private readonly ConditionalWeakTable<Monster, Dictionary<string, MonsterBuff>> _buffs = new();
     
@@ -54,15 +52,15 @@ public class HostMonsterBuffManager : IMonsterBuffManager
     }
 
     [HarmonyPatch]
-    public void Monster_takeDamage_Postfix(Monster __instance)
+    private void Monster_takeDamage_Postfix(Monster __instance)
     {
         if (__instance.Health > 0 || !_buffs.TryGetValue(__instance, out var buffs)) return;
         var location = __instance.currentLocation;
         foreach (var monsterBuff in buffs.Values)
         {
+            Utility.RaiseMonsterDeathTrigger(__instance, location);
             monsterBuff.OnMonsterDeath(__instance, location);
             monsterBuff.StopAnimating(__instance, location);
-            Utility.RaiseMonsterDeathTrigger(__instance, location);
         }
         _buffs.Remove(__instance);
     }
@@ -83,20 +81,20 @@ public class HostMonsterBuffManager : IMonsterBuffManager
                 if (monsterBuff.TicksElapsed >= monsterBuff.DurationTicks)
                 {
                     if (monsterBuff.IsDurationEndHandled) continue;
+                    HandleMonsterBuffTrigger(Triggers.MonsterBuffExpired, monsterBuff, monster, monster.currentLocation);
                     monsterBuff.End(monster, monster.currentLocation);
                     monsterBuff.StopAnimating(monster, monster.currentLocation);
-                    HandleMonsterBuffTrigger(Triggers.MonsterBuffExpired, monsterBuff, monster, monster.currentLocation);
                     continue;
                 }
 
-                if (monsterBuff.DoEffectEveryTick > 0 && e.IsMultipleOf(_doEffectUintTicks[monsterBuffId]))
+                if (monsterBuff.DoEffectEveryTick > 0 && monsterBuff.TicksElapsed % _doEffectUintTicks[monsterBuffId] == 0)
                 {
-                    monsterBuff.DoEffect(monster, monster.currentLocation, e.Ticks);
+                    monsterBuff.DoEffect(monster, monster.currentLocation);
                     HandleMonsterBuffTrigger(Triggers.MonsterBuffContinuousEffect, monsterBuff, monster, monster.currentLocation);
                 }
-                if (monsterBuff.DoAnimationEveryTick > 0 && e.IsMultipleOf(_doAnimationUintTicks[monsterBuffId]))
+                if (monsterBuff.DoAnimationEveryTick > 0 && monsterBuff.TicksElapsed % _doAnimationUintTicks[monsterBuffId] == 0)
                 {
-                    monsterBuff.DoAnimation(monster, monster.currentLocation, e.Ticks);
+                    monsterBuff.DoAnimation(monster, monster.currentLocation);
                 }
 
                 // tick elapsing
@@ -182,6 +180,7 @@ public class HostMonsterBuffManager : IMonsterBuffManager
 
     public void ApplyBuff(Monster monster, GameLocation loc, string buffId, string? applier = null, string? applierId = null)
     {
+        if (!Utility.CheckMonsterBuffApplyCondition(monster, buffId)) return;
         ApplyBuffNoTriggerRaised(monster, loc, buffId, applier, applierId);
         Utility.RaiseMonsterBuffTrigger(Triggers.MonsterBuffApplied, buffId, monster, loc);
     }

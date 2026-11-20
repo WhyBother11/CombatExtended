@@ -3,6 +3,7 @@ using CombatExtended.Framework.Core.Abilities;
 using CombatExtended.Framework.Core.Misc.Projectiles;
 using CombatExtended.Framework.Core.Monsters;
 using CombatExtended.Framework.Core.Monsters.Buffs;
+using CombatExtended.Framework.Core.Monsters.Conditions;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Abilities;
 using CombatExtended.Framework.TriggersActionsGSQ.Monsters;
@@ -45,6 +46,9 @@ public static class TriggerActionGSQUtils
         }
         item.modData[MonsterGameStateQueries.MonsterBuffStacksItemKey] = monsterBuffStacksSb.ToString();
         item.modData[MonsterGameStateQueries.MonsterStunTimeItemKey] = monster.stunTime.Value.ToString();
+        if (monster.modData.TryGetValue(MonsterStatus.MonsterModDataStatusesKey, out var monsterStatuses))
+            item.modData[MonsterGameStateQueries.MonsterStatusesItemKey] = monsterStatuses;
+        else item.modData[MonsterGameStateQueries.MonsterStatusesItemKey] = "";
     }
 
     /// <summary>
@@ -55,11 +59,6 @@ public static class TriggerActionGSQUtils
     public static void PackMonsterBuffInfo(this Item item, MonsterBuff monsterBuff)
     {
         item.modData[MonsterBuffGameStateQueries.MonsterBuffIdItemKey] = monsterBuff.Id;
-        /*item.modData[MonsterBuffGameStateQueries.MonsterBuffContextTagsItemKey] = ArgUtility.UnsplitQuoteAware(
-            monsterBuff.
-        );*/
-        // TODO: do monster buff context tags
-        item.modData[MonsterBuffGameStateQueries.MonsterBuffContextTagsItemKey] = "";
     }
 
     /// <summary>
@@ -70,11 +69,6 @@ public static class TriggerActionGSQUtils
     public static void PackAbilityInfo(this Item item, Ability ability)
     {
         item.modData[AbilityGameStateQueries.AbilityIdItemKey] = ability.Id;
-        if (AbilityDataAsset.ContextTags.TryGetValue(ability.Id, out var contextTags))
-        {
-            item.modData[AbilityGameStateQueries.AbilityContextTagsItemKey] = string.Join(' ', contextTags);
-        }
-        else item.modData[AbilityGameStateQueries.AbilityContextTagsItemKey] = "";
     }
 
     public static void PackProjectileInfo(this Item item, CustomProjectile projectile)

@@ -19,9 +19,8 @@ public class ActionPointGameStateQueries
         }
         if (!ActionPointDataAsset.Exists(id))
             return GameStateQuery.Helpers.ErrorResult(query, $"Unknown action point id: {id}");
-        var max = int.MaxValue;
-        if (ArgUtility.TryGetInt(query, 3, out var argMax, out _))
-            max = argMax;
+        
+        ArgUtility.TryGetOptionalInt(query, 3, out var max, out _, int.MaxValue);
         var pointAmount = ActionPointManager.GetActionPointAmount(id);
         return pointAmount >= min && pointAmount <= max;
     }
@@ -36,9 +35,7 @@ public class ActionPointGameStateQueries
         }
         if (!ActionPointDataAsset.Exists(id))
             return GameStateQuery.Helpers.ErrorResult(query, $"Unknown action point id: {id}");
-        var max = int.MaxValue;
-        if (ArgUtility.TryGetInt(query, 3, out var argMax, out _))
-            max = argMax;
+        ArgUtility.TryGetOptionalInt(query, 3, out var max, out _, int.MaxValue);
         var maxPointAmount = ActionPointManager.ActionPoints[id].MaxAmount;
         return maxPointAmount >= min && maxPointAmount <= max;
     }

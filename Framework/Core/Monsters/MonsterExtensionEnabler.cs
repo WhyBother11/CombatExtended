@@ -2,7 +2,6 @@ using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Core.Monsters.Tags;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.Util;
-using CombatExtended.Integrations.Compatibility.Tags;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -67,7 +66,7 @@ public static class MonsterExtensionEnabler
     {
         if (monster.modData.ContainsKey(MonsterExtensionsAppliedModDataKey)) return;
         var resistance = new CombinedResistance();
-        var tags = monster.GetTags().WithCompatibility(monster);
+        var tags = monster.GetTags();
         foreach (var tagData in TagDataAsset.Data.Values)
         {
             if (tagData.Condition is not null && GameStateQuery.CheckConditions(tagData.Condition, location))
@@ -78,9 +77,10 @@ public static class MonsterExtensionEnabler
         if (Config.NoImmunities)
             resistance.NoImmunities();
         monster.UpdateResistance(resistance);
-        var ac = monster.GetArmourClass().WithCompatibility(monster);
-        monster.AddArmourClass(ac);
-        if (monster.modData.ContainsKey(MonsterExtensionsAppliedModDataKey)) return;
+        var ac = monster.GetDataArmourClass();
+        monster.ApplyArmourClass(ac);
+        var weight = monster.GetDataWeight();
+        monster.ApplyWeight(weight);
         monster.modData[MonsterExtensionsAppliedModDataKey] = "true";
         monster.modData[MonsterIdModDataKey] = $"{Game1.player.UniqueMultiplayerID}_{GetNextMonsterId()}";
     }

@@ -26,6 +26,7 @@ public class StackableBuffManager
 
     public static void Register(IModHelper helper)
     {
+        PerScreenInstance.Value = new StackableBuffManager();
         helper.Events.GameLoop.UpdateTicked += PerScreenInstance.Value.OnUpdateTicked_HandleIndependentBuffStacks;
     }
     

@@ -14,9 +14,7 @@ public static class MiscGameStateQueries
     {
         if (!ArgUtility.TryGetInt(query, 1, out var min, out var error))
             return GameStateQuery.Helpers.ErrorResult(query, error);
-        var max = int.MaxValue;
-        if (ArgUtility.TryGetInt(query, 2, out var argMax, out _))
-            max = argMax;
+        ArgUtility.TryGetOptionalInt(query, 2, out var max, out _, int.MaxValue);
         if (Game1.player.currentLocation is MineShaft mine)
             return mine.mineLevel >= min && mine.mineLevel <= max;
         return false;
@@ -27,9 +25,7 @@ public static class MiscGameStateQueries
     {
         if (!ArgUtility.TryGetInt(query, 1, out var min, out var error))
             return GameStateQuery.Helpers.ErrorResult(query, error);
-        var max = int.MaxValue;
-        if (ArgUtility.TryGetInt(query, 2, out var argMax, out _))
-            max = argMax;
+        ArgUtility.TryGetOptionalInt(query, 2, out var max, out _, int.MaxValue);
         if (Game1.player.currentLocation is VolcanoDungeon volcano)
             return volcano.level.Value >= min && volcano.level.Value <= max;
         return false;

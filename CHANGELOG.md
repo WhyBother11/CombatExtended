@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.7.0
+
+### Added
+
+- Mouse wheel support for ability hotbar, as well as next ability keybinds to select next ability.
+- `WhyBother11.CombatExtended_AbilityEffectTriggered` trigger for `Continuous` ability effects.
+- `ExtraWeight` stat for monsters.
+- `WhyBother11.CombatExtended_PullMonster` trigger action to pull monsters in some direction.
+- `MonsterStatuses` data asset to define monster statuses applied passively based on conditions and by other mod systems.
+- `DoEffectEverySec` and `ActionsOnEffect` fields for `BuffExtensionData` for player buffs to have timed effects akin to
+monster buffs.
+- Trigger related fields to `AbilityData` as alternative to ability related triggers for less text-heavy ability effects 
+and related trigger actions.
+
+### Changed
+
+- `MonsterBuffData` and `CombatTemporaryAnimatedSpriteData` fields.
+- `Max` argument in trigger actions `AddPlayerHealth` and `DamageMonster` is now optional.
+
 ## 0.6.1
 
 ### Changed

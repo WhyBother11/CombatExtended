@@ -40,10 +40,6 @@ public class DamageTypeWeaponExtensionData
 
 public class WeaponStateData
 {
-    
-    #nullable disable
-    //public string Id;
-    #nullable restore
 
     [ContentSerializer(Optional = true)] 
     public int? MinDamage;

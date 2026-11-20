@@ -14,6 +14,14 @@ public class BuffExtensionData
     [ContentSerializer(Optional = true)] 
     public ExtraBuffAttributesData? ExtraAttributes;
 
+    [ContentSerializer(Optional = true)] 
+    public float DoEffectEverySec = 0;
+
+    [ContentSerializer(Optional = true)] 
+    public List<string>? ActionsOnEffect;
+
+    [ContentSerializer(Optional = true)] 
+    public int MaxEffectAmount = -2;
 }
 
 public class BuffExtensionStackableData

@@ -79,7 +79,7 @@ public static class WeaponDisplayPatch
         {
             var text = $"+ {data.MinDamage}-{data.MaxDamage} {data.Type}";
             var co = extraDamageTypeColors[data.Type];
-            SUtility.drawTextWithShadow(spriteBatch, text, spriteFont, new Vector2(x + 16 + 22, y + 16 + 12), co * 0.9f * alpha, 0.9f);
+            SUtility.drawTextWithShadow(spriteBatch, text, spriteFont, new Vector2(x + 16 + 42, y + 16 + 12), co * 0.9f * alpha, 0.9f);
             y += (int)Math.Max(spriteFont.MeasureString("TT").Y, 32f);
         }
     }

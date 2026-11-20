@@ -1,6 +1,5 @@
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using StardewValley;
 
 namespace CombatExtended.Framework.Core.Abilities;
@@ -18,29 +17,17 @@ public class ContinuousAbility : Ability
     
     public bool EffectAttachedToWeapon { get; set; }
     
-    public HashSet<Vector2> AffectedTiles = new ();
+    public string? EndActionCondition { get; set; }
+    
+    public List<string>? ActionsOnEnd { get; set; }
+    
+    public string? EffectActionCondition { get; set; }
+    
+    public List<string>? ActionsOnEffect { get; set; }
 
     public bool IsEndHandled { get; set; } = true;
 
     public bool IsActive { get; set; }
-
-    protected ContinuousAbility(
-        string id,
-        string displayName,
-        string description,
-        float cooldown,
-        string texture,
-        int spriteIndex,
-        float durationSeconds,
-        int doEffectEveryTick = 0,
-        bool effectAttachedToWeapon = false
-    ) : base(id, displayName, description, cooldown, texture, spriteIndex)
-    {
-        DurationTicks = durationSeconds.ToTicks();
-        EffectAttachedToWeapon = effectAttachedToWeapon;
-        DoContinuousEffectEveryTick = doEffectEveryTick;
-        DurationTicksElapsed = DurationTicks;
-    }
 
     protected ContinuousAbility(
         string id, AbilityData data) : base(id, data)
@@ -53,7 +40,7 @@ public class ContinuousAbility : Ability
     
     protected override void OnTrigger(Farmer player, GameLocation location, Vector2 cursorTile, Vector2 playerTile)
     {
-        AffectedTiles = GetHighlightedTiles(player, location, cursorTile, playerTile);
+        //AffectedTiles = GetHighlightedTiles(player, location, cursorTile, playerTile);
         DurationTicksElapsed = 0;
         IsActive = true;
         IsEndHandled = false;

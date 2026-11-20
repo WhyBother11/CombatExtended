@@ -1,9 +1,8 @@
 using System.Runtime.CompilerServices;
-using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Data;
-using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
 using HarmonyLib;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -70,12 +69,11 @@ public static class BuffExtensionEnabler
         Extensions.Value.Remove(buff);
     }
 
-    public static int CalculateTotalArmourClass(Buff? removed = null)
+    public static int CalculateTotalArmourClass()
     {
         var buffArmourClass = 0;
         foreach (var (_, playerBuff) in Game1.player.buffs.AppliedBuffs)
         {
-            if (playerBuff.id == removed?.id) continue;
             buffArmourClass += GetArmourClass(playerBuff);
         }
 
@@ -129,9 +127,18 @@ public static class BuffExtensionEnabler
     private static void BuffManager_Apply_Postfix(Buff buff)
     {
         RemoveBuffExtension(buff);
-        if (BuffExtensionDataAsset.Data.TryGetValue(buff.id, out var data) && data.ExtraAttributes is not null)
+        if (BuffExtensionDataAsset.Data.TryGetValue(buff.id, out var data))
         {
-            buff.AddExtraBuffEffects(data.ExtraAttributes);
+            if (data.ExtraAttributes is not null) 
+                buff.AddExtraBuffEffects(data.ExtraAttributes);
+            if (data is { DoEffectEverySec: > 0, ActionsOnEffect: not null })
+            {
+                var buffExtension = Extensions.Value.GetValue(buff, _ => new BuffExtension());
+                buffExtension.ActionsOnEffect = data.ActionsOnEffect ?? new List<string>();
+                buffExtension.DoEffectEveryMillis = data.DoEffectEverySec.ToMilliseconds();
+                buffExtension.MaxEffectTimesTriggered = data.MaxEffectAmount;
+            }
+            return;
         }
         if (buff.customFields.TryGetValue(BuffCustomFieldsArmourClassKey, out var value))
         {
@@ -145,8 +152,6 @@ public static class BuffExtensionEnabler
         {
             buff.AddExtraBuffEffects(new ExtraBuffAttributesData { FlatCriticalMultiplier = float.Parse(value) });
         }
-        var item = ItemRegistry.Create(buff.id);
-        TriggerActionManager.Raise(Triggers.BuffApplied, null, Game1.player.currentLocation, Game1.player, item);
     }
     
     /// <summary>
@@ -187,6 +192,8 @@ public static class BuffExtensionEnabler
             }
             // a food/drink buff with custom fields set with extensions, but no additional buff effects and thus was not handled in TryCreateBuffsFromData iterator
             var text = buffData.BuffId;
+            // look i don't want to transpile whatever happens to iterator methods
+            // todo: maybe do
             var num = !string.IsNullOrWhiteSpace(text);
             if (!num)
             {
@@ -223,9 +230,25 @@ public static class BuffExtensionEnabler
     
     [HarmonyPatch(typeof(Buff), nameof(Buff.update))]
     [HarmonyPostfix]
-    private static void Buff_update_Postfix(Buff __instance, bool __result)
+    private static void Buff_update_Postfix(Buff __instance, bool __result, GameTime time)
     {
-        if (!__result) return; 
+        if (!__result)
+        {
+            if (Extensions.Value.TryGetValue(__instance, out var buffExtension))
+            {
+                buffExtension.MillisElapsed += time.ElapsedGameTime.Milliseconds;
+                if (buffExtension.MillisElapsed < buffExtension.DoEffectEveryMillis) return;
+                buffExtension.MillisElapsed = 0;
+                if (buffExtension.EffectTimesTriggered >= buffExtension.MaxEffectTimesTriggered) return;
+                buffExtension.ActionsOnEffect.ForEach(action =>
+                {
+                    if (!TriggerActionManager.TryRunAction(action, out var error, out var exception))
+                        Log.Error($"Failed to run action {action} from buff '{__instance.id}': {error}", exception);
+                });
+                buffExtension.EffectTimesTriggered += 1;
+            }
+            return;
+        }
         RemoveBuffExtension(__instance);
     }
     
@@ -236,5 +259,15 @@ public static class BuffExtensionEnabler
         public float FlatCritChance;
         
         public float FlatCritMultiplier;
+
+        public int DoEffectEveryMillis;
+        
+        public List<string> ActionsOnEffect = new ();
+
+        public int EffectTimesTriggered;
+        
+        public int MaxEffectTimesTriggered;
+
+        public int MillisElapsed;
     }
 }

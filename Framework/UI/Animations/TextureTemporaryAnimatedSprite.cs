@@ -1,3 +1,4 @@
+using CombatExtended.Framework.Data;
 using StardewValley;
 
 namespace CombatExtended.Framework.UI.Animations;
@@ -26,4 +27,26 @@ public class TextureTemporaryAnimatedSprite : TemporaryAnimatedSprite
     ) : base(
         texturePath, sourceRect, animationInterval, animationLength, numberOfLoops, position, flicker,
         flipped, layerDepth, alphaFade, color, scale, scaleChange, rotation, rotationChange) {}
+
+    public static TemporaryAnimatedSprite FromData(CombatTemporaryAnimatedSpriteData data,
+        Vector2 position, float layerDepth = 1f, Color? color = null)
+    {
+        return new TextureTemporaryAnimatedSprite(
+            texturePath: data.Texture,
+            sourceRect: data.SourceRect,
+            animationInterval: data.Interval,
+            animationLength: data.Frames,
+            numberOfLoops: data.Loops,
+            position: position,
+            layerDepth: layerDepth,
+            color: color ?? Color.White,
+            scale: data.Scale,
+            alphaFade: data.AlphaFade,
+            flicker: data.Flicker,
+            flipped: data.Flip,
+            scaleChange: data.ScaleChange,
+            rotation: data.Rotation,
+            rotationChange: data.RotationChange
+        );
+    }
 }

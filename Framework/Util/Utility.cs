@@ -163,6 +163,22 @@ public static class Utility
             log.Warn(warning);
         }
     }
+
+    /// <summary>
+    /// Check if monster buff should be applied to monster based on <see cref="MonsterBuffData.ApplyCondition"/>.
+    /// </summary>
+    /// <param name="monster">The monster to apply monster buff to.</param>
+    /// <param name="monsterBuffId">ID of monster buff to be applied.</param>
+    /// <returns>Whether monster buff should be applied.</returns>
+    public static bool CheckMonsterBuffApplyCondition(Monster monster, string monsterBuffId)
+    {
+        var condition = MonsterBuffDataAsset.Data[monsterBuffId].ApplyCondition;
+        if (condition is null) return true;
+        
+        var item = ItemRegistry.Create("(O)168");
+        item.PackMonsterInfo(monster);
+        return GameStateQuery.CheckConditions(condition, location: monster.currentLocation, targetItem: item);
+    }
     
     /// <summary>
     /// Raise monster buff trigger for local player.

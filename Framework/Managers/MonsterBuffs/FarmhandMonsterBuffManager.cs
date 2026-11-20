@@ -26,6 +26,7 @@ public class FarmhandMonsterBuffManager : IMonsterBuffManager
 
     public void ApplyBuff(Monster monster, GameLocation loc, string buffId, string? applier = null, string? applierId = null)
     {
+        if (!Utility.CheckMonsterBuffApplyCondition(monster, buffId)) return;
         var request = new BuffRequest(monster, loc, buffId, applier, applierId);
         _helper.Multiplayer.SendMessage(request, Messages.ApplyBuffRequestMessageType, modIDs: new []{ Id });
         Utility.RaiseMonsterBuffTrigger(Triggers.MonsterBuffApplied, buffId, monster, loc);

@@ -1,3 +1,4 @@
+using CombatExtended.Framework.Data;
 using Microsoft.Xna.Framework;
 using StardewValley;
 
@@ -48,5 +49,28 @@ public class AttachedTextureTemporaryAnimatedSprite : TextureTemporaryAnimatedSp
         );
         _prevAttachedPosition = _attached.Position;
         return base.update(time);
+    }
+
+    public static AttachedTextureTemporaryAnimatedSprite FromData(CombatTemporaryAnimatedSpriteData data, 
+        Vector2 position, Character charToAttach, float layerDepth = 1f, Color? color = null)
+    {
+        return new AttachedTextureTemporaryAnimatedSprite(
+            texturePath: data.Texture,
+            sourceRect: data.SourceRect,
+            animationInterval: data.Interval,
+            animationLength: data.Frames,
+            numberOfLoops: data.Loops,
+            position: position + data.Delta,
+            layerDepth: layerDepth,
+            color: color ?? Color.White,
+            attachTo: charToAttach,
+            scale: data.Scale,
+            alphaFade: data.AlphaFade,
+            flicker: data.Flicker,
+            flipped: data.Flip,
+            scaleChange: data.ScaleChange,
+            rotation: data.Rotation,
+            rotationChange: data.RotationChange
+        );
     }
 }

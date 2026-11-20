@@ -9,9 +9,9 @@ Either `ItemId` or `Texture` with `SpriteIndex` should be set.
 
 | Field              | Type     | Description                                                                                                                                   |
 |--------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `MinDamage`        | `int`    | *(Optional)* The minimum amount of damage to enemy when this projectile hits it. Defaults to `0`.                                             |
-| `MinDamage`        | `int`    | *(Optional)* The maximum amount of damage to enemy when this projectile hits it. Defaults to `0`.                                             |
-| `DamageType`       | `string` | *(Optional)* The damage type from `Mods/WhyBother11.CombatExtended/DamageTypes` for damage dealt by this projectile. Defaults to `Physical`   |
+| `MinDamage`        | `int`    | *(Optional)* The minimum amount of damage to the monster when this projectile hits it. Defaults to `0`.                                       |
+| `MinDamage`        | `int`    | *(Optional)* The maximum amount of damage to the monster when this projectile hits it. Defaults to `0`.                                       |
+| `DamageType`       | `string` | *(Optional)* The damage type from `Mods/WhyBother11.CombatExtended/DamageTypes` for damage dealt by this projectile. Defaults to `Physical`.  |
 | `Bounces`          | `int`    | *(Optional)* The number of times the projectile can bounce off walls before being destroyed. Defaults to `0`.                                 |
 | `Pierces`          | `int`    | *(Optional)* The number of times the projectile can hit enemies before being destroyed. Defaults to `1`.                                      |
 | `MaxDistance`      | `int`    | *(Optional)* The maximum distance in tiles this projectile can travel. Defaults to `4`.                                                       |
@@ -23,6 +23,12 @@ Either `ItemId` or `Texture` with `SpriteIndex` should be set.
 | `Texture`          | `string` | *(Optional)* The asset name containing sprite for this projectile. The sprite should be 16x16.                                                |
 | `SpriteIndex`      | `int`    | *(Optional)* The index within `Texture` of sprite for this projectile.                                                                        |
 | `Animation`        | `string` | *(Optional)* A custom animation for this projectile. The format is described below.                                                           |
+
+### Projectile animation
+
+Projectile animation specs is a string in the format of `[<SpriteIndex> <FrameAmount>]+`. `SpriteIndex` corresponds to a sprite from `Texture`.
+This sprite is drawn for `FrameAmount` for frames. Once it was drawn `FrameAmount` of times, the next pair is handled,
+looping back to the beginning if the end was reached.
 
 Example:
 
@@ -49,17 +55,13 @@ Example:
 }
 ```
 
-### Projectile animation
-
-Projectile animation specs is a string in the format of `[<SpriteIndex> <FrameAmount>]+`. `SpriteIndex` corresponds to a sprite from `Texture`. 
-This sprite is drawn for `FrameAmount` for frames. Once it was drawn `FrameAmount` of times, the next pair is handled, 
-looping back to the beginning if the end was reached.
+# Triggers, trigger actions, GSQs stuff
 
 ## Projectile triggers
 
 ### `WhyBother11.CombatExtended_ProjectileMonsterHit`
 
-Raised when *added by the mod* projectile hits an enemy. Provides `Projectile context` and `Monster context`.
+Raised when *added by the mod* projectile hits the monster. Provides `Projectile context` and `Monster context`.
 
 ## Projectile trigger actions
 
