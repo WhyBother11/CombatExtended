@@ -1,7 +1,9 @@
+using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 using CombatExtended.Framework.Core.Util;
 using CombatExtended.Framework.Data;
+using CombatExtended.Framework.TriggersActionsGSQ.Util;
+using CombatExtended.Framework.UI.Animations;
 using CombatExtended.Framework.Util;
-using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Delegates;
 using StardewValley.Monsters;
@@ -103,5 +105,26 @@ public static class EffectTriggerActions
         
         if (!positions.Any()) error = "No range was used in a context that does not have a single monster for spawning TAS.";
         return positions.Any();
+    }
+
+    [TriggerAction]
+    [MonsterContextAware]
+    private static bool LinkMonster(string[] args, TriggerActionContext ctx, Monster? monster, out string error)
+    {
+        if (!RequireContext(monster, out error)) return false;
+        if (!ArgUtility.TryGet(args, 1, out var linkId, out error))
+            return false;
+        if (linkId is "_none") 
+            LinkEffects.Remove(monster);
+        else
+        {
+            if (!LinkEffectDataAsset.Data.TryGetValue(linkId, out var linkData))
+            {
+                error = $"Unknown link effect ID: {linkId}.";
+                return false;
+            }
+            LinkEffects.BeginMonsterLink(monster, linkData);
+        }
+        return true;
     }
 }

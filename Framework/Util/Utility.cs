@@ -45,7 +45,7 @@ public static class Utility
     /// <param name="tileFrom">The tile to search relative to.</param>
     /// <param name="radius">The radius of search.</param>
     /// <param name="closest">The closest monster, if any.</param>
-    /// <param name="from">The monster from whom search should be initiated.</param>
+    /// <param name="from">The monster from whom search should be initiated, if present.</param>
     /// <returns>Whether any <paramref name="closest"/> was found in <paramref name="radius"/>.</returns>
     public static bool TryFindClosestMonster(GameLocation loc, Vector2 tileFrom, float radius, 
         [MaybeNullWhen(false)] out Monster closest, Monster? from = null)

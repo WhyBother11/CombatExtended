@@ -1,3 +1,4 @@
+using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
 using StardewValley;
@@ -15,14 +16,12 @@ public static class ProjectileGameStateQueries
     [GSQ]
     private static bool PROJECTILE_ID(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var projectiles, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var projectiles, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(ProjectileIdItemKey, out var id) ?? false)
-        {
-            return projectiles.Contains(id);
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster buff id");
+        if (!RequireContextModData(query, context.TargetItem?.modData, ProjectileIdItemKey, out var id,
+                "Projectile")) return false;
+        return projectiles.Contains(id);
     }
 }

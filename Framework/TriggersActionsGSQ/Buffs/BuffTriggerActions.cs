@@ -12,7 +12,7 @@ public static class BuffTriggerActions
     /// <summary>
     /// Trigger action to change maximum buff stacks for provided buff to provided limit, or to indefinite if <c>-2</c> provided.
     /// </summary>
-    /// <param name="args">Trigger actions args.</param>
+    /// <param name="args">The trigger action args.</param>
     /// <param name="ctx"><see cref="TriggerActionContext"/>.</param>
     /// <param name="error">The error if ran unsuccessfully.</param>
     /// <returns>Whether trigger action was ran successfully.</returns>
@@ -27,7 +27,7 @@ public static class BuffTriggerActions
 
         if (limit != -2 && limit < 0)
         {
-            error = "Stack limit is negative while not being equal to -2";
+            error = $"Negative and not equal to '-2' stack limit: {limit}.";
             return false;
         }
         if (limit == -2)
@@ -39,7 +39,7 @@ public static class BuffTriggerActions
     /// <summary>
     /// Trigger action to add provided armour class amount to current player until the end of the day.
     /// </summary>
-    /// <param name="args">Trigger actions args.</param>
+    /// <param name="args">The trigger action args.</param>
     /// <param name="ctx"><see cref="TriggerActionContext"/>.</param>
     /// <param name="error">The error if ran unsuccessfully.</param>
     /// <returns>Whether trigger action was ran successfully.</returns>

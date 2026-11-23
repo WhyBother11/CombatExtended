@@ -7,22 +7,23 @@ data model described below.
 
 Either `ItemId` or `Texture` with `SpriteIndex` should be set.
 
-| Field              | Type     | Description                                                                                                                                   |
-|--------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `MinDamage`        | `int`    | *(Optional)* The minimum amount of damage to the monster when this projectile hits it. Defaults to `0`.                                       |
-| `MinDamage`        | `int`    | *(Optional)* The maximum amount of damage to the monster when this projectile hits it. Defaults to `0`.                                       |
-| `DamageType`       | `string` | *(Optional)* The damage type from `Mods/WhyBother11.CombatExtended/DamageTypes` for damage dealt by this projectile. Defaults to `Physical`.  |
-| `Bounces`          | `int`    | *(Optional)* The number of times the projectile can bounce off walls before being destroyed. Defaults to `0`.                                 |
-| `Pierces`          | `int`    | *(Optional)* The number of times the projectile can hit enemies before being destroyed. Defaults to `1`.                                      |
-| `MaxDistance`      | `int`    | *(Optional)* The maximum distance in tiles this projectile can travel. Defaults to `4`.                                                       |
-| `Velocity`         | `float`  | *(Optional)* The speed of this projectile. Defaults to `10`.                                                                                  |
-| `Rotation`         | `float`  | *(Optional)* The initial rotation applied to the sprite. Measured in radians. Defaults to `0`.                                                |
-| `RotationVelocity` | `float`  | *(Optional)* The rotation speed of this projectile. Measured in radians. Defaults to `32`.                                                    |
-| `TailLength`       | `int`    | *(Optional)* The amount of segments in projectile tail. Defaults to `1`.                                                                      |
-| `ItemId`           | `string` | *(Optional)* The *qualified* ID of item whose sprite should be drawn for this projectile. If set, overrides both `Texture` and `SpriteIndex`. |
-| `Texture`          | `string` | *(Optional)* The asset name containing sprite for this projectile. The sprite should be 16x16.                                                |
-| `SpriteIndex`      | `int`    | *(Optional)* The index within `Texture` of sprite for this projectile.                                                                        |
-| `Animation`        | `string` | *(Optional)* A custom animation for this projectile. The format is described below.                                                           |
+| Field              | Type             | Description                                                                                                                                   |
+|--------------------|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `MinDamage`        | `int`            | *(Optional)* The minimum amount of damage to the monster when this projectile hits it. Defaults to `0`.                                       |
+| `MinDamage`        | `int`            | *(Optional)* The maximum amount of damage to the monster when this projectile hits it. Defaults to `0`.                                       |
+| `DamageType`       | `string`         | *(Optional)* The damage type from `Mods/WhyBother11.CombatExtended/DamageTypes` for damage dealt by this projectile. Defaults to `Physical`.  |
+| `Bounces`          | `int`            | *(Optional)* The number of times the projectile can bounce off walls before being destroyed. Defaults to `0`.                                 |
+| `Pierces`          | `int`            | *(Optional)* The number of times the projectile can hit enemies before being destroyed. Defaults to `1`.                                      |
+| `MaxDistance`      | `int`            | *(Optional)* The maximum distance in tiles this projectile can travel. Defaults to `4`.                                                       |
+| `Velocity`         | `float`          | *(Optional)* The speed of this projectile. Defaults to `10`.                                                                                  |
+| `RotationVelocity` | `float`          | *(Optional)* The rotation speed of this projectile.Defaults to `32`.                                                                          |
+| `TailLength`       | `int`            | *(Optional)* The amount of segments in projectile tail. Defaults to `1`.                                                                      |
+| `ItemId`           | `string`         | *(Optional)* The *qualified* ID of item whose sprite should be drawn for this projectile. If set, overrides both `Texture` and `SpriteIndex`. |
+| `Texture`          | `string`         | *(Optional)* The asset name containing sprite for this projectile. The sprite should be 16x16.                                                |
+| `SpriteIndex`      | `int`            | *(Optional)* The index within `Texture` of sprite for this projectile.                                                                        |
+| `Animation`        | `string`         | *(Optional)* A custom animation for this projectile. The format is described below.                                                           |
+| `LinkEffect`       | `LinkEffectData` | *(Optional)* The link effect ID from `Mods/WhyBother11.CombatExtended/LinkEffects` used for link between this projectile and player.          |
+| `DestroyOnWarp`    | `bool`           | *(Optional)* Whether this projectile should be destroyed when player warps away from the location where it was launched. Defaults to `false`. |
 
 ### Projectile animation
 
@@ -71,14 +72,19 @@ it should be present at least one time. `int` type arguments are prefixed with `
 
 ### `WhyBother11.CombatExtended_LaunchProjectile`
 
-Format: `WhyBother11.CombatExtended_LaunchProjectile <ProjectileId> <Direction>`.
+Format: `WhyBother11.CombatExtended_LaunchProjectile <ProjectileId> <Direction> [%Rotation]`.
 
 Used to launch a projectile. `ProjectileId` corresponds to projectile data from `Mods/WhyBother11.CombatExtended/Projectiles`.
 `Direction` handles in which direction should projectile be fired. This can be one of following:
 
 - `_cursor`: fires projectile from player position in direction of cursor.
-- In other cases, `Direction` is assumed to be an angle in degrees, relative to the vector pointed up (e.g. `0` will launch projectile
-up, while `90` in the right direction).
+- In other cases, `Direction` is assumed to be an angle in degrees, relative to the vector pointed up (e.g. `0` will 
+launch projectile up, while `90` in the right direction).
+
+The launched projectile is always rotated towards launch direction. However, it assumes that the projectile texture is
+pointed upwards (for example, arrow and dagger projectiles in `TileSheets/Projectiles`). If the texture is not pointed as
+such, use `Rotation` (angle in degrees) for initial texture rotation.
+
 
 ### `WhyBother11.CombatExtended_LaunchProjectileMonsterClosest`
 

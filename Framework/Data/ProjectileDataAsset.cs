@@ -28,9 +28,6 @@ public class ProjectileData
     
     [ContentSerializer(Optional = true)]
     public float Velocity = 10;
-
-    [ContentSerializer(Optional = true)] 
-    public float Rotation = 0f;
     
     [ContentSerializer(Optional = true)]
     public float RotationVelocity = 32f;
@@ -49,6 +46,12 @@ public class ProjectileData
 
     [ContentSerializer(Optional = true)] 
     public string? Animation;
+
+    [ContentSerializer(Optional = true)] 
+    public string? LinkEffect;
+
+    [ContentSerializer(Optional = true)] 
+    public bool DestroyOnWarp = false;
 }
 
 [DataAsset("Projectiles")]

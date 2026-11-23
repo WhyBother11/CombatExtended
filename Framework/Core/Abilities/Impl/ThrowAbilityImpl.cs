@@ -54,7 +54,12 @@ public class ThrowAbilityImpl : Ability
         }
         else targetPoint = Helper.Input.GetCursorPosition().AbsolutePixels;
         var velocity = SUtility.getVelocityTowardPoint(startingPoint, targetPoint, projectileData.Velocity);
-        Action<GameLocation, Farmer> onDestroy = (loc, f) =>
+        _projectile = CustomProjectile.Launch(location, player.Position, velocity, ProjectileId, projectileData, 
+            item, OnProjectileDestroy, true);
+        if (Returnable || ReturnOnWarp)
+            Helper.Events.Player.Warped += OnWarped_ClearAnyThrownItemInstanceAndReturn;
+        return;
+        void OnProjectileDestroy(GameLocation loc, Farmer f)
         {
             if (Returnable)
             {
@@ -64,10 +69,7 @@ public class ThrowAbilityImpl : Ability
                 _projectile?.GetDebrisSpawnDirection() ?? 1);
             _projectile = null;
             Helper.Events.Player.Warped -= OnWarped_ClearAnyThrownItemInstanceAndReturn;
-        };
-        _projectile = CustomProjectile.Launch(location, player.Position, velocity, ProjectileId, projectileData, item, onDestroy, true);
-        if (Returnable || ReturnOnWarp)
-            Helper.Events.Player.Warped += OnWarped_ClearAnyThrownItemInstanceAndReturn;
+        }
     }
 
     public static ThrowAbilityImpl CreateCustom(string abilityId, AbilityData data)

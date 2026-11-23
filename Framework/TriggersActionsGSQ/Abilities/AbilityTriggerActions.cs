@@ -20,7 +20,7 @@ public static class AbilityTriggerActions
 
         if (!AbilityDataAsset.Exists(abilityId))
         {
-            error = $"Unknown ability id {abilityId}.";
+            error = $"Unknown ability ID: '{abilityId}'.";
             return false;
         }
 
@@ -38,7 +38,7 @@ public static class AbilityTriggerActions
         }
         if (!AbilityDataAsset.Exists(abilityId))
         {
-            error = $"Unknown ability id {abilityId}";
+            error = $"Unknown ability ID: '{abilityId}'.";
             return false;
         }
         AbilityManager.RemoveWeaponAbility(weaponId, abilityId);
@@ -57,12 +57,12 @@ public static class AbilityTriggerActions
         }
         if (!AbilityDataAsset.Exists(abilityId))
         {
-            error = $"Unknown ability id {abilityId}";
+            error = $"Unknown ability ID: '{abilityId}'.";
             return false;
         }
         if (cooldown < 0)
         {
-            error = "Negative cooldown provided";
+            error = $"Negative cooldown: '{cooldown}'.";
             return false;
         }
         
@@ -79,7 +79,7 @@ public static class AbilityTriggerActions
         }
         if (!AbilityDataAsset.Exists(abilityId))
         {
-            error = $"Unknown ability id {abilityId}";
+            error = $"Unknown ability ID: '{abilityId}'.";
             return false;
         }
         
@@ -97,7 +97,7 @@ public static class AbilityTriggerActions
         }
         if (!AbilityDataAsset.Exists(abilityId))
         {
-            error = $"Unknown ability id {abilityId}";
+            error = $"Unknown ability ID: '{abilityId}'.";
             return false;
         }
         
@@ -114,7 +114,7 @@ public static class AbilityTriggerActions
         }
         if (!AbilityDataAsset.Exists(abilityId))
         {
-            error = $"Unknown ability id {abilityId}";
+            error = $"Unknown ability ID: '{abilityId}'.";
             return false;
         }
         

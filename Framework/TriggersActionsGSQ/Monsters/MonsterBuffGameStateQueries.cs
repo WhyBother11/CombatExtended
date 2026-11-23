@@ -1,5 +1,5 @@
+using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 using CombatExtended.Framework.Data;
-using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
 using StardewValley;
 using StardewValley.Delegates;
@@ -14,28 +14,24 @@ public static class MonsterBuffGameStateQueries
     [GSQ]
     private static bool MONSTER_BUFF_ID(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var buffs, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var buffs, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(MonsterBuffIdItemKey, out var id) ?? false)
-        {
-            return buffs.Contains(id);
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster buff id");
+        if (!RequireContextModData(query, context.TargetItem?.modData, MonsterBuffIdItemKey, out var id,
+                "Monster buff")) return false;
+        return buffs.Contains(id);
     }
 
     [GSQ]
     private static bool MONSTER_BUFF_CONTEXT_TAG(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var contextTags, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var contextTags, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(MonsterBuffIdItemKey, out var id) ?? false)
-        {
-            return contextTags.Any(tag => MonsterBuffDataAsset.HasContextTag(id, tag));
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster buff id to check context tags");
+        if (!RequireContextModData(query, context.TargetItem?.modData, MonsterBuffIdItemKey, out var id,
+                "Monster buff")) return false;
+        return contextTags.Any(tag => MonsterBuffDataAsset.HasContextTag(id, tag));
     }
 }

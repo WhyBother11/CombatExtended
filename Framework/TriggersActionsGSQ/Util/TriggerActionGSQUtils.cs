@@ -1,14 +1,15 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using CombatExtended.Framework.Core.Abilities;
 using CombatExtended.Framework.Core.Misc.Projectiles;
 using CombatExtended.Framework.Core.Monsters;
 using CombatExtended.Framework.Core.Monsters.Buffs;
 using CombatExtended.Framework.Core.Monsters.Conditions;
-using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Abilities;
 using CombatExtended.Framework.TriggersActionsGSQ.Monsters;
 using CombatExtended.Framework.TriggersActionsGSQ.Projectiles;
 using StardewValley;
+using StardewValley.Mods;
 using StardewValley.Monsters;
 
 namespace CombatExtended.Framework.TriggersActionsGSQ.Util;
@@ -130,6 +131,32 @@ public static class TriggerActionGSQUtils
             result.Add(arg);
         }
         args = result;
+        return true;
+    }
+
+    public static bool RequireContextModData(string[] query, ModDataDictionary? modData, string modDataKey, 
+        [MaybeNullWhen(false)] out string result, string contextEntity)
+    {
+        if (modData?.TryGetValue(modDataKey, out result) == true)
+        {
+            return true;
+        }
+
+        result = null;
+        return GameStateQuery.Helpers.ErrorResult(query, $"No value for {modDataKey} present in '{contextEntity} context'");
+    }
+
+    public static bool RequireContext<TV>([NotNullWhen(true)]TV? value, out string error, 
+        string? valueName = null, string? contextName = null)
+    { 
+        valueName ??= typeof(TV).Name;
+        contextName ??= $"{typeof(TV).Name} context";
+        if (value is null)
+        {
+            error = $"No {valueName} present in '{contextName}'.";
+            return false;
+        }
+        error = null;
         return true;
     }
 }

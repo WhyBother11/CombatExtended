@@ -1,6 +1,6 @@
+using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 using CombatExtended.Framework.Core.Abilities;
 using CombatExtended.Framework.Data;
-using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
 using StardewValley.Delegates;
 using GameStateQuery = StardewValley.GameStateQuery;
@@ -16,36 +16,31 @@ public static class AbilityGameStateQueries
     [GSQ]
     private static bool ABILITY_ID(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var abilities, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var abilities, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-
-        if (context.TargetItem?.modData.TryGetValue(AbilityIdItemKey, out var modDataAbilityId) ?? false)
-        {
-            return abilities.Contains(modDataAbilityId);
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain ability id");
+        if (!RequireContextModData(query, context.TargetItem?.modData, AbilityIdItemKey, out var modDataAbilityId,
+                "Ability")) return false;
+        return abilities.Contains(modDataAbilityId);
     }
 
     [GSQ]
     private static bool ABILITY_CONTEXT_TAG(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var contextTags, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var contextTags, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(AbilityIdItemKey, out var modDataAbilityId) ?? false)
-        {
-            return contextTags.Any(tag => AbilityDataAsset.HasContextTag(modDataAbilityId, tag));
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain ability id to check context tags");
+        if (!RequireContextModData(query, context.TargetItem?.modData, AbilityIdItemKey, out var modDataAbilityId,
+                "Ability")) return false;
+        return contextTags.Any(tag => AbilityDataAsset.HasContextTag(modDataAbilityId, tag));
     }
 
     [GSQ]
     private static bool ABILITY_ACTIVE(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var abilities, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var abilities, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }

@@ -1,5 +1,6 @@
 using CombatExtended.Framework.Core.Misc.Projectiles;
 using CombatExtended.Framework.Data;
+using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
 using Microsoft.Xna.Framework;
 using StardewValley;
@@ -20,7 +21,7 @@ public static class ProjectileTriggerActions
             return false;
         if (!ProjectileDataAsset.Data.TryGetValue(projectileId, out var projectileData))
         {
-            error = $"Unknown projectile id: {projectileId}.";
+            error = $"Unknown projectile ID: {projectileId}.";
             return false;
         }
         if (!ArgUtility.TryGet(args, 2, out var direction, out error)) 
@@ -36,7 +37,7 @@ public static class ProjectileTriggerActions
             default:
                 if (!float.TryParse(direction, out var angle))
                 {
-                    error = $"Cannot parse {direction} as a float angle.";
+                    error = $"'{direction}' is not a float angle.";
                     return false;
                 }
                 var angleRadians = MathHelper.ToRadians(angle);
@@ -52,13 +53,14 @@ public static class ProjectileTriggerActions
     }
 
     [TriggerAction]
-    private static bool LaunchProjectileMonsterClosest(string[] args, TriggerActionContext ctx, out string error)
+    [MonsterContextAware]
+    private static bool LaunchProjectileMonsterClosest(string[] args, TriggerActionContext ctx, Monster? monster, out string error)
     {
         if (!ArgUtility.TryGet(args, 1, out var projectileId, out error)) 
             return false;
         if (!ProjectileDataAsset.Data.TryGetValue(projectileId, out var projectileData))
         {
-            error = $"Unknown projectile id: {projectileId}.";
+            error = $"Unknown projectile ID: {projectileId}.";
             return false;
         }
         if (!ArgUtility.TryGetFloat(args, 2, out var radius, out _))
@@ -67,15 +69,13 @@ public static class ProjectileTriggerActions
         GameLocation location;
         if (ArgUtility.TryGetBool(args, 3, out var fromMonsterArg, out _))
             fromMonster = fromMonsterArg;
-        Monster? monster = null;
         Vector2 startingTile;
         Vector2 startingPoint;
-        if (ctx.TriggerArgs.Length > 0 && ctx.TriggerArgs[0] is Monster argMonster && fromMonster)
+        if (monster is not null && fromMonster)
         {
-            startingPoint = argMonster.Position;
-            startingTile = argMonster.Tile;
-            monster = argMonster;
-            location = argMonster.currentLocation;
+            startingPoint = monster.Position;
+            startingTile = monster.Tile;
+            location = monster.currentLocation;
         }
         else
         {

@@ -1,6 +1,8 @@
 using System.Reflection;
 using CombatExtended.Framework.Managers;
 using CombatExtended.Framework.Managers.MonsterBuffs;
+using CombatExtended.Framework.TriggersActionsGSQ.Sequence;
+using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.UI.Interface;
 using CombatExtended.Framework.Util;
 using CombatExtended.Integrations.GMCM;
@@ -9,9 +11,11 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Delegates;
+using StardewValley.Monsters;
 using StardewValley.Triggers;
 using AbilityManager = CombatExtended.Framework.Managers.AbilityManager;
 using ActionPointManager = CombatExtended.Framework.Managers.ActionPointManager;
+using SequenceOrchestratorManager = CombatExtended.Framework.Managers.SequenceOrchestratorManager;
 using StackableBuffManager = CombatExtended.Framework.Managers.StackableBuffManager;
 using CooldownManager = CombatExtended.Framework.Managers.CooldownManager;
 
@@ -30,6 +34,8 @@ public class ModEntry : Mod
     
     public MonsterStatusManager MonsterStatusManager { get; private set; }
     #nullable restore
+
+    private static readonly Dictionary<string, List<string>> ContextAwareTriggerActionArgumentsOrders = new ();
 
     public override void Entry(IModHelper helper)
     {
@@ -54,6 +60,8 @@ public class ModEntry : Mod
         
         AbilityHotbar.Register(helper);
         ActionPointIcons.Register(helper);
+        
+        SequenceOrchestratorManager.Register(helper);
         
         helper.Events.GameLoop.DayStarted += OnDayStarted_RegisterManagers;
         helper.Events.GameLoop.DayEnding += (_, _) => { UnregisterManagers(); };
@@ -109,7 +117,64 @@ public class ModEntry : Mod
 
     private static void RegisterTriggerAction(MethodInfo method)
     {
-        TriggerActionManager.RegisterAction(method.Name.PrependId(), method.CreateDelegate<TriggerActionDelegate>());
+        var actionName = method.Name.PrependId();
+        if (!method.IsDefined(typeof(SequenceAware)) && !method.IsDefined(typeof(MonsterContextAware))) 
+            TriggerActionManager.RegisterAction(actionName, method.CreateDelegate<TriggerActionDelegate>());
+        else
+        {
+            if (method.IsDefined(typeof(SequenceAware))) 
+                SequenceOrchestratorManager.SequenceAwareTriggerActions.Add(actionName);
+            if (!ContextAwareTriggerActionArgumentsOrders.TryGetValue(actionName, out var args))
+            {
+                args = new List<string>();
+                foreach (var parameterInfo in method.GetParameters())
+                {
+                    if (parameterInfo.ParameterType == typeof(string[]))
+                        args.Add("args");
+                    if (parameterInfo.ParameterType == typeof(TriggerActionContext))
+                        args.Add("ctx");
+                    if (parameterInfo.ParameterType == typeof(string).MakeByRefType())
+                        args.Add("error");
+                    if (parameterInfo.ParameterType == typeof(SequenceOrchestrator))
+                        args.Add("sequenceOrchestrator");
+                    if (parameterInfo.ParameterType == typeof(Monster))
+                        args.Add("monster");
+                }
+                ContextAwareTriggerActionArgumentsOrders[actionName] = args;
+            }
+            TriggerActionManager.RegisterAction(method.Name.PrependId(), ContextAwareDelegate);
+        }
+        return;
+        bool ContextAwareDelegate(string[] args, TriggerActionContext ctx, out string error)
+        {
+            List<object?> arguments = new();
+            string? resError = null;
+            ContextAwareTriggerActionArgumentsOrders[args[0]].ForEach(argName =>
+            {
+                switch (argName)
+                {
+                    case "args": arguments.Add(args); break;
+                    case "ctx": arguments.Add(ctx); break;
+                    case "error": arguments.Add(resError); break;
+                    case "sequenceOrchestrator": 
+                        var orchestratorId = (int?) ctx.CustomFields.GetValueOrDefault("orchestratorId".PrependId());
+                        var orchestrator = orchestratorId is not null
+                            ? ModBindings.SequenceOrchestratorManager.SequenceOrchestrators[orchestratorId.Value]
+                            : null;
+                        arguments.Add(orchestrator);
+                        break;
+                    case "monster":
+                        var monster = ctx.TriggerArgs.Length == 1 && ctx.TriggerArgs[0] is Monster argMonster
+                            ? argMonster
+                            : null;
+                        arguments.Add(monster);
+                        break;
+                }
+            });
+            var res = (bool)method.Invoke(null, arguments.ToArray())!;
+            error = resError;
+            return res;
+        }
     }
     
     private void OnDayStarted_RegisterManagers(object? sender, DayStartedEventArgs e)

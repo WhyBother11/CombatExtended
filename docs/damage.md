@@ -1,8 +1,8 @@
 # Damage types
 
-Damage type data is located in `Mods/WhyBother11.CombatExtended/DamageTypes`. This is a dictionary with key being damage type id and value being
-data model described below. By default, has `Physical` (applies to any weapon attack damage), `Ice`, `Fire`, `Lightning`, `Radiant` and `Poison` entries
-(as defined in `assets/damage_types.json`).
+Damage type data is located in `Mods/WhyBother11.CombatExtended/DamageTypes`. This is a dictionary with key being damage 
+type ID and value being data model described below. By default, has `Physical` (applies to any weapon attack damage), 
+`Ice`, `Fire`, `Lightning`, `Radiant` and `Poison` entries (as defined in `assets/damage_types.json`).
 
 If you want to have a new damage type you can make a pull request with edits to `assets/damage_types.json` that include
 new damage type so it can be used by other mods.

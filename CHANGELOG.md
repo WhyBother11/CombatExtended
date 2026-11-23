@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.8.0
+
+### Added
+
+- Sequences of trigger actions that are executed one after another and that take into account the continuous actions (that
+is, animations and other type that can not be just executed on one tick). As well as `WhyBother11.CombatExtended_Sequence` 
+trigger action to launch such sequences.
+- `WhyBother11.CombatExtended_DelayedAction` for delayed trigger actions that allow them to receive the same context.
+- `WhyBother11.CombatExtended_SetMoving` to toggle whether player should move.
+- `LinkEffects` data asset for creating link effects between players and different targets.
+- `LinkEffect` and `DestroyOnWarp` fields into `ProjectileData`.
+
+### Fixed
+
+- Monster's armour class not correctly applied.
+
+### Changed
+
+- `WhyBother11.CombatExtended_LaunchProjectile` arguments to include rotation.
+
+### Removed
+
+- `Rotation` field from `ProjectileData`.
+
 ## 0.7.0
 
 ### Added
@@ -21,13 +45,16 @@ and related trigger actions.
 
 ## 0.6.1
 
+### Added
+
+- `Angle` field into `AbilityData` for `Throw` type.
+
 ### Changed
 
 - `WhyBother11.CombatExtended_DamageMonster` trigger action's arguments.
 - Extracted launching projectile towards closest monster from trigger action `WhyBother11.CombatExtended_LaunchProjectile`
 into new trigger action `WhyBother11.CombatExtended_LaunchProjectileMonsterClosest`.
 - `WhyBother11.CombatExtended_DAMAGE_IS_CRIT` and `WhyBother11.CombatExtended_DAMAGE_RESULT` GSQ's arguments.
-- Added `Angle` into `AbilityData` for `Throw` type.
 
 ### Removed
 
@@ -38,9 +65,15 @@ into new trigger action `WhyBother11.CombatExtended_LaunchProjectileMonsterClose
 ### Added
 
 - `DamageModifiers` data asset to define damage modifiers used on various stages of damage calculation.
-- Removed `Id` field from `ProjectileData`, added `Id` field to `DamageTypeWeaponExtensionData`, `RangeTileData`, `RangeTileData_Rectangle`,
-`RangeTileData_Line` and `RangeTileData_CursorLine` so they may be targetable by CP.
-- Changed default colours for damage types.
+- `Id` field to `DamageTypeWeaponExtensionData`, `RangeTileData`, `RangeTileData_Rectangle`, `RangeTileData_Line` and 
+`RangeTileData_CursorLine` so they may be targetable by CP.
+
+### Changed
+- Default colours for damage types.
+
+### Removed
+
+- `Id` field from `ProjectileData`.
 
 ## 0.5.0
 

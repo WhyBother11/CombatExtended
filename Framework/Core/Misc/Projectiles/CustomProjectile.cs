@@ -6,6 +6,8 @@ using CombatExtended.Framework.Util;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Monsters;
 using StardewValley.Projectiles;
@@ -15,6 +17,7 @@ using StardewValley.Triggers;
 namespace CombatExtended.Framework.Core.Misc.Projectiles;
 
 [HarmonyPatch]
+[Registrable]
 public class CustomProjectile : Projectile
 {
     
@@ -26,7 +29,9 @@ public class CustomProjectile : Projectile
     
     public Farmer Owner { get; private set; }
     
-    private readonly Action<GameLocation, Farmer>? _onDestroy;
+    public float Angle { get; private set; }
+    
+    private readonly List<Action<GameLocation, Farmer>> DestroyListeners = new ();
 
     private readonly GameLocation _location;
     
@@ -57,7 +62,6 @@ public class CustomProjectile : Projectile
         bouncesLeft.Value = data.Bounces;
         tailLength.Value = data.TailLength;
         piercesLeft.Value = data.Pierces;
-        rotation = data.Rotation;
         rotationVelocity.Value = data.RotationVelocity;
         this.xVelocity.Value = xVelocity;
         this.yVelocity.Value = yVelocity;
@@ -74,13 +78,14 @@ public class CustomProjectile : Projectile
         {
             var itemData = ItemRegistry.GetDataOrErrorItem(itemId.Value);
             _animator = new ProjectileAnimator(itemData.GetTexture(), itemData.SpriteIndex);
-        } else if (data.Texture is not null && Data.SpriteIndex is not null)
+        } else if (data.Texture is not null && data.SpriteIndex is not null)
             _animator = new ProjectileAnimator(
-                Helper.GameContent.Load<Texture2D>(data.Texture), data.SpriteIndex!.Value,
-                data.Animation?.Split(' ').Select(int.Parse).ToArray(), tailLength.Value);
+                Helper.GameContent.Load<Texture2D>(data.Texture), data.SpriteIndex.Value,
+                data.Animation?.Split(' ').Select(int.Parse).ToArray());
         else Log.Error($"Projectile {id} has no item or texture with sprite index set");
         damagesMonsters.Value = true;
-        _onDestroy = onDestroy;
+        if (onDestroy is not null) 
+            DestroyListeners.Add(onDestroy);
         _destroyOnWallContact = destroyOnWallContact;
     }
     
@@ -147,7 +152,11 @@ public class CustomProjectile : Projectile
                 Game1.shadowTexture.Bounds, Color.White * alpha.Value * 0.75f, 0.0f,
                 new Vector2(Game1.shadowTexture.Bounds.Center.X, Game1.shadowTexture.Bounds.Center.Y), 2f,
                 SpriteEffects.None, (float)((vector2.Y - 1.0) / 10000.0));
-        // Todo: copy tail draw to animator
+    }
+
+    public void AddDestroyListener(Action<GameLocation, Farmer> onDestroy)
+    {
+        DestroyListeners.Add(onDestroy);
     }
 
     public int GetDebrisSpawnDirection()
@@ -163,11 +172,35 @@ public class CustomProjectile : Projectile
         ProjectileData data, Item? item = null, Action<GameLocation, Farmer>? onDestroy = null, bool destroyOnWallContact = false)
     {
         var projectile = new CustomProjectile(
-            xVelocity: velocity.X, yVelocity: velocity.Y, position: position, location: loc, 
-            owner: Game1.player, id: projectileId, data: data, onDestroy: onDestroy, item: item, destroyOnWallContact: destroyOnWallContact
+            xVelocity: velocity.X, yVelocity: velocity.Y, position: position, location: loc,
+            owner: Game1.player, id: projectileId, data: data, onDestroy: onDestroy, item: item,
+            destroyOnWallContact: destroyOnWallContact
         );
+        var angle = MathF.Atan2(velocity.Y, velocity.X) + MathF.PI / 2;
+        projectile.startingRotation.Value = angle;
+        projectile.Angle = angle;
+        if (data.LinkEffect is not null)
+        {
+            if (!LinkEffectDataAsset.Data.TryGetValue(data.LinkEffect, out var linkEffect))
+                Log.Error($"Unknown link effect ID: {data.LinkEffect}");
+            else LinkEffects.BeginProjectileLink(projectile, linkEffect);
+        }
         loc.projectiles.Add(projectile);
         return projectile;
+    }
+
+    public static void Register(IModHelper helper)
+    {
+        helper.Events.Player.Warped += OnWarped_DestroyOnWarp;
+    }
+
+    private static void OnWarped_DestroyOnWarp(object? sender, WarpedEventArgs e)
+    {
+        if (!e.IsLocalPlayer) return;
+        var projectiles = e.OldLocation.projectiles
+            .OfType<CustomProjectile>()
+            .Where(projectile => projectile.Data.DestroyOnWarp);
+        e.OldLocation.projectiles.RemoveWhere(projectiles.Contains);
     }
 
     [HarmonyPatch(typeof(Projectile), nameof(update))]
@@ -177,6 +210,10 @@ public class CustomProjectile : Projectile
         if (__instance is not CustomProjectile customProjectile) return;
         if (customProjectile._shouldDestroy) 
             __result = true;
-        if (__result) customProjectile._onDestroy?.Invoke(customProjectile._location, customProjectile.Owner);
+        if (__result)
+        {
+            customProjectile.DestroyListeners.ForEach(action => 
+                action.Invoke(customProjectile._location, customProjectile.Owner));
+        }
     }
 }

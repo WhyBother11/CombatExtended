@@ -8,7 +8,7 @@ namespace CombatExtended.Framework.Core.Monsters;
 public static class MonsterStats
 {
     
-    public const double ArmourClassMissChancePerOne = 0.05;
+    public const float ArmourClassMissChancePerOne = 0.05f;
     
     public const int DefaultArmourClass = 3;
 
@@ -44,12 +44,18 @@ public static class MonsterStats
         return true;
     }
     
-    public static float MonsterMissChanceWithArmourClass(Monster monster, int ac)
+    public static float MissChanceWithArmourClass(Monster monster, int ac)
     {
+        
         var missChance = monster.missChance.Value;
-        var result = Math.Min(missChance + ArmourClassMissChancePerOne * ac, 
-            19 * ArmourClassMissChancePerOne);
-        return (float) result;
+        return (float)missChance + ArmourClassMissChancePerOne * ac;
+    }
+    
+    public static float MissChanceWithArmourClassDelta(Monster monster, int acDelta)
+    {
+        
+        var missChance = monster.missChance.Value;
+        return (float)missChance + ArmourClassMissChancePerOne * acDelta;
     }
     #endregion
 

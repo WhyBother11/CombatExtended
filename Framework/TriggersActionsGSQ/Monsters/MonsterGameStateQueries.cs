@@ -1,4 +1,4 @@
-using CombatExtended.Framework.TriggersActionsGSQ.Util;
+using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 using CombatExtended.Framework.Util;
 using StardewValley;
 using StardewValley.Delegates;
@@ -31,12 +31,10 @@ public static class MonsterGameStateQueries
         }
         if (minHp <= 0) minHp = int.MinValue;
         ArgUtility.TryGetOptionalInt(query, 2, out var maxHp, out _, int.MaxValue);
-        if (context.TargetItem?.modData.TryGetValue(MonsterHealthItemKey, out var healthStr) ?? false)
-        {
-            var monsterHealth = int.Parse(healthStr);
-            return monsterHealth >= minHp && monsterHealth <= maxHp;
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster health.");
+        if (!RequireContextModData(query, context.TargetItem?.modData, MonsterHealthItemKey, out var healthStr,
+                "Monster")) return false;
+        var monsterHealth = int.Parse(healthStr);
+        return monsterHealth >= minHp && monsterHealth <= maxHp;
     }
 
     /// <summary>
@@ -48,16 +46,14 @@ public static class MonsterGameStateQueries
     [GSQ]
     private static bool MONSTER_HAS_TAG(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var tags, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var tags, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(MonsterTagsItemKey, out var monsterTagsStr) ?? false)
-        {
-            var monsterTags = ArgUtility.SplitBySpace(monsterTagsStr);
-            return tags.Any(monsterTags.Contains);
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster tags.");
+        if (!RequireContextModData(query, context.TargetItem?.modData, MonsterTagsItemKey, out var monsterTagsStr,
+                "Monster")) return false;
+        var monsterTags = ArgUtility.SplitBySpace(monsterTagsStr);
+        return tags.Any(monsterTags.Contains);
     }
 
     /// <summary>
@@ -69,15 +65,13 @@ public static class MonsterGameStateQueries
     [GSQ]
     private static bool MONSTER_NAME(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var monsterNames, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var monsterNames, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(MonsterNameItemKey, out var monsterName) ?? false)
-        {
-            return monsterNames.Contains(monsterName);
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster name.");
+        if (!RequireContextModData(query, context.TargetItem?.modData, MonsterNameItemKey, out var monsterName,
+                "Monster")) return false;
+        return monsterNames.Contains(monsterName);
     }
     
     /// <summary>
@@ -89,16 +83,15 @@ public static class MonsterGameStateQueries
     [GSQ]
     private static bool MONSTER_HAS_BUFF(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var buffs, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var buffs, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(MonsterBuffsItemKey, out var monsterBuffsStr) ?? false)
-        {
-            var itemMonsterBuffs = monsterBuffsStr.Split(' ');
-            return buffs.Any(itemMonsterBuffs.Contains);
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster buffs.");
+
+        if (!RequireContextModData(query, context.TargetItem?.modData, MonsterBuffsItemKey, out var monsterBuffsStr,
+                "Monster")) return false;
+        var itemMonsterBuffs = ArgUtility.SplitBySpace(monsterBuffsStr);
+        return buffs.Any(itemMonsterBuffs.Contains);
     }
 
     /// <summary>
@@ -115,18 +108,17 @@ public static class MonsterGameStateQueries
         if (!ArgUtility.TryGetInt(query, 2, out var min, out error))
             return GameStateQuery.Helpers.ErrorResult(query, error);
         ArgUtility.TryGetOptionalInt(query, 3, out var max, out _, int.MaxValue);
-        if (context.TargetItem?.modData.TryGetValue(MonsterBuffStacksItemKey, out var monsterBuffsStacksStr) ?? false)
+        if (!RequireContextModData(query, context.TargetItem?.modData, MonsterBuffStacksItemKey, out var monsterBuffsStacksStr,
+                "Monster")) return false;
+        var itemMonsterBuffStacks = monsterBuffsStacksStr.Split(' ');
+        for (var i = 0; i < itemMonsterBuffStacks.Length; i+=2)
         {
-            var itemMonsterBuffStacks = monsterBuffsStacksStr.Split(' ');
-            for (var i = 0; i < itemMonsterBuffStacks.Length; i+=2)
-            {
-                var itemMonsterBuffId = itemMonsterBuffStacks[i];
-                var stackAmount = int.Parse(itemMonsterBuffStacks[i+1]);
-                if (itemMonsterBuffId == monsterBuffId)
-                    return stackAmount >= min && stackAmount <= max;
-            }
+            var itemMonsterBuffId = itemMonsterBuffStacks[i];
+            var stackAmount = int.Parse(itemMonsterBuffStacks[i+1]);
+            if (itemMonsterBuffId == monsterBuffId)
+                return stackAmount >= min && stackAmount <= max;
         }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain amount of monster buffs.");
+        return false;
     }
 
     /// <summary>
@@ -144,26 +136,22 @@ public static class MonsterGameStateQueries
             min = argMin.ToMilliseconds();
         if (ArgUtility.TryGetFloat(query, 2, out var argMax, out _))
             max = argMax.ToMilliseconds();
-        if (context.TargetItem?.modData.TryGetValue(MonsterStunTimeItemKey, out var modDataStunTime) ?? false)
-        {
-            var stunTime = int.Parse(modDataStunTime);
-            if (query.Length == 0) return stunTime > 0;
-            return stunTime >= min && stunTime <= max;
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster stun time.");
+        if (!RequireContextModData(query, context.TargetItem?.modData, MonsterStunTimeItemKey, out var modDataStunTime,
+                "Monster")) return false;
+        var stunTime = int.Parse(modDataStunTime);
+        if (query.Length == 0) return stunTime > 0;
+        return stunTime >= min && stunTime <= max;
     }
 
     private static bool MONSTER_HAS_STATUS(string[] query, GameStateQueryContext context)
     {
-        if (!TriggerActionGSQUtils.TryGetMultipleTillEnd(query, 1, out var statuses, out var error))
+        if (!TryGetMultipleTillEnd(query, 1, out var statuses, out var error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
-        if (context.TargetItem?.modData.TryGetValue(MonsterStatusesItemKey, out var monsterStatusesStr) ?? false)
-        {
-            var itemMonsterStatuses = monsterStatusesStr.Split(' ');
-            return statuses.Any(itemMonsterStatuses.Contains);
-        }
-        return GameStateQuery.Helpers.ErrorResult(query, "GSQ context does not contain monster statuses.");
+        if (!RequireContextModData(query, context.TargetItem?.modData, MonsterStatusesItemKey, out var monsterStatusesStr,
+                "Monster")) return false;
+        var itemMonsterStatuses = ArgUtility.SplitBySpace(monsterStatusesStr);
+        return statuses.Any(itemMonsterStatuses.Contains);
     }
 }

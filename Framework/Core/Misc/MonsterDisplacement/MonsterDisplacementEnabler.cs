@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CombatExtended.Framework.Core.Misc.MonsterPull;
+namespace CombatExtended.Framework.Core.Misc.MonsterDisplacement;
 
 public class MonsterDisplacementInfo
 {
@@ -24,7 +24,7 @@ public static class MonsterDisplacementEnabler
 {
     private static readonly ConditionalWeakTable<Monster, MonsterDisplacementInfo> Displacements = new();
 
-    public static void StartDisplacement(Monster monster, Vector2 velocity, float distance)
+    public static void StartDisplacement(Monster monster, Vector2 velocity, float distance, Action? onEnd = null)
     {
         var pullInfo = new MonsterDisplacementInfo
         {
@@ -33,12 +33,8 @@ public static class MonsterDisplacementEnabler
             TotalDisplacementDistance = Vector2.Zero,
             OnEnd = () =>
             {
-                // so it will give time for player to go away from pulled monster
-                DelayedAction.functionAfterDelay(() =>
-                {
-                    monster.stunTime.Value = 0;
-                }, 500);
                 Displacements.Remove(monster);
+                onEnd?.Invoke();
             }
         };
         Displacements.Add(monster, pullInfo);
@@ -51,12 +47,17 @@ public static class MonsterDisplacementEnabler
         if (!Displacements.TryGetValue(__instance, out var info)) return;
         
         var boundingBox = __instance.GetBoundingBox();
-        var value = new Rectangle(boundingBox.X - 2 * (int)Math.Floor(info.Velocity.X), boundingBox.Y - 2 * (int)Math.Floor(info.Velocity.Y), boundingBox.Width + 8, boundingBox.Height + 8);
-        var value2 = new Rectangle(boundingBox.X + 2 * (int)Math.Ceiling(info.Velocity.X), boundingBox.Y + 2 * (int)Math.Ceiling(info.Velocity.Y), boundingBox.Width + 8, boundingBox.Height + 8);
+        var value = new Rectangle(
+            boundingBox.X - 2 * (int)Math.Floor(info.Velocity.X), 
+            boundingBox.Y - 2 * (int)Math.Floor(info.Velocity.Y), 
+            boundingBox.Width + 8, boundingBox.Height + 8);
+        var value2 = new Rectangle(
+            boundingBox.X + 2 * (int)Math.Ceiling(info.Velocity.X), 
+            boundingBox.Y + 2 * (int)Math.Ceiling(info.Velocity.Y), 
+            boundingBox.Width + 8, boundingBox.Height + 8);
         var rectangle = Rectangle.Union(value, value2);
         if (__instance.currentLocation.isCollidingPosition(rectangle, Game1.viewport, false, -1,
-                __instance.isGlider.Value,
-                __instance))
+                __instance.isGlider.Value, __instance))
         {
             info.OnEnd.Invoke();
             return;
@@ -73,7 +74,7 @@ public static class MonsterDisplacementEnabler
             var distance = info.TotalDisplacementDistance.Length();
             if (distance >= info.Distance)
                 info.OnEnd.Invoke();
-            info.TimeBeforeDistanceCheck = 100;
+            info.TimeBeforeDistanceCheck = 10;
         }
     }
 

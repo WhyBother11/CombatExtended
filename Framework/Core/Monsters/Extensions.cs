@@ -39,13 +39,14 @@ public static class Extensions
     public static void ApplyArmourClass(this Monster monster, int ac)
     {
         monster.modData[MonsterStats.ArmourClassModDataKey] = ac.ToString();
-        monster.missChance.Value = MonsterStats.MonsterMissChanceWithArmourClass(monster, ac);
+        monster.missChance.Value = MonsterStats.MissChanceWithArmourClass(monster, ac);
     }
 
     public static void AddArmourClass(this Monster monster, int delta)
     {
         var resultAc = monster.GetArmourClass() + delta;
-        monster.ApplyArmourClass(resultAc);
+        monster.modData[MonsterStats.ArmourClassModDataKey] = resultAc.ToString();
+        monster.missChance.Value = MonsterStats.MissChanceWithArmourClassDelta(monster, delta);
     }
 
     public static void ApplyWeight(this Monster monster, float weight)
@@ -230,7 +231,6 @@ public static class Extensions
         monster.AddWeight(-attributes.Weight);
         if (attributes.StunTime.Equals(-2f)) monster.stunTime.Value = 0;
         else monster.stunTime.Value -= (int) attributes.StunTime;
-        //monster.Speed -= (int)attributes.Speed;
         monster.addedSpeed -= attributes.Speed;
         foreach (var attributesResistance in attributes.Resistances)
         {

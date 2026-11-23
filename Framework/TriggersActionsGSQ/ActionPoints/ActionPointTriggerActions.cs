@@ -20,7 +20,7 @@ public class ActionPointTriggerActions
 
         if (!ActionPointDataAsset.Exists(actionPointId))
         {
-            error = $"Unknown action point ID {actionPointId}";
+            error = $"Unknown action point ID: '{actionPointId}'.";
             return false;
         }
         ActionPointManager.AddActionPoint(actionPointId, amount);
@@ -36,7 +36,7 @@ public class ActionPointTriggerActions
         }
         if (!ActionPointDataAsset.Exists(actionPointId))
         {
-            error = $"Unknown action point ID {actionPointId}";
+            error = $"Unknown action point ID: '{actionPointId}'.";
             return false;
         }
         ActionPointManager.EnableActionPoint(actionPointId);
@@ -52,7 +52,7 @@ public class ActionPointTriggerActions
         }
         if (!ActionPointDataAsset.Exists(actionPointId))
         {
-            error = $"Unknown action point ID {actionPointId}";
+            error = $"Unknown action point ID: '{actionPointId}'.";
             return false;
         }
         ActionPointManager.DisableActionPoint(actionPointId);
@@ -68,12 +68,12 @@ public class ActionPointTriggerActions
 
         if (!ActionPointDataAsset.Data.ContainsKey(actionPointId))
         {
-            error = $"Unknown action point ID {actionPointId}";
+            error = $"Unknown action point ID: '{actionPointId}'.";
             return false;
         }
         if (replenishTime < 0)
         {
-            error = $"Negative replenish time {replenishTime}";
+            error = $"Negative replenish time: '{replenishTime}'.";
             return false;
         }
         ActionPointManager.SetReplenishTime(actionPointId, replenishTime);
@@ -87,7 +87,7 @@ public class ActionPointTriggerActions
             return false;
         if (!ActionPointDataAsset.Data.ContainsKey(actionPointId))
         {
-            error = $"Unknown action point ID {actionPointId}";
+            error = $"Unknown action point ID: '{actionPointId}'.";
             return false;
         }
         ActionPointManager.RestoreReplenishTime(actionPointId);
@@ -104,7 +104,7 @@ public class ActionPointTriggerActions
         }
         if (!ActionPointDataAsset.Exists(actionPointId))
         {
-            error = $"Unknown action point ID {actionPointId}";
+            error = $"Unknown action point ID: '{actionPointId}'.";
             return false;
         }
         ActionPointManager.SetMaxAmount(actionPointId, maxAmount);
@@ -120,7 +120,7 @@ public class ActionPointTriggerActions
         }
         if (!ActionPointDataAsset.Exists(actionPointId))
         {
-            error = $"Unknown action point ID {actionPointId}";
+            error = $"Unknown action point ID: '{actionPointId}'.";
             return false;
         }
         ActionPointManager.RestoreMaxAmount(actionPointId);

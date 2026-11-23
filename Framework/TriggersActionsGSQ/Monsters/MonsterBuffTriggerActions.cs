@@ -1,6 +1,8 @@
+using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 using CombatExtended.Framework.Core.Monsters;
 using CombatExtended.Framework.Core.Util;
 using CombatExtended.Framework.Data;
+using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
 using StardewValley;
 using StardewValley.Delegates;
@@ -13,25 +15,27 @@ public static class MonsterBuffTriggerActions
 {
     
     /// <summary>
-    /// Trigger action to apply provided monster buff to monster if present in <paramref name="ctx"/>'s trigger args, or to monsters in ability's range if it is provided.
+    /// Trigger action to apply provided monster buff to monster if present in <paramref name="ctx"/>'s trigger args, or
+    /// to monsters in ability's range if it is provided.
     /// </summary>
-    /// <param name="args">Trigger actions args.</param>
+    /// <param name="args">The trigger action args.</param>
     /// <param name="ctx"><see cref="TriggerActionContext"/>.</param>
+    /// <param name="monster">The context monster, if any.</param>
     /// <param name="error">The error if ran unsuccessfully.</param>
     /// <returns>Whether trigger action was ran successfully.</returns>
     [TriggerAction]
-    private static bool ApplyMonsterBuff(string[] args, TriggerActionContext ctx, out string error)
+    [MonsterContextAware]
+    private static bool ApplyMonsterBuff(string[] args, TriggerActionContext ctx, Monster? monster, out string error)
     {
         if (!ArgUtility.TryGet(args, 1, out var monsterBuffId, out error)) 
             return false;
         if (!MonsterBuffDataAsset.Exists(monsterBuffId))
         {
-            error = $"Unknown monster buff id: {monsterBuffId}.";
+            error = $"Unknown monster buff ID: {monsterBuffId}.";
             return false;
         }
         ArgUtility.TryGetOptionalFloat(args, 2, out var chance, out _, 1f);
         
-        var triggerArgs = ctx.TriggerArgs;
         var player = Game1.player;
         var location = player.currentLocation;
 
@@ -39,11 +43,10 @@ public static class MonsterBuffTriggerActions
         {
             if (!RangeDataAsset.Exists(rangeId))
             {
-                error = $"Invalid range id: {rangeId}";
+                error = $"Invalid range ID: {rangeId}.";
                 return false;
             }
-            RangeUtil.GetAffectedByRange(rangeId, player, triggerArgs.Length == 1 && triggerArgs[0] is Monster monster ? monster : null, 
-                out _, out var affectedMonsters);
+            RangeUtil.GetAffectedByRange(rangeId, player, monster, out _, out var affectedMonsters);
             affectedMonsters
                 .Where(m => m.Health > 0 && m.ShouldBeInteractedWith())
                 .ToList()
@@ -56,31 +59,26 @@ public static class MonsterBuffTriggerActions
             return true;
         }
 
-        if (triggerArgs.Length == 1 && triggerArgs[0] is Monster argMonster)
+        if (!RequireContext(monster, out error)) return false;
+        if (monster.Health > 0 && monster.ShouldBeInteractedWith() && Game1.random.NextDouble() < chance)
         {
-            if (argMonster.Health > 0 && argMonster.ShouldBeInteractedWith() && Game1.random.NextDouble() < chance)
-            {
-                MonsterBuffManager.ApplyBuff(argMonster, location, monsterBuffId,
-                    player.GetCharacterType(), player.GetCharacterId());
-            }
-            return true;
+            MonsterBuffManager.ApplyBuff(monster, location, monsterBuffId,
+                player.GetCharacterType(), player.GetCharacterId());
         }
-
-        error = "No range was used in a context that does not have a single monster to apply buff to.";
-        return false;
+        return true;
     }
 
     [TriggerAction]
-    private static bool RemoveMonsterBuff(string[] args, TriggerActionContext ctx, out string error)
+    [MonsterContextAware]
+    private static bool RemoveMonsterBuff(string[] args, TriggerActionContext ctx, Monster? monster, out string error)
     {
         if (!ArgUtility.TryGet(args, 1, out var monsterBuffId, out error)) 
             return false;
         if (!MonsterBuffDataAsset.Exists(monsterBuffId))
         {
-            error = $"Unknown monster buff id: {monsterBuffId}.";
+            error = $"Unknown monster buff ID: {monsterBuffId}.";
             return false;
         }
-        var triggerArgs = ctx.TriggerArgs;
         var player = Game1.player;
         var location = player.currentLocation;
 
@@ -88,24 +86,18 @@ public static class MonsterBuffTriggerActions
         {
             if (!RangeDataAsset.Exists(rangeId))
             {
-                error = $"Invalid range id: {rangeId}";
+                error = $"Invalid range ID: {rangeId}.";
                 return false;
             }
-            RangeUtil.GetAffectedByRange(rangeId, player, triggerArgs.Length == 1 && triggerArgs[0] is Monster monster ? monster : null, 
-                out _, out var affectedMonsters);
+            RangeUtil.GetAffectedByRange(rangeId, player, monster, out _, out var affectedMonsters);
             affectedMonsters
                 .ToList()
                 .ForEach(m => MonsterBuffManager.RemoveBuff(m, location, monsterBuffId));
             return true;
         }
 
-        if (triggerArgs.Length == 1 && triggerArgs[0] is Monster argMonster)
-        {
-            MonsterBuffManager.RemoveBuff(argMonster, location, monsterBuffId);
-            return true;
-        }
-
-        error = "No range was used in a context that does not have a single monster to apply buff to.";
-        return false;
+        if (!RequireContext(monster, out error)) return false;
+        MonsterBuffManager.RemoveBuff(monster, location, monsterBuffId);
+        return true;
     }
 }

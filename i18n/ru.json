@@ -5,5 +5,7 @@
     "config.option.hotbar-key": "Клавиши хотбара",
     "config.option.hotbar-key.toolptip": "Комбинации клавиш для взаимодействия с хотбаром способностей.",
     "config.option.use-ability-key": "Клавиши использования способности",
-    "config.option.use-ability-key.toolptip": "Комбинации клавиш для использования способности."
+    "config.option.use-ability-key.toolptip": "Комбинации клавиш для использования способности.",
+    // strings //
+    "string.buff.armour-class.description": "+{0} Класс брони"
 }

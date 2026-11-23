@@ -136,7 +136,9 @@ public static class BuffExtensionEnabler
                 var buffExtension = Extensions.Value.GetValue(buff, _ => new BuffExtension());
                 buffExtension.ActionsOnEffect = data.ActionsOnEffect ?? new List<string>();
                 buffExtension.DoEffectEveryMillis = data.DoEffectEverySec.ToMilliseconds();
-                buffExtension.MaxEffectTimesTriggered = data.MaxEffectAmount;
+                buffExtension.MaxEffectTimesTriggered = data.MaxEffectAmount != -2
+                    ? data.MaxEffectAmount
+                    : int.MaxValue;
             }
             return;
         }

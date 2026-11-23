@@ -41,5 +41,7 @@ public static class ModBindings
     
     public static CooldownManager CooldownManager => CooldownManager.Instance;
     
+    public static SequenceOrchestratorManager SequenceOrchestratorManager => SequenceOrchestratorManager.Instance;
+    
     public static string Id => ModEntry.Instance.ModManifest.UniqueID;
 }
