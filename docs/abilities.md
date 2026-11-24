@@ -1,7 +1,7 @@
 # Abilities
 
-Abilities are actions that can have cooldowns, duration, different effects. Ability data is located in `Mods/WhyBother11.CombatExtended/Abilities`.
-This is a dictionary with key being ability id and value being data model described below.
+Abilities are actions that can have cooldowns, duration, different effects. Ability data is located in
+`Mods/WhyBother11.CombatExtended/Abilities`. This is a dictionary with key being ability id and value being data model described below.
 
 For use with weapons, abilities were designed with the intention of being tied to only one weapon. They can be added to multiple
 weapons but the stability of doing so is not guaranteed.
@@ -43,10 +43,10 @@ a projectile with this item's appearance towards specified direction.
 
 | Field          | Type     | Description                                                                                                                                                                                                                                                                                                                       |
 |----------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ProjectileId` | `string` | ID of projectile from `Mods/WhyBother11.CombatExtended/Projectiles` that corresponds to thrown item projectile. This projectile data *has* to include `ItemId` field, that is also used to take item from inventory.                                                                                                              |
+| `ProjectileId` | `string` | ID of [projectile](https://github.com/WhyBother11/CombatExtended/blob/master/docs/projectiles.md) that corresponds to thrown item projectile. This projectile data *has* to include `ItemId` field, that is also used to take item from inventory.                                                                                |
 | `Returnable`   | `float`  | *(Optional)* Whether the thrown item should return to player's inventory when associated projectile is destroyed. If set to `false`, the thrown item is dropped as debris once projectiel is gone. Defaults to `false`.                                                                                                           |
 | `ReturnOnWarp` | `bool`   | *(Optional)* Whether the thrown item should return to player's inventory when the associated projectile is flying or it is destroyed and the item debris are spawned. This is primarily intended for the items launched in the Mines and prevents losing them. Takes no effect if `Returnable` set to `true`. Defaults to `true`. |
-| `Angle`        | `float`  | *(Optional)*  Specifies angle (in degrees), relative to the vector pointed up (e.g. `0` will launch projectile up, while `90` in the right direction). If omitted projectile will be fired towards cursor.                                                                                                                        |
+| `Angle`        | `float`  | *(Optional)* Specifies angle (in degrees), relative to the vector pointed up (e.g. `0` will launch projectile up, while `90` in the right direction). If omitted projectile will be fired towards cursor.                                                                                                                         |
 
 Example for ability with `Continuous` type:
 
@@ -111,13 +111,15 @@ it should be present at least one time. `int` type arguments are prefixed with `
 Format: `WhyBother11.CombatExtended_AddWeaponAbility <AbilityId> <WeaponId>`
 
 Used to manually add ability tied to a weapon. `AbilityId` corresponds to ability that should be added. `WeaponId` corresponds
-to weapon to which this ability should be tied. Added ability will behave as if it was added in `Mods/WhyBother11.CombatExtended/WeaponExtensionData`.
+to weapon to which this ability should be tied. Added ability will behave as if it was added in 
+[weapon extension data](https://github.com/WhyBother11/CombatExtended/blob/master/docs/weapon-extensions.md#weaponextensiondata).
 
 ### `WhyBother11.CombatExtended_RemoveWeaponAbility`
 
 Format: `WhyBother11.CombatExtended_RemoveWeaponAbility <AbilityId> <WeaponId>`
 
-Used to manually remove ability tied to a weapon. Stability of removing ability defined in `Mods/WhyBother11.CombatExtended/WeaponExtensionData`
+Used to manually remove ability tied to a weapon. Stability of removing ability defined in
+[weapon extension data](https://github.com/WhyBother11/CombatExtended/blob/master/docs/weapon-extensions.md#weaponextensiondata)
 is not guaranteed. `AbilityId` corresponds to ability that should be removed. `WeaponId` corresponds to weapon from 
 which this ability will be removed.
 
@@ -126,28 +128,28 @@ which this ability will be removed.
 Format: `WhyBother11.CombatExtended_SetAbilityCooldown <AbilityId> <%Cooldown>`
 
 Used to override cooldown of ability. `AbilityId` corresponds to ability whose cooldown should be overriden. `Cooldown` is
-overriding amount of seconds for cooldown. Cooldown cannot be non-negative.
+overriding amount of seconds for cooldown. Cooldown cannot be negative.
 
 ### `WhyBother11.CombatExtended_RestoreAbilityCooldown`
 
 Format: `WhyBother11.CombatExtended_RestoreAbilityCooldown <AbilityId>`
 
-Used to restore cooldown of ability back to the defined `Cooldown` in `Mods/WhyBother11.CombatExtended/Abilities`.
-`AbilityId` corresponds to ability whose cooldown should be restored.
+Used to restore cooldown of ability back to the defined `Cooldown` in ability data. `AbilityId` corresponds to ability 
+whose cooldown should be restored.
 
 ### `WhyBother11.CombatExtended_SetAbilityDuration`
 
 Format: `WhyBother11.CombatExtended_SetAbilityDuration <AbilityId> <%Duration>`
 
 Used to override duration of `Continuous` ability. `AbilityId` corresponds to ability whose duration should be overriden. 
-`Duration` is overriding amount of seconds for duration. Duration cannot be non-negative.
+`Duration` is overriding amount of seconds for duration. Duration cannot be negative.
 
 ### `WhyBother11.CombatExtended_RestoreAbilityDuration`
 
 Format: `WhyBother11.CombatExtended_RestoreAbilityDuration <AbilityId>`
 
-Used to restore duration of `Continuous` ability back to the defined `Duration` in `Mods/WhyBother11.CombatExtended/Abilities`.
-`AbilityId` corresponds to ability whose duration should be restored.
+Used to restore duration of `Continuous` ability back to the defined `Duration` in ability data. `AbilityId` corresponds 
+to ability whose duration should be restored.
 
 ## Ability game state queries
 

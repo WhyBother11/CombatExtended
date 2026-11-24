@@ -183,7 +183,7 @@ public class CustomProjectile : Projectile
         {
             if (!LinkEffectDataAsset.Data.TryGetValue(data.LinkEffect, out var linkEffect))
                 Log.Error($"Unknown link effect ID: {data.LinkEffect}");
-            else LinkEffects.BeginProjectileLink(projectile, linkEffect);
+            else LinkEffectManager.BeginProjectileLink(projectile, data.LinkEffect, linkEffect);
         }
         loc.projectiles.Add(projectile);
         return projectile;

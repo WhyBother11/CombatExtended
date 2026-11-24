@@ -33,11 +33,11 @@ public class HostMonsterBuffManager : IMonsterBuffManager
     /// <summary>
     /// Cache for <see cref="MonsterBuff.DoEffectEveryTick"/>, adjusted for base ticks amount and converted to uint.
     /// </summary>
-    private readonly Dictionary<string, uint> _doEffectUintTicks = new();
+    private readonly Dictionary<string, int> _doEffectAdjustedTicks = new();
     /// <summary>
     /// Cache for <see cref="MonsterBuff.DoAnimationEveryTick"/>, adjusted for base ticks amount and converted to uint.
     /// </summary>
-    private readonly Dictionary<string, uint> _doAnimationUintTicks = new();
+    private readonly Dictionary<string, int> _doAnimationAdjustedTicks = new();
 
     public void Register(IModHelper helper)
     {
@@ -87,12 +87,12 @@ public class HostMonsterBuffManager : IMonsterBuffManager
                     continue;
                 }
 
-                if (monsterBuff.DoEffectEveryTick > 0 && monsterBuff.TicksElapsed % _doEffectUintTicks[monsterBuffId] == 0)
+                if (monsterBuff.DoEffectEveryTick > 0 && monsterBuff.TicksElapsed % _doEffectAdjustedTicks[monsterBuffId] == 0)
                 {
                     monsterBuff.DoEffect(monster, monster.currentLocation);
                     HandleMonsterBuffTrigger(Triggers.MonsterBuffContinuousEffect, monsterBuff, monster, monster.currentLocation);
                 }
-                if (monsterBuff.DoAnimationEveryTick > 0 && monsterBuff.TicksElapsed % _doAnimationUintTicks[monsterBuffId] == 0)
+                if (monsterBuff.DoAnimationEveryTick > 0 && monsterBuff.TicksElapsed % _doAnimationAdjustedTicks[monsterBuffId] == 0)
                 {
                     monsterBuff.DoAnimation(monster, monster.currentLocation);
                 }
@@ -249,11 +249,11 @@ public class HostMonsterBuffManager : IMonsterBuffManager
             buffs[buffId] = buff;
             Log.Trace($"Applied buff {buffId} for Monster {monster.Name}_{monster.GetCharacterId()} on location {loc.Name}");
             buff.HandleApplied(monster, loc);
-            // cache to not calculate the same uint tick amount that accounts for BaseTicks divisibility
+            // cache to not calculate the same tick amount that accounts for BaseTicks divisibility
             if (buff.DoEffectEveryTick > 0)
-                _doEffectUintTicks[buffId] = (uint) Math.Max(BaseTicks, buff.DoEffectEveryTick / BaseTicks * BaseTicks);
+                _doEffectAdjustedTicks[buffId] = Math.Max(BaseTicks, buff.DoEffectEveryTick / BaseTicks * BaseTicks);
             if (buff.DoAnimationEveryTick > 0)
-                _doAnimationUintTicks[buffId] = (uint) Math.Max(BaseTicks, buff.DoAnimationEveryTick / BaseTicks * BaseTicks);
+                _doAnimationAdjustedTicks[buffId] = Math.Max(BaseTicks, buff.DoAnimationEveryTick / BaseTicks * BaseTicks);
         }
     }
 }

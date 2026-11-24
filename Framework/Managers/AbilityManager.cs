@@ -53,7 +53,7 @@ public class AbilityManager
     /// <summary>
     /// Cache for <see cref="ContinuousAbility.DoContinuousEffectEveryTick"/>, adjusted for base ticks amount and converted to uint.
     /// </summary>
-    private readonly Dictionary<string, uint> _doContinuousEffectUintTicks = new();
+    private readonly Dictionary<string, int> _doContinuousEffectAdjustedTicks = new();
     
     public static void Register(IModHelper helper)
     {
@@ -90,8 +90,8 @@ public class AbilityManager
             prevAbilities[ability.Id] = ability;
         AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
         if (ability is ContinuousAbility continuousAbility)
-            _doContinuousEffectUintTicks[continuousAbility.Id] =
-                (uint)Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
+            _doContinuousEffectAdjustedTicks[continuousAbility.Id] =
+                Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
     }
 
     /// <summary>
@@ -218,8 +218,8 @@ public class AbilityManager
             foreach (var ability in weaponAbilities.Values)
             {
                 if (ability is ContinuousAbility continuousAbility)
-                    _doContinuousEffectUintTicks[continuousAbility.Id] =
-                        (uint)Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
+                    _doContinuousEffectAdjustedTicks[continuousAbility.Id] =
+                        Math.Max(BaseTicks, continuousAbility.DoContinuousEffectEveryTick / BaseTicks * BaseTicks);
             }
         }
         AbilityHotbar.Hotbar().NotifyAbilitiesUpdated();
@@ -328,7 +328,7 @@ public class AbilityManager
             var isActive = IsContinuousAbilityActive(continuousAbility);
             if (isActive && continuousAbility.DoContinuousEffectEveryTick > 0 &&
                 (!activeWeapon || !continuousAbility.EffectAttachedToWeapon) &&
-                continuousAbility.DurationTicksElapsed % _doContinuousEffectUintTicks[continuousAbility.Id] == 0)
+                continuousAbility.DurationTicksElapsed % _doContinuousEffectAdjustedTicks[continuousAbility.Id] == 0)
                 //e.IsMultipleOf(_doContinuousEffectUintTicks[continuousAbility.Id]))
             {
                 actions.Add(() => continuousAbility.OnContinuousTrigger(player, player.currentLocation));

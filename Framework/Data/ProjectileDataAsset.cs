@@ -4,6 +4,7 @@ using StardewModdingAPI;
 
 namespace CombatExtended.Framework.Data;
 
+// todo: doEffect on projectiles
 #pragma warning disable CS8618
 public class ProjectileData
 {

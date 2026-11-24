@@ -16,10 +16,10 @@ public class MonsterStatusData
     public string? Condition;
     
     [ContentSerializer(Optional = true)] 
-    public float? DoEffectEverySec;
+    public float DoEffectEverySec;
 
     [ContentSerializer(Optional = true)]
-    public float? DoAnimationEverySec;
+    public float DoAnimationEverySec;
     
     [ContentSerializer(Optional = true)] 
     public List<string>? AnimationTemporaryAnimatedSprites;
@@ -63,6 +63,9 @@ public class MonsterStatusAttributesData
     
     [ContentSerializer(Optional = true)] 
     public float? Weight;
+    
+    [ContentSerializer(Optional = true)] 
+    public float? HitMissRate;
 
     [ContentSerializer(Optional = true)] 
     public List<DamageAttributesData>? DamageData;

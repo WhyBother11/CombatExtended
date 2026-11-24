@@ -12,4 +12,6 @@ public class ModConfig
     public KeybindList HotbarNextKey { get; set; } = KeybindList.Parse("N");
     
     public KeybindList UseAbilityKey { get; set; } = KeybindList.Parse("U");
+    
+    public float UpdateRate { get; set; } = 1f;
 }

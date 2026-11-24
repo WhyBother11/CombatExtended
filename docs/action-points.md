@@ -1,8 +1,8 @@
 # Action points
 
-Action points represent any arbitrary points that can be spent to do actions, replenished manually or overtime. Action point data 
-is located in `Mods/WhyBother11.CombatExtended/ActionPoints`. This is a dictionary with key being action point id and value being
-data model described below.
+Action points represent any arbitrary points that can be spent to do actions, replenished manually or overtime. Action
+point data is located in `Mods/WhyBother11.CombatExtended/ActionPoints`. This is a dictionary with key being action point ID
+and value being data model described below.
 
 ## ActionPointData
 
@@ -50,49 +50,50 @@ it should be present at least one time. `int` type arguments are prefixed with `
 
 Format: `WhyBother11.CombatExtended_AddActionPoints <ActionPointId> <#Amount>`
 
-Used to manually add action points. `ActionPointId` corresponds to action point to add to. `Amount` is amount of action points that
-should be added, capping at `MaxAmount`. If negative number, action point amount will be subtracted, otherwise added.
+Used to manually add action points. `ActionPointId` corresponds to action point to add to. `Amount` is amount of action points
+that should be added, capping at `MaxAmount`. If negative number, action point amount will be subtracted, otherwise added.
 
 ### `WhyBother11.CombatExtended_EnableActionPoint`
 
 Format: `WhyBother11.CombatExtended_EnableActionPoint <ActionPointId>`
 
-Used to manually enable action point. `ActionPointId` corresponds to action point to enable. Enabled action points start being shown on UI
-and being interacted with.
+Used to manually enable action point. `ActionPointId` corresponds to action point to enable. Enabled action points start 
+being shown on UI and being interacted with.
 
 ### `WhyBother11.CombatExtended_DisableActionPoint`
 
 Format: `WhyBother11.CombatExtended_DisableActionPoint <ActionPointId>`
 
-Used to manually disable action point. `ActionPointId` corresponds to action point to disable. Disabled action points stop being shown on UI
-and being interacted with.
+Used to manually disable action point. `ActionPointId` corresponds to action point to disable. Disabled action points stop
+being shown on UI and being interacted with.
 
 ### `WhyBother11.CombatExtended_SetReplenishTime`
 
 Format: `WhyBother11.CombatExtended_SetReplenishTime <ActionPointId> <%ReplenishTime>`
 
-Used to override replenish time of action point. `ActionPointId` corresponds to action point whose replenish time should be overriden.
-`ReplenishTime` is overriding amount of seconds for replenish time.
+Used to override replenish time of action point. `ActionPointId` corresponds to action point whose replenish time should 
+be overriden. `ReplenishTime` is overriding amount of seconds for replenish time.
 
 ### `WhyBother11.CombatExtended_RestoreReplenishTime`
 
 Format: WhyBother11.CombatExtended_RestoreReplenishTime <ActionPointId>
 
-Used to restore replenish time of action point back to the defined `ReplenishTime` in `Mods/WhyBother11.CombatExtended/ActionPoints`. `ActionPointId` corresponds to action point whose replenish time should be restored.
+Used to restore replenish time of action point back to the defined `ReplenishTime` in action point data. `ActionPointId` 
+corresponds to action point whose replenish time should be restored.
 
 ### `WhyBother11.CombatExtended_SetMaxAmount`
 
 Format: `WhyBother11.CombatExtended_SetMaxAmount <ActionPointId> <#MaxAmount>`
 
-Used to override maximum amount of action point. `ActionPointId` corresponds to action point whose maximum amount should be overriden.
-`MaxAmount` is overriding max amount for replenish time.
+Used to override maximum amount of action point. `ActionPointId` corresponds to action point whose maximum amount should 
+be overriden. `MaxAmount` is overriding max amount for replenish time.
 
 ### `WhyBother11.CombatExtended_RestoreMaxAmount`
 
 Format: `WhyBother11.CombatExtended_RestoreMaxAmount <ActionPointId>`
 
-Used to restore maximum amount of action point back to the defined `MaxAmount` in `Mods/WhyBother11.CombatExtended/ActionPoints`. 
-`ActionPointId` corresponds to action point whose maximum amount should be restored.
+Used to restore maximum amount of action point back to the defined `MaxAmount` in action point data. `ActionPointId`
+corresponds to action point whose maximum amount should be restored.
 
 ## Action points game state queries
 
@@ -112,6 +113,7 @@ Query returns `true` if action point amount is between `Min` and `Max` inclusive
 
 Format: `WhyBother11.CombatExtended_MAX_ACTION_POINTS <ActionPointId> <#Min> [#Max]`
 
-Used to check current maximum amount of action points. `ActionPointId` corresponds to action point whose maximum amount should be checked.
-`Min` and `Max` (defaults to `int` max value) are used to define minimum and maximum possible amount of maximum amount of action points, respectively.
-Query returns `true` if maximum action point amount is between `Min` and `Max` inclusively, `false` otherwise.
+Used to check current maximum amount of action points. `ActionPointId` corresponds to action point whose maximum amount 
+should be checked. `Min` and `Max` (defaults to `int` max value) are used to define minimum and maximum possible amount of 
+maximum amount of action points, respectively. Query returns `true` if maximum action point amount is between `Min` and `Max` 
+inclusively, `false` otherwise.

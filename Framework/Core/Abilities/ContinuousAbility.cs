@@ -34,13 +34,16 @@ public class ContinuousAbility : Ability
     {
         DurationTicks = data.Duration!.Value.ToTicks();
         EffectAttachedToWeapon = data.AttachedToWeapon;
-        DoContinuousEffectEveryTick = data.DoEffectEverySec?.ToTicks() ?? 0;
+        DoContinuousEffectEveryTick = data.DoEffectEverySec.ToTicks();
         DurationTicksElapsed = DurationTicks;
+        EndActionCondition = data.EndActionCondition;
+        ActionsOnEnd = data.ActionsOnEnd;
+        EffectActionCondition = data.EffectActionCondition;
+        ActionsOnEffect = data.ActionsOnEffect;
     }
     
     protected override void OnTrigger(Farmer player, GameLocation location, Vector2 cursorTile, Vector2 playerTile)
     {
-        //AffectedTiles = GetHighlightedTiles(player, location, cursorTile, playerTile);
         DurationTicksElapsed = 0;
         IsActive = true;
         IsEndHandled = false;

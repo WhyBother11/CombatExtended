@@ -50,7 +50,7 @@ public class AbilityData
     public float? Duration;
 
     [ContentSerializer(Optional = true)]
-    public int? DoEffectEverySec;
+    public int DoEffectEverySec = 0;
 
     [ContentSerializer(Optional = true)] 
     public string? EndActionCondition;

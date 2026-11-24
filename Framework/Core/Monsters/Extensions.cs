@@ -1,7 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Core.Monsters.Buffs;
-using CombatExtended.Framework.Core.Monsters.Conditions;
+using CombatExtended.Framework.Core.Monsters.Statuses;
 using CombatExtended.Framework.Core.Monsters.Tags;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.UI.Vanilla;
@@ -49,6 +50,8 @@ public static class Extensions
         monster.missChance.Value = MonsterStats.MissChanceWithArmourClassDelta(monster, delta);
     }
 
+    [SuppressMessage("ReSharper", "SpecifyACultureInStringConversionExplicitly",
+        Justification = "Not displayed, for internal use.")]
     public static void ApplyWeight(this Monster monster, float weight)
     {
         monster.modData[MonsterStats.WeightModDataKey] = weight.ToString();
@@ -58,6 +61,19 @@ public static class Extensions
     {
         var resultWeight = monster.GetWeight() + delta;
         monster.ApplyWeight(resultWeight);
+    }
+    
+    [SuppressMessage("ReSharper", "SpecifyACultureInStringConversionExplicitly",
+        Justification = "Not displayed, for internal use.")]
+    public static void ApplyHitMissRate(this Monster monster, float rate)
+    {
+        monster.modData[MonsterStats.HitMissRateModDataKey] = rate.ToString();
+    }
+
+    public static void AddHitMissRate(this Monster monster, float delta)
+    {
+        var resultRate = monster.GetHitMissRate() + delta;
+        monster.ApplyHitMissRate(resultRate);
     }
 
     public static int GetArmourClass(this Monster monster)
@@ -72,6 +88,16 @@ public static class Extensions
         if (monster.modData.TryGetValue(MonsterStats.WeightModDataKey, out var weight))
             return MathF.Max(-6, float.Parse(weight));
         return MonsterStats.DefaultWeight;
+    }
+
+    [SuppressMessage("ReSharper", "SpecifyACultureInStringConversionExplicitly",
+        Justification = "Not displayed, for internal use.")]
+    public static float GetHitMissRate(this Monster monster)
+    {
+        return float.Parse(
+            monster.modData.GetValueOrDefault(MonsterStats.HitMissRateModDataKey,
+                MonsterStats.DefaultHitMissRate.ToString())
+        );
     }
 
     /// <summary>
@@ -154,6 +180,16 @@ public static class Extensions
             );
     }
 
+    public static float GetDataHitMissRate(this Monster monster)
+    {
+        return (MonsterStats.DefaultHitMissRate + MonsterStats.GetMonsterExtraHitMissRate(monster))
+            .WithCompatibility(monster,
+                m => (MonsterStats.TryGetMonsterExtraHitMissRate(m.Name, out var rate), rate ?? -1),
+                t => (MonsterStats.TryGetMonsterExtraHitMissRate(t, out var rate), rate ?? -1),
+                extraRate => MonsterStats.DefaultHitMissRate + extraRate
+            );
+    }
+
     /// <summary>
     /// Whether monster should be interacted with (receive damage, buffs, and so on).
     /// </summary>
@@ -161,6 +197,7 @@ public static class Extensions
     /// <returns>If monster should be interacted with.</returns>
     public static bool ShouldBeInteractedWith(this Monster monster)
     {
+        if (monster.IsInvisible) return false;
         return monster switch
         {
             Mummy { reviveTimer.Value: > 0 } => false,
@@ -184,8 +221,9 @@ public static class Extensions
         monster.missChance.Value += (int) attributes.MissChance;
         monster.AddArmourClass((int) attributes.ArmourClass);
         monster.AddWeight(attributes.Weight);
+        monster.AddHitMissRate(attributes.HitMissRate);
         if (attributes.StunTime.Equals(-2f)) monster.stunTime.Value = int.MaxValue;
-        else monster.stunTime.Value += (int) attributes.StunTime;
+        else monster.stunTime.Value += attributes.StunTime.ToMilliseconds();
         //monster.Speed += (int)attributes.Speed;
         monster.addedSpeed += attributes.Speed;
         foreach (var attributesResistance in attributes.Resistances)
@@ -229,8 +267,9 @@ public static class Extensions
         monster.missChance.Value -= (int) attributes.MissChance;
         monster.AddArmourClass((int) -attributes.ArmourClass);
         monster.AddWeight(-attributes.Weight);
+        monster.AddHitMissRate(-attributes.HitMissRate);
         if (attributes.StunTime.Equals(-2f)) monster.stunTime.Value = 0;
-        else monster.stunTime.Value -= (int) attributes.StunTime;
+        else monster.stunTime.Value -= attributes.StunTime.ToMilliseconds();
         monster.addedSpeed -= attributes.Speed;
         foreach (var attributesResistance in attributes.Resistances)
         {
@@ -260,6 +299,7 @@ public static class Extensions
         monster.missChance.Value += (int) attributes.MissChance;
         monster.AddArmourClass((int) attributes.ArmourClass);
         monster.AddWeight(attributes.Weight);
+        monster.AddHitMissRate(attributes.HitMissRate);
         if (attributes.StunTime.Equals(-2f)) monster.stunTime.Value = int.MaxValue;
         else monster.stunTime.Value += (int) attributes.StunTime;
         //monster.Speed += (int)attributes.Speed;
@@ -305,6 +345,7 @@ public static class Extensions
         monster.missChance.Value -= (int) attributes.MissChance;
         monster.AddArmourClass((int) -attributes.ArmourClass);
         monster.AddWeight(-attributes.Weight);
+        monster.AddHitMissRate(-attributes.HitMissRate);
         if (attributes.StunTime.Equals(-2f)) monster.stunTime.Value = 0;
         else monster.stunTime.Value -= (int) attributes.StunTime;
         //monster.Speed -= (int)attributes.Speed;

@@ -82,8 +82,8 @@ public class MonsterBuff
             EffectAttributes = MonsterBuffAttributes.Create(data.Effects);
         else EffectAttributes = MonsterBuffAttributes.CreateEmpty();
         
-        DoEffectEveryTick = data.DoEffectEverySec?.ToTicks() ?? 0;
-        DoAnimationEveryTick = data.DoAnimationEverySec?.ToTicks() ?? 0;
+        DoEffectEveryTick = data.DoEffectEverySec.ToTicks();
+        DoAnimationEveryTick = data.DoAnimationEverySec.ToTicks();
         AnimationTemporaryAnimatedSprite = data.AnimationTemporaryAnimatedSprites;
         TemporaryAnimatedSprites = data.TemporaryAnimatedSprites;
     }

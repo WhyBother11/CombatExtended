@@ -13,8 +13,8 @@ dictionary with key being monster buff ID and value being data model described b
 | `Description`                       | `string`                    | The text for in-game description name of this monster buff.                                                                                                                                    |
 | `Duration`                          | `float`                     | The time (in seconds) for monster buff to be considered active and do its effect.                                                                                                              |
 | `IsDebuff`                          | `bool`                      | Whether this monster buff should be considered as debuff.                                                                                                                                      |
-| `DoEffectEverySec`                  | `float`                     | *(Optional)* The time (in seconds) for monster buff effect to be triggered. If set to `0` or not set, no effect is triggered.                                                                  |
-| `DoAnimationEverySec`               | `float`                     | *(Optional)* The time (in seconds) for monster buff animation sprite to be displayed. If set to `0` or not set, no animation sprites are shown.                                                |
+| `DoEffectEverySec`                  | `float`                     | *(Optional)* The time (in seconds) for monster buff effect to be triggered. If set to `0`, no effect is triggered. Defaults to `0`.                                                            |
+| `DoAnimationEverySec`               | `float`                     | *(Optional)* The time (in seconds) for monster buff animation sprite to be displayed. If set to `0`, no animation sprites are shown. Defaults to `0`.                                          |
 | `TemporaryAnimatedSprites`          | `List<string>`              | *(Optional)* The list of temporary animated sprites, as defined in `Mods/WhyBother11.CombatExtended/CombatTemporaryAnimatedSprites`, to be displayed when monster buff *is applied*.           |
 | `AnimationTemporaryAnimatedSprites` | `List<string>`              | *(Optional)* The list of temporary animated sprites, as defined in `Mods/WhyBother11.CombatExtended/CombatTemporaryAnimatedSprites`, to be displayed *accordingly with* `DoAnimationEverySec`. |
 | `ApplyCondition`                    | `string`                    | *(Optional)* The GSQ to check if this monster buff should be applied to the monster. This GSQ receives `Monster context`, so you can use any related queries.                                  |
@@ -33,18 +33,19 @@ dictionary with key being monster buff ID and value being data model described b
 
 ## MonsterBuffAttributesData
 
-| Field            | Type                             | Description                                                                                                                                  |
-|------------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| `Resilience`     | `float`                          | *(Optional)* How much should monster's resilience (decreases damage received by monster) be increased.                                       |
-| `Health`         | `float`                          | *(Optional)* How many health points should be added to the monster. Applied after `MaxHealth`.                                               |
-| `MaxHealth`      | `float`                          | *(Optional)* How much should monster's maximum health be increased.                                                                          |
-| `MissChance`     | `float`                          | *(Optional)* How much should monster's miss chance (how often can weapon attack miss when hitting this monster) be increased.                |
-| `ArmourClass`    | `float`                          | *(Optional)* How much should monster's armour class be increased.                                                                            |
-| `Weight`         | `float`                          | *(Optional)* How much should monster's weight be increased.                                                                                  |
-| `StunTime`       | `float`                          | *(Optional)* How long (in milliseconds) should the monster be stunned. Can be set to `-2` for indefinite time until monster buff is removed. |
-| `Speed`          | `float`                          | *(Optional)* How much should monster's speed be increased.                                                                                   |
-| `DamageData`     | `List<DamageAttributesData>`     | *(Optional)* Describes the damage that the monster should receive.                                                                           |
-| `ResistanceData` | `List<ResistanceAttributesData>` | *(Optional)* Describes what and how much monster's resistances should be altered.                                                            |
+| Field            | Type                             | Description                                                                                                                                                                     |
+|------------------|----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Resilience`     | `float`                          | *(Optional)* How much should monster's resilience (decreases damage received by monster) be increased.                                                                          |
+| `Health`         | `float`                          | *(Optional)* How many health points should be added to the monster. Applied after `MaxHealth`.                                                                                  |
+| `MaxHealth`      | `float`                          | *(Optional)* How much should monster's maximum health be increased.                                                                                                             |
+| `MissChance`     | `float`                          | *(Optional)* How much should monster's miss chance (how often can weapon attack miss when hitting this monster) be increased.                                                   |
+| `ArmourClass`    | `float`                          | *(Optional)* How much should monster's [armour class](https://github.com/WhyBother11/CombatExtended/blob/master/docs/monster-extensions.md#monsterextensiondata) be increased.  |
+| `Weight`         | `float`                          | *(Optional)* How much should monster's [weight](https://github.com/WhyBother11/CombatExtended/blob/master/docs/monster-extensions.md#monsterextensiondata) be increased.        |
+| `HitMissRate`    | `float`                          | *(Optional)* How much should monster's [hit miss rate](https://github.com/WhyBother11/CombatExtended/blob/master/docs/monster-extensions.md#monsterextensiondata) be increased. |
+| `StunTime`       | `float`                          | *(Optional)* How long (in seconds) should the monster be stunned. Can be set to `-2` for indefinite time until monster buff is removed.                                         |
+| `Speed`          | `float`                          | *(Optional)* How much should monster's speed be increased.                                                                                                                      |
+| `DamageData`     | `List<DamageAttributesData>`     | *(Optional)* Describes the damage that the monster should receive.                                                                                                              |
+| `ResistanceData` | `List<ResistanceAttributesData>` | *(Optional)* Describes what and how much monster's resistances should be altered.                                                                                               |
 
 ## DamageAttributesData
 

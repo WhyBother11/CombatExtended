@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 using CombatExtended.Framework.Core.Monsters;
-using CombatExtended.Framework.Core.Monsters.Conditions;
+using CombatExtended.Framework.Core.Monsters.Statuses;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -29,7 +29,7 @@ public class MonsterStatusManager
     /// <summary>
     /// Cache for <see cref="MonsterStatus.DoEffectEveryTick"/>, adjusted for base ticks amount and converted to uint.
     /// </summary>
-    private readonly Dictionary<string, uint> _doEffectUintTicks = new();
+    private readonly Dictionary<string, int> _doEffectAdjustedTicks = new();
     
     public void Register(IModHelper helper)
     {
@@ -50,7 +50,7 @@ public class MonsterStatusManager
             foreach (var (id, status) in statuses)
             {
                 status.TicksElapsed += BaseTicks;
-                if (status.TicksElapsed % _doEffectUintTicks[id] == 0)
+                if (status.TicksElapsed % _doEffectAdjustedTicks[id] == 0)
                     status.DoEffect(monster, monster.currentLocation);
             }
         }
@@ -76,7 +76,7 @@ public class MonsterStatusManager
                         var status = MonsterStatus.Create(id);
                         monsterStatuses.Add(id, status);
                         status.Apply(monster, monster.currentLocation);
-                        _doEffectUintTicks[id] = (uint) Math.Max(BaseTicks, status.DoEffectEveryTick / BaseTicks * BaseTicks);
+                        _doEffectAdjustedTicks[id] = Math.Max(BaseTicks, status.DoEffectEveryTick / BaseTicks * BaseTicks);
                     }
                     else if (!conditionCheck && hasStatus)
                     {

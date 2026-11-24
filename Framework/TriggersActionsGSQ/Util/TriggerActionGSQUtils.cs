@@ -4,7 +4,9 @@ using CombatExtended.Framework.Core.Abilities;
 using CombatExtended.Framework.Core.Misc.Projectiles;
 using CombatExtended.Framework.Core.Monsters;
 using CombatExtended.Framework.Core.Monsters.Buffs;
-using CombatExtended.Framework.Core.Monsters.Conditions;
+using CombatExtended.Framework.Core.Monsters.Statuses;
+using CombatExtended.Framework.Core.Util;
+using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Abilities;
 using CombatExtended.Framework.TriggersActionsGSQ.Monsters;
 using CombatExtended.Framework.TriggersActionsGSQ.Projectiles;
@@ -134,6 +136,15 @@ public static class TriggerActionGSQUtils
         return true;
     }
 
+    /// <summary>
+    /// Require given <paramref name="modDataKey"/> to be presented in <paramref name="modData"/>.
+    /// </summary>
+    /// <param name="query">The GSQ arguments.</param>
+    /// <param name="modData">The <see cref="ModDataDictionary"/> where context key should be checked.</param>
+    /// <param name="modDataKey">The key of context value in <paramref name="modData"/>.</param>
+    /// <param name="result">The context value, if any.</param>
+    /// <param name="contextEntity">The name of context entity that will be logged if result is <c>false</c>.</param>
+    /// <returns>Whether <paramref name="modDataKey"/> is present in <paramref name="modData"/>.</returns>
     public static bool RequireContextModData(string[] query, ModDataDictionary? modData, string modDataKey, 
         [MaybeNullWhen(false)] out string result, string contextEntity)
     {
@@ -146,6 +157,15 @@ public static class TriggerActionGSQUtils
         return GameStateQuery.Helpers.ErrorResult(query, $"No value for {modDataKey} present in '{contextEntity} context'");
     }
 
+    /// <summary>
+    /// Require given context to include <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">The context value to check.</param>
+    /// <param name="error">The error if no context value is present.</param>
+    /// <param name="valueName">The name of context value that will be used in <paramref name="error"/>.</param>
+    /// <param name="contextName">The name of context that will be used in <paramref name="error"/>.</param>
+    /// <typeparam name="TV">The type of context value.</typeparam>
+    /// <returns>Whether the context contains <paramref name="value"/>.</returns>
     public static bool RequireContext<TV>([NotNullWhen(true)]TV? value, out string error, 
         string? valueName = null, string? contextName = null)
     { 
@@ -156,6 +176,32 @@ public static class TriggerActionGSQUtils
             error = $"No {valueName} present in '{contextName}'.";
             return false;
         }
+        error = null;
+        return true;
+    }
+
+    public static bool TryHandleRange(string rangeId, Monster? monster, Farmer player, out string error,
+        Action<Monster>? monsterHandler = null, Action<Farmer>? playerHandler = null)
+    {
+        if (!RangeDataAsset.Exists(rangeId))
+        {
+            error = $"Invalid range id: {rangeId}";
+            return false;
+        }
+        RangeUtil.GetAffectedByRange(rangeId, player, monster, out var affectedPlayers, out var affectedMonsters);
+        if (monsterHandler is not null)
+        {
+            foreach (var affectedMonster in affectedMonsters
+                         .Where(affectedMonster => affectedMonster.Health > 0 && affectedMonster.ShouldBeInteractedWith()))
+            {
+                monsterHandler.Invoke(affectedMonster);
+            }
+        }
+        if (playerHandler is not null)
+        {
+            affectedPlayers.ForEach(playerHandler.Invoke);
+        }
+        
         error = null;
         return true;
     }

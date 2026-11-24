@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.9.0
+
+### Added
+
+- Links effects can now have effect on linked monsters and when they touch the link. Specified by `TriggerEffectData` field
+in `LinkEffectData`.
+- `HitRate` extra stat for monsters.
+- `RangeTileData_Circle` data model to specify building circles for range builder.
+
+### Changed
+
+- Adjusted range circle calculation to not include stray extremum points and be like in vanilla circle ranges (e.g.,
+scarecrow ranges).
+- `Radius` field in `RangeTileData` to `Circles`, specifying list of range circles.
+- `StunTime` field in `MonsterBuffAttributesData` to be time in seconds.
+
 ## 0.8.0
 
 ### Added

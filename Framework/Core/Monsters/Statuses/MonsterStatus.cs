@@ -5,7 +5,7 @@ using StardewValley;
 using StardewValley.Extensions;
 using StardewValley.Monsters;
 
-namespace CombatExtended.Framework.Core.Monsters.Conditions;
+namespace CombatExtended.Framework.Core.Monsters.Statuses;
 
 public class MonsterStatus
 {
@@ -61,8 +61,8 @@ public class MonsterStatus
             EffectAttributes = MonsterStatusAttributes.Create(data.Effects);
         else EffectAttributes = MonsterStatusAttributes.CreateEmpty();
         
-        DoEffectEveryTick = data.DoEffectEverySec?.ToTicks() ?? 0;
-        DoAnimationEveryTick = data.DoAnimationEverySec?.ToTicks() ?? 0;
+        DoEffectEveryTick = data.DoEffectEverySec.ToTicks();
+        DoAnimationEveryTick = data.DoAnimationEverySec.ToTicks();
         AnimationTemporaryAnimatedSprite = data.AnimationTemporaryAnimatedSprites;
         TemporaryAnimatedSprites = data.TemporaryAnimatedSprites;
     }

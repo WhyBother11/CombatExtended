@@ -8,9 +8,9 @@ Some of the trigger actions added by the mod can have certain effect for some ti
 sequentially, but after said effects end. For example, for `WhyBother11.CombatExtended_DragMonster` trigger action you may
 want to execute other trigger actions once pulling is over.
 
-Sequences are subsequent lists of trigger actions that can be executed sequentially. The trigger action that has some effect
-which may end after some time may be marked as `Sequence aware`. When such action is triggered inside the sequence, the 
-next trigger action in sequence will be executed once the `Sequence aware` action's effect is ended. Non-aware trigger
+Sequences are subsequent lists of trigger actions that can be executed sequentially. The trigger action that has asynchronous
+effect which may end after some time may be marked as `Sequence aware`. When such action is triggered inside the sequence,
+the next trigger action in sequence will be executed once the `Sequence aware` action's effect is ended. Non-aware trigger
 actions are still handled sequentially, but they will be executed on the same game tick that the previous one.
 
 # Triggers, trigger actions, GSQs stuff
@@ -44,22 +44,26 @@ be run after `Delay` seconds passed. This action passes its context to `Action` 
 
 ### `WhyBother11.CombatExtended_DragMonster`
 
-Format: `WhyBother11.CombatExtended_DragMonster <Direction> <%Power> [Distance] [?IgnoreWeight]`
+Format: `WhyBother11.CombatExtended_DragMonster <Direction> <%Power> [Distance] [?IgnoreWeight] [RangeId]*`
 
 Can be used only in `Monster` context. `Sequence aware` trigger action. Used to drag a monster in some direction. `Direction` is the direction in which monster
-should be dragged. If set to `_toPlayer` monster will be dragged towards the player, if set to `_fromPlayer` — from the 
-player, otherwise it should have `float` type and be an angle in degrees according to which monster should be displaced. 
+should be dragged. It can be one of the following:
+
+- If set to `_toPlayer`, monster will be dragged towards the player.
+- If set to `_fromPlayer`, monster will be dragged from the player.
+- Otherwise, it should have `float` type and be an angle in degrees according to which monster should be displaced.
+
 `Power` is how fast monster should be dragged. `Distance` specifies how many tiles should monster be displaced. If `Direction` 
 is `_toPlayer`, it can be set to `_total`, in which case the distance will be approximate distance between player and the 
 monster. Otherwise, `Distance` should have `float` type and specify distance in tiles (defaults to `5`). `IgnoreWeight` 
-(defaults to `false`) specifies if monster's weight should be used to adjust `Power` (that is, the provided `Power` is used 
+(defaults to `true`) specifies if monster's weight should be used to adjust `Power` (that is, the provided `Power` is used 
 as a base and is increased or decreased based on monster's weight).
 
 ### `WhyBother11.CombatExtended_SetMoving`
 
 Format: `WhyBother11.CombatExtended_SetMoving <?CanMove>`
 
-Used to toggle whether player can move. If `CanMove` is `true`, set player to be able to move, otherwise prevents it.
+Used to toggle whether player can move. If `CanMove` is `true`, set player to be able to move, otherwise prevent it.
 
 ## Game state queries
 

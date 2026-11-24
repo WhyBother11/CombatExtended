@@ -18,11 +18,15 @@ public class MonsterExtensionData
 
     [ContentSerializer(Optional = true)] 
     public float? ExtraWeight;
+    
+    [ContentSerializer(Optional = true)] 
+    public float? ExtraHitMissRate;
 }
 
 [DataAsset("MonsterExtensionData")]
 public class MonsterExtensionDataAsset : DataAsset<MonsterExtensionData>
 {
+    #region Properties 
     private Dictionary<string, string>? _tags;
     private Dictionary<string, string> InstanceTags => _tags ??= Data
         .Where(entry => entry.Value.Tags != null)
@@ -39,17 +43,8 @@ public class MonsterExtensionDataAsset : DataAsset<MonsterExtensionData>
             entry => entry.Key,
             entry => entry.Value.ExtraArmourClass!.Value
         );
-
     public static Dictionary<string, int> ExtraArmourClasses =>
         ((MonsterExtensionDataAsset)_instance).InstanceExtraArmourClasses;
-    
-    private Dictionary<string, float>? _extraWeights;
-    private Dictionary<string, float> InstanceExtraWeights => _extraWeights ??= Data
-        .Where(entry => entry.Value.ExtraWeight != null)
-        .ToDictionary(
-            entry => entry.Key,
-            entry => entry.Value.ExtraWeight!.Value
-        );
     
     private Dictionary<string, string>? _statuses;
     private Dictionary<string, string> InstanceStatuses => _statuses ??= Data
@@ -59,9 +54,27 @@ public class MonsterExtensionDataAsset : DataAsset<MonsterExtensionData>
             entry => entry.Value.Statuses!
         );
     public static Dictionary<string, string> Statuses => ((MonsterExtensionDataAsset) _instance).InstanceStatuses;
-
+    
+    private Dictionary<string, float>? _extraWeights;
+    private Dictionary<string, float> InstanceExtraWeights => _extraWeights ??= Data
+        .Where(entry => entry.Value.ExtraWeight != null)
+        .ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value.ExtraWeight!.Value
+        );
     public static Dictionary<string, float> ExtraWeights =>
         ((MonsterExtensionDataAsset)_instance).InstanceExtraWeights;
+    
+    private Dictionary<string, float>? _extraHitMissRates;
+    private Dictionary<string, float> InstanceExtraHitMissRates => _extraHitMissRates ??= Data
+        .Where(entry => entry.Value.ExtraHitMissRate != null)
+        .ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value.ExtraHitMissRate!.Value
+        );
+    public static Dictionary<string, float> ExtraHitMissRates =>
+        ((MonsterExtensionDataAsset)_instance).InstanceExtraHitMissRates;
+    #endregion
     
     
     private MonsterExtensionDataAsset(string path) : base(path) {}
@@ -83,6 +96,7 @@ public class MonsterExtensionDataAsset : DataAsset<MonsterExtensionData>
         _tags = null;
         _extraArmourClasses = null;
         _extraWeights = null;
+        _extraHitMissRates = null;
         _statuses = null;
     }
 }

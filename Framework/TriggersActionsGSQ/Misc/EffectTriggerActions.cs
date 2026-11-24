@@ -1,12 +1,11 @@
-using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 using CombatExtended.Framework.Core.Util;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
-using CombatExtended.Framework.UI.Animations;
 using CombatExtended.Framework.Util;
 using StardewValley;
 using StardewValley.Delegates;
 using StardewValley.Monsters;
+using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 
 namespace CombatExtended.Framework.TriggersActionsGSQ.Misc;
 
@@ -15,46 +14,35 @@ public static class EffectTriggerActions
 {
 
     [TriggerAction]
-    private static bool LightningStrike(string[] args, TriggerActionContext ctx, out string error)
+    [MonsterContextAware]
+    private static bool LightningStrike(string[] args, TriggerActionContext ctx, Monster? monster, out string error)
     {
         if (ArgUtility.TryGet(args, 1, out var rangeId, out error))
         {
-            if (!RangeDataAsset.Exists(rangeId))
-            {
-                error = $"Invalid range id: {rangeId}";
-                return false;
-            }
             var entity = "all";
             if (ArgUtility.TryGet(args, 2, out var target, out error))
                 entity = target;
             var player = Game1.player;
-            RangeUtil.GetAffectedByRange(rangeId, player, null, out var affectedFarmers, out var affectedMonsters);
-            var characters = new List<Character>();
-            switch (entity)
-            {
-                case "all":
-                    characters.AddRange(affectedMonsters);
-                    characters.AddRange(affectedMonsters);
-                    break;
-                case "player":
-                    characters.AddRange(affectedFarmers); 
-                    break;
-                case "monster":
-                    characters.AddRange(affectedMonsters); 
-                    break;
-            }
-            characters.ForEach(c => SUtility.drawLightningBolt(new Vector2(
-                c.Position.X, c.Position.Y - c.Sprite.SpriteHeight / 2f), c.currentLocation));
-            return true;
+            Action<Farmer>? playerHandler = null;
+            Action<Monster>? monsterHandler = null;
+            if (entity is "all" or "player")
+                playerHandler = DrawLightningBoltForCharacter;
+            if (entity is "all" or "monster")
+                monsterHandler = DrawLightningBoltForCharacter;
+            return TryHandleRange(rangeId, null, player, out error, monsterHandler, playerHandler);
         }
-        if (ctx.TriggerArgs.Length == 1 && ctx.TriggerArgs[0] is Monster monster)
-        {
-            SUtility.drawLightningBolt(new Vector2(monster.Position.X, monster.Position.Y - monster.Sprite.SpriteHeight / 2f), 
-                monster.currentLocation);
-        }
+        if (!RequireContext(monster, out error)) return false;
+        SUtility.drawLightningBolt(new Vector2(monster.Position.X, monster.Position.Y - monster.Sprite.SpriteHeight / 2f), 
+            monster.currentLocation);
+        return true;
 
-        error = "No range was used in a context that does not have a single monster for lightning strike.";
-        return false;
+        void DrawLightningBoltForCharacter(Character character)
+        {
+            SUtility.drawLightningBolt(
+                new Vector2(character.Position.X, character.Position.Y - character.Sprite.SpriteHeight / 2f),
+                character.currentLocation
+            );
+        }
     }
 
     [TriggerAction]
@@ -105,26 +93,5 @@ public static class EffectTriggerActions
         
         if (!positions.Any()) error = "No range was used in a context that does not have a single monster for spawning TAS.";
         return positions.Any();
-    }
-
-    [TriggerAction]
-    [MonsterContextAware]
-    private static bool LinkMonster(string[] args, TriggerActionContext ctx, Monster? monster, out string error)
-    {
-        if (!RequireContext(monster, out error)) return false;
-        if (!ArgUtility.TryGet(args, 1, out var linkId, out error))
-            return false;
-        if (linkId is "_none") 
-            LinkEffects.Remove(monster);
-        else
-        {
-            if (!LinkEffectDataAsset.Data.TryGetValue(linkId, out var linkData))
-            {
-                error = $"Unknown link effect ID: {linkId}.";
-                return false;
-            }
-            LinkEffects.BeginMonsterLink(monster, linkData);
-        }
-        return true;
     }
 }

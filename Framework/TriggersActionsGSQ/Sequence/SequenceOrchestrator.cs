@@ -33,6 +33,11 @@ public class SequenceOrchestrator
     /// </summary>
     private readonly TriggerActionContext _context;
 
+    /// <summary>
+    /// If trigger actions launches multiple asynchronous tasks, used to count them all and await for completion.
+    /// </summary>
+    private int _counter = -1;
+
     public SequenceOrchestrator(int id, List<string> actions, TriggerActionContext context)
     {
         _actions = actions;
@@ -75,18 +80,32 @@ public class SequenceOrchestrator
     }
 
     /// <summary>
+    /// If trigger action should launch multiple tasks, used for every task to increment counter, so that orchestrator
+    /// will await for all task completion.
+    /// </summary>
+    public void IncrementCounter()
+    {
+        if (_counter == -1) _counter = 0;
+        _counter++;
+    }
+
+    /// <summary>
     /// Used by trigger actions to notify orchestrator when they are ended. To do so, the trigger action delegate should
-    /// have <see cref="SequenceAware"/> attribute and MUST call this method to proceed to the next actions.
+    /// have <see cref="TriggersActionsGSQ.Util.SequenceAware"/> attribute and MUST call this method to update counter
+    /// and proceed to the next actions if should.
     /// </summary>
     public void NotifyEnded()
     {
+        // first check if counter was set, then decrement and check again if all tasks ended.
+        if (_counter > 0 && --_counter > 0) return;
         _cursor++;
         ExecuteCurrent();
     }
 
     /// <summary>
     /// Execute an action that the cursor is pointing to. Then, if run successfully, check that sequence is not ended and
-    /// then run next action if it has not <see cref="SequenceAware"/>, otherwise not do anything and wait for its completion.
+    /// then run next action if it has not <see cref="TriggersActionsGSQ.Util.SequenceAware"/>, otherwise not do anything
+    /// and wait for its completion.
     /// </summary>
     private void ExecuteCurrent()
     {

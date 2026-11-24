@@ -19,10 +19,10 @@ public class MonsterBuffData
     #nullable restore
 
     [ContentSerializer(Optional = true)] 
-    public float? DoEffectEverySec;
+    public float DoEffectEverySec = 0;
 
     [ContentSerializer(Optional = true)]
-    public float? DoAnimationEverySec;
+    public float DoAnimationEverySec = 0;
 
     [ContentSerializer(Optional = true)] 
     public List<string>? AnimationTemporaryAnimatedSprites;
@@ -86,6 +86,9 @@ public class MonsterBuffAttributesData
     
     [ContentSerializer(Optional = true)] 
     public float? Weight;
+    
+    [ContentSerializer(Optional = true)] 
+    public float? HitMissRate;
 
     [ContentSerializer(Optional = true)] 
     public List<DamageAttributesData>? DamageData;

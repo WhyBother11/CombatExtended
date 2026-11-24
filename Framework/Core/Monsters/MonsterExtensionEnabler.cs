@@ -81,6 +81,8 @@ public static class MonsterExtensionEnabler
         monster.ApplyArmourClass(ac);
         var weight = monster.GetDataWeight();
         monster.ApplyWeight(weight);
+        var hitMissRate = monster.GetDataHitMissRate();
+        monster.ApplyHitMissRate(hitMissRate);
         monster.modData[MonsterExtensionsAppliedModDataKey] = "true";
         monster.modData[MonsterIdModDataKey] = $"{Game1.player.UniqueMultiplayerID}_{GetNextMonsterId()}";
     }

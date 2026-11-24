@@ -1,27 +1,27 @@
 # Weapon extensions
 
-Weapon extension data is located in `Mods/WhyBother11.CombatExtended/WeaponExtensionData`. This is a dictionary with key being existing 
-*unqualified* weapon ID and value being data model described below. They are used to extend vanilla weapons.
+Weapon extension data is located in `Mods/WhyBother11.CombatExtended/WeaponExtensionData`. This is a dictionary with key
+being existing *unqualified* weapon ID and value being data model described below. They are used to extend vanilla weapons.
 
 ## WeaponExtensionData
 
-| Field              | Type                                  | Description                                                                                                                                                                                                                                                                         |
-|--------------------|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `Abilities`        | `string`                              | *(Optional)* The space delimited string of ability IDs that should be available while this weapon is equipped.                                                                                                                                                                      |
-| `DamageTypes`      | `List<DamageTypeWeaponExtensionData>` | *(Optional)* The list of data models for extra unconditional damage (with specified damage type) added to weapon's minimum and maximum damage when dealing damage to enemies. Damage added here is subject to game's normal damage formula. The data model used is described below. |
-| `States`           | `Dictionary<string, WeaponStateData>` | *(Optional)* The dictionary of data models for weapon states. The key is weapon state ID and value is data model described below.                                                                                                                                                   |
-| `ActionPoints`     | `string`                              | *(Optional)* The space delimited string of action point IDs that should be available when this weapon is equipped.                                                                                                                                                                  |
-| `ActionsOnEquip`   | `List<string>`                        | *(Optional)* The list of actions that should be triggered when the weapon is equipped.                                                                                                                                                                                              |
-| `ActionsOnUnequip` | `List<string>`                        | *(Optional)* The list of actions that should be triggered when the weapon is unequipped.                                                                                                                                                                                            |
+| Field              | Type                                  | Description                                                                                                                                                                                                                                                               |
+|--------------------|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Abilities`        | `string`                              | *(Optional)* The space delimited string of ability IDs that should be available while this weapon is equipped.                                                                                                                                                            |
+| `DamageTypes`      | `List<DamageTypeWeaponExtensionData>` | *(Optional)* The list of data models for extra unconditional damage (with specified damage type) added to weapon's minimum and maximum damage when dealing damage to enemies. Damage added here is subject to the damage formula. The data model used is described below. |
+| `States`           | `Dictionary<string, WeaponStateData>` | *(Optional)* The dictionary of data models for weapon states. The key is weapon state ID and value is data model described below.                                                                                                                                         |
+| `ActionPoints`     | `string`                              | *(Optional)* The space delimited string of action point IDs that should be available when this weapon is equipped.                                                                                                                                                        |
+| `ActionsOnEquip`   | `List<string>`                        | *(Optional)* The list of actions that should be triggered when the weapon is equipped.                                                                                                                                                                                    |
+| `ActionsOnUnequip` | `List<string>`                        | *(Optional)* The list of actions that should be triggered when the weapon is unequipped.                                                                                                                                                                                  |
 
 ### DamageTypeWeaponExtensionData
 
-| Field       | Type     | Description                                                                       |
-|-------------|----------|-----------------------------------------------------------------------------------|
-| `Id`        | `string` | The unique ID of this entry with the list.                                        |
-| `Type`      | `string` | The associated damage type ID from `Mods/WhyBother11.CombatExtended/DamageTypes`. |
-| `MinDamage` | `int`    | The minimum damage of this damage instance.                                       |
-| `MaxDamage` | `int`    | The maximum damage of this damage instance.                                       |
+| Field       | Type     | Description                                                                                                |
+|-------------|----------|------------------------------------------------------------------------------------------------------------|
+| `Id`        | `string` | The unique ID of this entry with the list.                                                                 |
+| `Type`      | `string` | The associated [damage type](https://github.com/WhyBother11/CombatExtended/blob/master/docs/ranges.md) ID. |
+| `MinDamage` | `int`    | The minimum damage of this damage instance.                                                                |
+| `MaxDamage` | `int`    | The maximum damage of this damage instance.                                                                |
 
 ### WeaponStateData
 
@@ -95,12 +95,14 @@ Example:
 
 ### Remarks
 
-Any active state is applied to all instances of corresponding weapon and only while it's in player's inventory. When weapon is removed from
-inventory, its state is restored to default (but will be set to any currently active state if added back).
+Any active state is applied to all instances of corresponding weapon and only while it's in player's inventory. When weapon
+is removed from inventory, its state is restored to default (but will be set to any currently active state if added back).
 
-`WeaponStateData` fields will override corresponding fields for affected weapon. If the field is not present here, it will be left intact.
+`WeaponStateData` fields will override corresponding fields for affected weapon. If the field is not present here, it will
+be left intact.
 
-`DamageTypeWeaponExtensionData` can have multiple damage instances with the same `DamageType`. They will count towards the same damage type.
+`DamageTypeWeaponExtensionData` can have multiple damage instances with the same `DamageType`. They will count towards the
+same damage type.
 
 # Triggers, trigger actions, GSQs stuff
 
@@ -128,20 +130,21 @@ it should be present at least one time. `int` type arguments are prefixed with `
 
 Format: `WhyBother11.CombatExtended_CURRENT_WEAPON <WeaponId>+`
 
-Used to check player's current weapon. `WeaponId` corresponds to multiple possible weapon IDs to check against.
-Query returns `true` if any `WeaponId` is equal to ID of currently held weapon, `false` otherwise.
+Used to check player's current weapon. `WeaponId` corresponds to multiple possible weapon IDs to check against. Query returns
+`true` if any `WeaponId` is equal to ID of currently held weapon, `false` otherwise.
 
 ### `WhyBother11.CombatExtended_CURRENT_WEAPON_TYPE`
 
 Format: `WhyBother11.CombatExtended_CURRENT_WEAPON_TYPE <WeaponType>+`
 
 Used to check player's current weapon type. `WeaponType` corresponds to multiple possible weapon types to check against.
-`WeaponType` can be one of `sword`, `dagger` and `club`, each corresponding to the respective weapon type.
-Query returns `true` if any `WeaponType` is equal to type of currently held weapon, `false` otherwise.
+`WeaponType` can be one of `sword`, `dagger` and `club`, each corresponding to the respective weapon type. Query returns 
+`true` if any `WeaponType` is equal to type of currently held weapon, `false` otherwise.
 
 ### `WhyBother11.CombatExtended_WEAPON_STATE`
 
 Format: `WhyBother11.CombatExtended_WEAPON_STATE <WeaponId> <StateId>`
 
-Used to check weapon's current state. `WeaponId` corresponds to a weapon whose state should be checked. `StateId` is ID of state to check, 
-including `_default` to check that weapon has no active state. Query returns `true` if given weapon has specified state, `false` otherwise.
+Used to check weapon's current state. `WeaponId` corresponds to a weapon whose state should be checked. `StateId` is ID of
+state to check, including `_default` to check that weapon has no active state. Query returns `true` if given weapon has 
+specified state, `false` otherwise.

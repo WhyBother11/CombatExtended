@@ -41,22 +41,13 @@ public static class MonsterBuffTriggerActions
 
         if (ArgUtility.TryGet(args, 3, out var rangeId, out _))
         {
-            if (!RangeDataAsset.Exists(rangeId))
-            {
-                error = $"Invalid range ID: {rangeId}.";
-                return false;
-            }
-            RangeUtil.GetAffectedByRange(rangeId, player, monster, out _, out var affectedMonsters);
-            affectedMonsters
-                .Where(m => m.Health > 0 && m.ShouldBeInteractedWith())
-                .ToList()
-                .ForEach(m =>
+            return TryHandleRange(rangeId, monster, player, out error,
+                monsterHandler: m =>
                 {
                     if (Game1.random.NextDouble() < chance) 
                         MonsterBuffManager.ApplyBuff(m, location, monsterBuffId, 
                             player.GetCharacterType(), player.GetCharacterId());
                 });
-            return true;
         }
 
         if (!RequireContext(monster, out error)) return false;
@@ -84,16 +75,8 @@ public static class MonsterBuffTriggerActions
 
         if (ArgUtility.TryGet(args, 2, out var rangeId, out _))
         {
-            if (!RangeDataAsset.Exists(rangeId))
-            {
-                error = $"Invalid range ID: {rangeId}.";
-                return false;
-            }
-            RangeUtil.GetAffectedByRange(rangeId, player, monster, out _, out var affectedMonsters);
-            affectedMonsters
-                .ToList()
-                .ForEach(m => MonsterBuffManager.RemoveBuff(m, location, monsterBuffId));
-            return true;
+            return TryHandleRange(rangeId, monster, player, out error,
+                monsterHandler: m => MonsterBuffManager.RemoveBuff(m, location, monsterBuffId));
         }
 
         if (!RequireContext(monster, out error)) return false;

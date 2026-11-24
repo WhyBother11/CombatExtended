@@ -9,8 +9,6 @@ public static class Triggers
     public static readonly string AbilityCooldownEnded = "AbilityCooldownEnded".PrependId();
     public static readonly string AbilityEffectTriggered = "AbilityEffectTriggered".PrependId();
     
-    public static readonly string BuffApplied = "BuffApplied".PrependId();
-    
     public static readonly string AttackHitMonster = "AttackHitMonster".PrependId();
     public static readonly string AttackMissedMonster = "AttackMissedMonster".PrependId();
     public static readonly string AttackHitAnyMonster = "AttackHitAnyMonster".PrependId();
@@ -26,4 +24,7 @@ public static class Triggers
     public static readonly string MonsterDied = "MonsterDied".PrependId();
     
     public static readonly string SpecialMoveTriggered = "SpecialMoveTriggered".PrependId();
+    
+    public static readonly string LinkedMonsterEffect = "LinkedMonsterEffect".PrependId();
+    public static readonly string MonsterLinkTouchedEffect = "MonsterLinkTouchedEffect".PrependId();
 }

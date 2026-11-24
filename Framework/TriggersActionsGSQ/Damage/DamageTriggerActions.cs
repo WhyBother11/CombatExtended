@@ -40,18 +40,9 @@ public static class DamageTriggerActions
         
         if (ArgUtility.TryGet(args, 4, out var rangeId, out _))
         {
-            if (!RangeDataAsset.Exists(rangeId))
-            {
-                error = $"Invalid range id: {rangeId}";
-                return false;
-            }
-            RangeUtil.GetAffectedByRange(rangeId, player, monster, out _, out var affectedMonsters);
-            affectedMonsters
-                .Where(affectedMonster => affectedMonster.Health > 0 && affectedMonster.ShouldBeInteractedWith())
-                .ToList()
-                .ForEach(affectedMonster => affectedMonster.currentLocation.DamageMonsterDirectly(
-                    affectedMonster, damageAmount, player, DamageTypeDataAsset.DamageTypeColors[damageTypeId]));
-            return true;
+            return TryHandleRange(rangeId, monster, player, out error,
+                monsterHandler: m => m.currentLocation.DamageMonsterDirectly(
+                    m, damageAmount, player, DamageTypeDataAsset.DamageTypeColors[damageTypeId]));
         }
 
         if (RequireContext(monster, out _))

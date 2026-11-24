@@ -57,13 +57,13 @@ public static class TileParser
             }
         });
 
-        if (tileData.Radius is not null)
+        tileData.Circles?.ForEach(circle =>
         {
-            foreach (var vector2 in GetCircle(tileData.RelativeTo, tileData.Radius.Value))
+            foreach (var vector2 in GetCircle(tileData.RelativeTo, circle))
             {
                 tiles.Add(vector2);
             }
-        }
+        });
 
         tileData.Lines?.ForEach(line =>
         {
@@ -95,23 +95,23 @@ public static class TileParser
         {
             for (var y = rectangle.From.Y; y <= rectangle.To.Y; y++)
             {
-                yield return new ParsedVector(relativeTo, new Vector2(x, y));
+                yield return new ParsedVector(relativeTo, new Vector2(x + rectangle.Delta.X, y + rectangle.Delta.Y));
             }
         }
     }
 
-    private static IEnumerable<ParsedVector> GetCircle(string relativeTo, float radius)
+    private static IEnumerable<ParsedVector> GetCircle(string relativeTo, RangeTileData.Circle circle)
     {
-        var radiusSquared = radius * radius;
-        for (var x = 0; x <= radius; x++)
+        var radiusPlusOneSquared = (circle.Radius + 1) * (circle.Radius + 1);
+        for (var x = 0; x <= circle.Radius; x++)
         {
-            for (var y = 0; y <= radius; y++)
+            for (var y = 0; y <= circle.Radius; y++)
             {
-                if (x * x + y * y > radiusSquared) continue;
-                yield return new ParsedVector(relativeTo, new Vector2(x, y));
-                yield return new ParsedVector(relativeTo, new Vector2(-x, y));
-                yield return new ParsedVector(relativeTo, new Vector2(x, -y));
-                yield return new ParsedVector(relativeTo, new Vector2(-x, -y));
+                if (x * x + y * y >= radiusPlusOneSquared) continue;
+                yield return new ParsedVector(relativeTo, new Vector2(x + circle.Delta.X, y + circle.Delta.Y));
+                yield return new ParsedVector(relativeTo, new Vector2(-x + circle.Delta.X, y + circle.Delta.Y));
+                yield return new ParsedVector(relativeTo, new Vector2(x + circle.Delta.X, -y + circle.Delta.Y));
+                yield return new ParsedVector(relativeTo, new Vector2(-x + circle.Delta.X, -y + circle.Delta.Y));
             }
         }
     }
@@ -121,7 +121,7 @@ public static class TileParser
         var radians = MathF.PI * (line.Angle / 180.0f);
         var deltaX = MathF.Cos(radians);
         var deltaY = MathF.Sin(radians);
-        return GetLine(relativeTo, deltaX, deltaY, line.MaxLength, line.Delta ?? new RangeTileData.Coordinate(), line.Width);
+        return GetLine(relativeTo, deltaX, deltaY, line.MaxLength, line.Delta, line.Width);
     }
 
     private static IEnumerable<ParsedVector> GetCursorLine(RangeTileData.CursorLine cursorLine)
@@ -131,8 +131,7 @@ public static class TileParser
         var cursorTile = Helper.Input.GetCursorPosition().Tile;
         var deltaX = cursorTile.X - playerTile.X;
         var deltaY = cursorTile.Y - playerTile.Y;
-        return GetLine("player", deltaX, deltaY, cursorLine.MaxLength, 
-            cursorLine.Delta ?? new RangeTileData.Coordinate(), cursorLine.Width);
+        return GetLine("player", deltaX, deltaY, cursorLine.MaxLength, cursorLine.Delta, cursorLine.Width);
     }
 
     private static IEnumerable<ParsedVector> GetLine(string relativeTo, float deltaX, float deltaY, 

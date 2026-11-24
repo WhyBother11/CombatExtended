@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using CombatExtended.Framework.TriggersActionsGSQ.Sequence;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -15,13 +16,14 @@ public class SequenceOrchestratorManager
         new SequenceOrchestratorManager());
 
     /// <summary>
-    /// The set of names of trigger actions whose delegates have <see cref="SequenceAware"/> attribute.
+    /// The set of names of trigger actions whose delegates have <see cref="TriggersActionsGSQ.Util.SequenceAware"/> attribute.
     /// </summary>
     public static readonly HashSet<string> SequenceAwareTriggerActions = new();
 
     private int _latestId;
     
-    public Dictionary<int, SequenceOrchestrator> SequenceOrchestrators { get; private set; } = new();
+    private readonly Dictionary<int, SequenceOrchestrator> _sequenceOrchestrators = new();
+    public ImmutableDictionary<int, SequenceOrchestrator> SequenceOrchestrators => _sequenceOrchestrators.ToImmutableDictionary();
 
     public static void Register(IModHelper helper)
     {
@@ -36,7 +38,7 @@ public class SequenceOrchestratorManager
     public void New(List<string> actions, TriggerActionContext context)
     {
         var orchestrator = new SequenceOrchestrator(_latestId, actions, context);
-        SequenceOrchestrators.Add(orchestrator.Id, orchestrator);
+        _sequenceOrchestrators.Add(orchestrator.Id, orchestrator);
         _latestId++;
         orchestrator.Start();
     }

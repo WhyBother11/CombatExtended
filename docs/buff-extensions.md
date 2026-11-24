@@ -9,7 +9,7 @@ being existing buff id and value being data model described below. They are used
 |--------------------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `StackableData`    | `BuffExtensionStackableData` | *(Optional)* If present, buff can be stackable. Only applies to extra stacks (i.e. any extra stack after the first one, you still need to define `Effects` in `Data/Buffs` and it will be used to add the stats for first stack of buff. The data model is described below. |
 | `ExtraAttributes`  | `ExtraBuffAttributesData`    | *(Optional)* Analoguous to vanilla `BuffAttributesData` (`Effects` in `Data/Buffs`), used to add player stats added by this mod (e.g. `ArmourClass`). The data model is described below.                                                                                    |
-| `DoEffectEverySec` | `float`                      | *(Optional)* The time (in seconds) for buff effect to be triggered. If set to `0` or not set, no effect is triggered.                                                                                                                                                       |
+| `DoEffectEverySec` | `float`                      | *(Optional)* The time (in seconds) for buff effect to be triggered. If set to `0`, no effect is triggered. Defaults to `0`.                                                                                                                                                 |
 | `ActionsOnEffect`  | `List<string>`               | *(Optional)* The list of actions that should be triggered when the buff's effect is triggered (as per `DoEffectEverySec`).                                                                                                                                                  |
 | `MaxEffectAmount`  | `int`                        | *(Optional)* How many times should buff's effect be triggered. If set to `-2` there's no limit. Defaults to `-2`.                                                                                                                                                           |
 
@@ -70,11 +70,16 @@ Example:
 
 ### Remarks
 
-Added by mod stats can also be used for food (or edible objects in general) buffs. For this you should target `CustomFields` of entry in `Buffs` list of 
-corresponding food's data in `Data/Objects` by including the following keys: `WhyBother11.CombatExtended_ArmourClass`, 
-`WhyBother11.CombatExtended_FlatCriticalChance` or `FlatCriticalMultiplier`, each for corresponding extra buff attribute. 
-The key (`float` type) is the buff extension stat value. `ArmourClass` buff stat has a custom icon and will be displayed alongside
-vanilla buffs that are shown when hovering over buff icon (for example, `Speed`).
+Added by mod stats can also be used for food (or edible objects in general) buffs. For this you should target `CustomFields` 
+of entry in `Buffs` list of corresponding food's data in `Data/Objects` by including one or a couple of the following keys,
+each for corresponding extra buff attribute:
+
+- `WhyBother11.CombatExtended_ArmourClass`, 
+- `WhyBother11.CombatExtended_FlatCriticalChance`
+- `FlatCriticalMultiplier`
+
+The key (`float` type) is the buff extension stat value. `ArmourClass` buff stat has a custom icon and will be displayed 
+alongside vanilla buffs that are shown when hovering over buff icon (for example, `Speed`).
 
 Example:
 
@@ -132,14 +137,15 @@ it should be present at least one time. `int` type arguments are prefixed with `
 
 Format: `WhyBother11.CombatExtended_BUFF_STACKS <BuffId> <#Min> [#Max]`
 
-Used to check current amount of stacks for given buff. `BuffId` corresponds to the buff whose stack amount should be checked. `Min` and `Max` (defaults to `int` max value) 
-are used to define minimum and maximum possible amount of stacks respectively. Query returns `true` if buff's current stack amount 
-is between `Min` and `Max` inclusively, `false` otherwise.
+Used to check current amount of stacks for given buff. `BuffId` corresponds to the buff whose stack amount should be checked. 
+`Min` and `Max` (defaults to `int` max value) are used to define minimum and maximum possible amount of stacks respectively. 
+Query returns `true` if buff's current stack amount is between `Min` and `Max` inclusively, `false` otherwise.
 
 ### `WhyBother11.CombatExtended_BUFF_MAX_STACKS`
 
 Format: `WhyBother11.CombatExtended_BUFF_MAX_STACKS <BuffId> <#Min> [#Max]`
 
-Used to check current maximum amount of stacks for given buff. `BuffId` corresponds to the buff whose maximum stack amount should be checked. 
-`Min` and `Max` (defaults to `int` max value) are used to define minimum and maximum possible amount of max stacks respectively. 
-Query returns `true` if buff's current maximum stack amount is between `Min` and `Max` inclusively, `false` otherwise.
+Used to check current maximum amount of stacks for given buff. `BuffId` corresponds to the buff whose maximum stack amount 
+should be checked. `Min` and `Max` (defaults to `int` max value) are used to define minimum and maximum possible amount of 
+max stacks respectively. Query returns `true` if buff's current maximum stack amount is between `Min` and `Max` inclusively, 
+`false` otherwise.

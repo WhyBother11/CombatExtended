@@ -168,10 +168,11 @@ it should be present at least one time. `int` type arguments are prefixed with `
 
 Format: `WhyBother11.CombatExtended_DamageMonster <DamageTypeId> <#Min> [#Max] [RangeId]*`
 
-Used to deal damage to monster. `DamageTypeId` corresponds to damage type from `Mods/WhyBother11.CombatExtended/DamageTypes`.
-`Min` and `Max` (defaults to `Min`) specify minimum and maximum amount of damage respectively. `RangeId` specifies range 
-from `Mods/WhyBother11.CombatExtended/Range` in which monsters should be damaged. Can be omitted in `Monster context`, 
-in which case damage is dealt only to context monster.
+Used to deal damage to monster. `DamageTypeId` corresponds to the damage type. `Min` and `Max` (defaults to `Min`) specify
+minimum and maximum amount of damage respectively. `RangeId` specifies [range](https://github.com/WhyBother11/CombatExtended/blob/master/docs/ranges.md)
+in which monsters should be damaged.
+
+If this action is used in `Monster context`, `RangeId` may be omitted, in which case damage is dealt only to context monster.
 
 ### `WhyBother11.CombatExtended_AddPlayerHealth`
 

@@ -14,11 +14,26 @@ public class LinkEffectData
     public List<int> Frames;
     #nullable restore
 
+    [ContentSerializer(Optional = true)]
+    public float Duration = -2;
+
     [ContentSerializer(Optional = true)] 
     public Rectangle Size = new (0, 0, 16, 16);
 
     [ContentSerializer(Optional = true)] 
     public float Scale = 4f;
+
+    [ContentSerializer(Optional = true)]
+    public LinkEffectTriggerEffectData? TriggerEffectData;
+}
+
+public class LinkEffectTriggerEffectData
+{
+    [ContentSerializer(Optional = true)]
+    public float DoMonsterEffectEverySec = 0;
+
+    [ContentSerializer(Optional = true)]
+    public float DoMonsterTouchEffectEverySec = 0;
 }
 
 [DataAsset("LinkEffects")]

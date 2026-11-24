@@ -12,8 +12,8 @@ This is a dictionary with key being monster status ID and value being data model
 |-------------------------------------|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `DisplayName`                       | `string`                      | The text for in-game display name of this monster status.                                                                                                                                                     |
 | `Description`                       | `string`                      | The text for in-game description name of this monster status.                                                                                                                                                 |
-| `DoEffectEverySec`                  | `float`                       | *(Optional)* The time (in seconds) for monster status effect to be triggered. If set to `0` or not set, no effect is triggered.                                                                               |
-| `DoAnimationEverySec`               | `float`                       | *(Optional)* The time (in seconds) for monster status animation sprite to be displayed. If set to `0` or not set, no animation sprites are shown.                                                             |
+| `DoEffectEverySec`                  | `float`                       | *(Optional)* The time (in seconds) for monster status effect to be triggered. If set to `0`, no effect is triggered. Defaults to `0`.                                                                         |
+| `DoAnimationEverySec`               | `float`                       | *(Optional)* The time (in seconds) for monster status animation sprite to be displayed. If set to `0`, no animation sprites are shown. Defaults to `0`.                                                       |
 | `TemporaryAnimatedSprites`          | `List<string>`                | *(Optional)* The list of temporary animated sprites, as defined in `Mods/WhyBother11.CombatExtended/CombatTemporaryAnimatedSprites`, to be displayed when monster status *is applied*.                        |
 | `AnimationTemporaryAnimatedSprites` | `List<string>`                | *(Optional)* The list of temporary animated sprites, as defined in `Mods/WhyBother11.CombatExtended/CombatTemporaryAnimatedSprites`, to be displayed *accordingly with* `DoAnimationEverySec`.                |
 | `Condition`                         | `string`                      | *(Optional)* The GSQ to check if this monster status should be applied to the monster. This GSQ receives `Monster context`, so you can use any related queries. It is checked every 30 ticks (half a minute). |
@@ -37,12 +37,12 @@ This is a dictionary with key being monster status ID and value being data model
 
 ## DamageAttributesData
 
-| Field        | Type     | Description                                                                                                                      |
-|--------------|----------|----------------------------------------------------------------------------------------------------------------------------------|
-| `Id`         | `string` | The unique ID of this entry with the list.                                                                                       |
-| `DamageType` | `string` | The damage type from `Mods/WhyBother11.CombatExtended/DamageTypes` for damage this monster status should inflict on the monster. |
-| `Damage`     | `float`  | The amount of damage to deal to the monster.                                                                                     |
-| `MaxDamage`  | `float`  | *(Optional)* If set, damage is rolled between `Damage` and `MaxDamage` inclusively.                                              |
+| Field        | Type     | Description                                                                                                                                                            |
+|--------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Id`         | `string` | The unique ID of this entry with the list.                                                                                                                             |
+| `DamageType` | `string` | The [damage type](https://github.com/WhyBother11/CombatExtended/blob/master/docs/damage.md#damage-types) for damage this monster status should inflict on the monster. |
+| `Damage`     | `float`  | The amount of damage to deal to the monster.                                                                                                                           |
+| `MaxDamage`  | `float`  | *(Optional)* If set, damage is rolled between `Damage` and `MaxDamage` inclusively.                                                                                    |
 
 ## ResistanceAttributesData
 

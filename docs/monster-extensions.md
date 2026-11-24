@@ -16,6 +16,7 @@ for SpaceCore).
 | `Tags`             | `string` | *(Optional)* The space delimited string of tag IDs that should be applied to this monster.                                                                                                                       |
 | `ExtraArmourClass` | `int`    | *(Optional)* The extra armour class for this monster (the default for every monster is `3`). Can be negative. Every armour point corresponds to 5% miss chance that stacks with monster's native `missChance`.   |
 | `ExtraWeight`      | `float`  | *(Optional)* The extra armour class for this monster (the default for every monster is `2`). Can be negative (but the result value will never be below `-6`). Used in some of monster displacement calculations. |
+| `ExtraHitMissRate` | `float`  | *(Optional)* The extra hit miss rate for this monster (the default for every monster is `0.0`). Negative values are treated as `0.0`. Corresponds to chance that the the player will dodge monster attack.       |
 
 Example for monster added with framework:
 

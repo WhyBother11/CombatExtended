@@ -1,6 +1,6 @@
 using CombatExtended.Framework.Data;
 
-namespace CombatExtended.Framework.Core.Monsters.Conditions;
+namespace CombatExtended.Framework.Core.Monsters.Statuses;
 
 public class MonsterStatusAttributes
 {
@@ -15,6 +15,8 @@ public class MonsterStatusAttributes
     public float ArmourClass { get; set; }
     
     public float Weight { get; set; }
+    
+    public float HitMissRate { get; set; }
     
     public float StunTime { get; set; }
     
@@ -56,6 +58,7 @@ public class MonsterStatusAttributes
         if (data.MissChance is not null) attrs.MissChance = data.MissChance.Value;
         if (data.ArmourClass is not null) attrs.ArmourClass = data.ArmourClass.Value;
         if (data.Weight is not null) attrs.Weight = data.Weight.Value;
+        if (data.HitMissRate is not null) attrs.HitMissRate = data.HitMissRate.Value;
         if (data.StunTime is not null) attrs.StunTime = data.StunTime.Value;
         if (data.Speed is not null) attrs.Speed = data.Speed.Value;
         if (data.DamageData is not null) attrs.Damages = data.DamageData.Select(GetDamageData).ToList();

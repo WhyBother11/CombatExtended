@@ -18,7 +18,7 @@ public class RangeTileData
     public List<Rectangle>? Rectangles;
 
     [ContentSerializer(Optional = true)] 
-    public float? Radius;
+    public List<Circle>? Circles;
 
     [ContentSerializer(Optional = true)]
     public List<Line>? Lines;
@@ -30,18 +30,30 @@ public class RangeTileData
     {
         #nullable disable
         public string Id;
+        
+        [ContentSerializer(Optional = true)] 
+        public Coordinate Delta = new ();
         #nullable restore
         
         public int Angle;
         
         [ContentSerializer(Optional = true)]
         public int MaxLength = 30;
-
-        [ContentSerializer(Optional = true)] 
-        public Coordinate? Delta;
         
         [ContentSerializer(Optional = true)] 
         public int Width = 1;
+    }
+    
+    public class Circle
+    {
+        #nullable disable
+        public string Id;
+        
+        public int Radius;
+        
+        [ContentSerializer(Optional = true)] 
+        public Coordinate Delta = new ();
+        #nullable restore
     }
     
     public class Rectangle
@@ -52,6 +64,9 @@ public class RangeTileData
         public Coordinate From;
 
         public Coordinate To;
+        
+        [ContentSerializer(Optional = true)] 
+        public Coordinate Delta = new ();
         #nullable restore
     }
     
@@ -66,10 +81,10 @@ public class RangeTileData
     {
         #nullable disable
         public string Id;
-        #nullable restore
         
         [ContentSerializer(Optional = true)] 
-        public Coordinate? Delta;
+        public Coordinate Delta = new ();
+        #nullable restore
         
         [ContentSerializer(Optional = true)]
         public int MaxLength = 30;

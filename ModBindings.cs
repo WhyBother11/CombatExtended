@@ -43,5 +43,7 @@ public static class ModBindings
     
     public static SequenceOrchestratorManager SequenceOrchestratorManager => SequenceOrchestratorManager.Instance;
     
+    public static LinkEffectManager LinkEffectManager => LinkEffectManager.Instance;
+    
     public static string Id => ModEntry.Instance.ModManifest.UniqueID;
 }

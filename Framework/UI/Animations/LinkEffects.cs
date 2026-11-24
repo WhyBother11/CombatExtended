@@ -8,6 +8,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Extensions;
 using StardewValley.Monsters;
+using LinkEffectManager = CombatExtended.Framework.Managers.LinkEffectManager;
 
 namespace CombatExtended.Framework.UI.Animations;
 
@@ -20,6 +21,8 @@ public abstract class LinkEffect
     
     public const string RandomType = "Random";
     
+    public string Id { get; set; }
+    
     protected string Type { get; init; }
     
     protected Texture2D Texture { get; init; }
@@ -31,8 +34,29 @@ public abstract class LinkEffect
     protected Rectangle Size { get; init; }
 
     protected int Cursor = -1;
+    
+    public int DurationTicks { get; set; }
+
+    public int TicksElapsed { get; set; }
+    
+    public int DoMonsterTouchEffectEverySec { get; set; }
 
     public abstract void Draw(SpriteBatch spriteBatch);
+
+    protected LinkEffect(string id, LinkEffectData data)
+    {
+        Id = id;
+        Type = data.Type;
+        Texture = Helper.GameContent.Load<Texture2D>(data.Texture);
+        Frames = data.Frames;
+        Size = data.Size;
+        Scale = data.Scale;
+        DurationTicks = data.Duration.Equals(-2) ? int.MaxValue : data.Duration.ToTicks();
+        if (data.TriggerEffectData is not null)
+        {
+            DoMonsterTouchEffectEverySec = data.TriggerEffectData.DoMonsterTouchEffectEverySec.ToTicks();
+        }
+    }
 
     protected void Draw(SpriteBatch spriteBatch, Vector2 linkPosition)
     {
@@ -73,14 +97,9 @@ public class ProjectileLinkEffect : LinkEffect
     
     private CustomProjectile Projectile { get; set; }
 
-    public ProjectileLinkEffect(CustomProjectile projectile, LinkEffectData data)
+    public ProjectileLinkEffect(CustomProjectile projectile, string id, LinkEffectData data) : base(id, data)
     {
-        Type = data.Type;
-        Texture = Helper.GameContent.Load<Texture2D>(data.Texture);
         Projectile = projectile;
-        Frames = data.Frames;
-        Size = data.Size;
-        Scale = data.Scale;
     }
     
     public override void Draw(SpriteBatch spriteBatch)
@@ -101,20 +120,25 @@ public class MonsterLinkEffect : LinkEffect
     
     private Monster Monster { get; set; }
     
-    public MonsterLinkEffect(Monster monster, LinkEffectData data)
+    public int DoMonsterEffectEverySec { get; set; }
+    
+    public Vector2? Offset { get; set; }
+    
+    public MonsterLinkEffect(Monster monster, string id, LinkEffectData data) : base(id, data)
     {
-        Type = data.Type;
-        Texture = Helper.GameContent.Load<Texture2D>(data.Texture);
         Monster = monster;
-        Frames = data.Frames;
-        Size = data.Size;
-        Scale = data.Scale;
+        if (data.TriggerEffectData is not null)
+        {
+            DoMonsterEffectEverySec = data.TriggerEffectData.DoMonsterEffectEverySec.ToTicks();
+        }
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
         var monsterPosition = Game1.GlobalToLocal(Game1.viewport, Monster.Position);
         var linkPosition = monsterPosition + new Vector2(Monster.GetBoundingBox().Width / 2f, Monster.GetBoundingBox().Height / 2f);
+        if (Offset is not null)
+            linkPosition += Offset.Value;
         Draw(spriteBatch, linkPosition);
     }
 }
@@ -122,34 +146,23 @@ public class MonsterLinkEffect : LinkEffect
 [Registrable]
 public static class LinkEffects
 {
-    
-    private static readonly Dictionary<object, LinkEffect> Links = new();
 
     public static void Register(IModHelper helper)
     {
         Helper.Events.Display.RenderedWorld += OnRenderedWorld_DrawLink;
     }
 
-    public static void BeginProjectileLink(CustomProjectile projectile, LinkEffectData data)
-    {
-        var link = new ProjectileLinkEffect(projectile, data);
-        projectile.AddDestroyListener((_, _) => { Links.Remove(projectile); });
-        Links.Add(projectile, link);
-    }
-
-    public static void BeginMonsterLink(Monster monster, LinkEffectData data)
-    {
-        var link = new MonsterLinkEffect(monster, data);
-        Links.Add(monster, link);
-    }
-    
-    public static void Remove(object target) => Links.Remove(target);
-
     private static void OnRenderedWorld_DrawLink(object? sender, RenderedWorldEventArgs e)
     {
-        foreach (var (projectile, link) in Links)
+        foreach (var (_, manager) in LinkEffectManager.GetAll())
         {
-            link.Draw(e.SpriteBatch);
+            foreach (var (_, links) in manager.Links)
+            {
+                foreach (var (_, link) in links)
+                {
+                    link.Draw(e.SpriteBatch);
+                }
+            }
         }
     }
 }
