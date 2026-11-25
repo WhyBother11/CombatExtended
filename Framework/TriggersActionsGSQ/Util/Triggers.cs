@@ -17,14 +17,14 @@ public static class Triggers
     public static readonly string MonsterBuffApplied = "MonsterBuffApplied".PrependId();
     public static readonly string MonsterBuffRemoved = "MonsterBuffRemoved".PrependId();
     public static readonly string MonsterBuffExpired = "MonsterBuffExpired".PrependId();
-    public static readonly string MonsterBuffContinuousEffect = "MonsterBuffContinuousEffect".PrependId();
+    public static readonly string MonsterBuffEffectTriggered = "MonsterBuffEffectTriggered".PrependId();
     
-    public static readonly string ProjectileMonsterHit = "ProjectileMonsterHit".PrependId();
+    public static readonly string ProjectileHitMonster = "ProjectileHitMonster".PrependId();
     
     public static readonly string MonsterDied = "MonsterDied".PrependId();
     
     public static readonly string SpecialMoveTriggered = "SpecialMoveTriggered".PrependId();
     
-    public static readonly string LinkedMonsterEffect = "LinkedMonsterEffect".PrependId();
-    public static readonly string MonsterLinkTouchedEffect = "MonsterLinkTouchedEffect".PrependId();
+    public static readonly string LinkEffectTriggered = "LinkEffectTriggered".PrependId();
+    public static readonly string MonsterTouchedLink = "MonsterTouchedLink".PrependId();
 }

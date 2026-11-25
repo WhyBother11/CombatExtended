@@ -98,7 +98,7 @@ Raised when `Continuous` ability's duration ends. Provides `Ability context`.
 
 ### `WhyBother11.CombatExtended_AbilityEffectTriggered`
 
-Raised when `Continuous` ability's effect is triggered (`DoEffectEverySec` in its data). Provides `Ability context`.
+Raised when `Continuous` ability's effect is triggered (as per `DoEffectEverySec` in its data). Provides `Ability context`.
 
 ## Ability trigger actions
 

@@ -29,6 +29,23 @@ model described below.
 
 # Triggers, trigger actions, GSQs stuff
 
+## Triggers
+
+### `WhyBother.CombatExtended_LinkEffectTriggered`
+
+Raised when link effect is triggered on linked monster (as per `DoMonsterEffectEverySec` in its data). Provides `Monster context`.
+
+### `WhyBother.CombatExtended_MonsterTouchedLink`
+
+Raised when monster touches some existing link (no less than per `DoMonsterTouchEffectEverySec` seconds). Provides 
+`Monster context`.
+
+## Trigger actions
+
+Required arguments are surrounded with `<>`, while optional with `[]`. If optional argument has `*` after it, it is optional
+only under certain conditions. If argument has `+` after it, then it can be added multiple times, and if argument is required,
+it should be present at least one time. `int` type arguments are prefixed with `#`, `float` with `%`, `bool` with `?`.
+
 ### `WhyBother11.CombatExtended_LightningStrike`
 
 Format: `WhyBother11.CombatExtended_LightningStrike [RangeId]* [Target]*`

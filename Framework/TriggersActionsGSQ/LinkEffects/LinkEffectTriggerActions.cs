@@ -36,7 +36,7 @@ public class LinkEffectTriggerActions
             if (linkId is "_none") 
                 LinkEffectManager.Remove(m);
             else 
-                LinkEffectManager.BeginMonsterLink(m, linkId, linkData);
+                LinkEffectManager.BeginMonsterLink(m, linkId, linkData!);
         }
     }
 }

@@ -39,9 +39,11 @@ public abstract class LinkEffect
 
     public int TicksElapsed { get; set; }
     
-    public int DoMonsterTouchEffectEverySec { get; set; }
+    public int DoMonsterTouchEffectEveryTick { get; set; }
 
     public abstract void Draw(SpriteBatch spriteBatch);
+    
+    public abstract IEnumerable<Rectangle> GetHitBox();
 
     protected LinkEffect(string id, LinkEffectData data)
     {
@@ -54,7 +56,33 @@ public abstract class LinkEffect
         DurationTicks = data.Duration.Equals(-2) ? int.MaxValue : data.Duration.ToTicks();
         if (data.TriggerEffectData is not null)
         {
-            DoMonsterTouchEffectEverySec = data.TriggerEffectData.DoMonsterTouchEffectEverySec.ToTicks();
+            DoMonsterTouchEffectEveryTick = data.TriggerEffectData.DoMonsterTouchEffectEverySec.ToTicks();
+        }
+    }
+    
+    protected IEnumerable<Rectangle> GetHitBox(Vector2 linkPosition)
+    {
+        var playerPosition = Game1.GlobalToLocal(Game1.viewport, Game1.player.Position);
+        var delta = linkPosition - playerPosition;
+        if (delta is { X: 0, Y: 0 }) yield break;
+        var angle = MathF.Atan2(delta.Y, delta.X) + MathF.PI / 2;
+        var (sin, cos) = MathF.SinCos(angle);
+        var length = delta.Length();
+        var dir = delta / length;
+        
+        var segmentLength = Size.Height * Scale;
+        var segmentAmount = (int)MathF.Ceiling(length / segmentLength);
+        for (var i = 0; i < segmentAmount; i++)
+        { 
+            var position = linkPosition - dir * segmentLength * i;
+            var aligned = new Vector2(
+                MathF.Min(position.X, position.X - Size.Height * sin * Scale),
+                MathF.Min(position.Y, position.Y + Size.Width * sin * Scale)
+            );
+            yield return new Rectangle((int)aligned.X, (int)aligned.Y,
+                (int)(MathF.Abs(cos) * Size.Width * Scale + MathF.Abs(sin) * Size.Height * Scale ),
+                (int)(MathF.Abs(sin) * Size.Width * Scale + MathF.Abs(cos) * Size.Height * Scale )
+            );
         }
     }
 
@@ -104,14 +132,24 @@ public class ProjectileLinkEffect : LinkEffect
     
     public override void Draw(SpriteBatch spriteBatch)
     {
+        var linkPosition = GetLinkPosition();
+        Draw(spriteBatch, linkPosition);
+    }
+
+    public override IEnumerable<Rectangle> GetHitBox()
+    {
+        return GetHitBox(GetLinkPosition());
+    }
+
+    private Vector2 GetLinkPosition()
+    {
         var projectilePosition = Game1.GlobalToLocal(
             Game1.viewport, Projectile.position.Value + new Vector2(0.0f, -Projectile.height.Value) + new Vector2(32f, 32f));
         var rotatedOffset = Vector2.Transform(
             new Vector2(-Size.Width / 2f, Size.Height / 2f) * Scale,
             Matrix.CreateRotationZ(Projectile.Angle)
         );
-        var linkPosition = projectilePosition + rotatedOffset;
-        Draw(spriteBatch, linkPosition);
+        return projectilePosition + rotatedOffset;
     }
 }
 
@@ -120,7 +158,7 @@ public class MonsterLinkEffect : LinkEffect
     
     private Monster Monster { get; set; }
     
-    public int DoMonsterEffectEverySec { get; set; }
+    public int DoMonsterEffectEveryTick { get; set; }
     
     public Vector2? Offset { get; set; }
     
@@ -129,17 +167,28 @@ public class MonsterLinkEffect : LinkEffect
         Monster = monster;
         if (data.TriggerEffectData is not null)
         {
-            DoMonsterEffectEverySec = data.TriggerEffectData.DoMonsterEffectEverySec.ToTicks();
+            DoMonsterEffectEveryTick = data.TriggerEffectData.DoMonsterEffectEverySec.ToTicks();
         }
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
+        var linkPosition = GetLinkPosition();
+        Draw(spriteBatch, linkPosition);
+    }
+
+    public override IEnumerable<Rectangle> GetHitBox()
+    {
+        return GetHitBox(GetLinkPosition());
+    }
+
+    private Vector2 GetLinkPosition()
+    {
         var monsterPosition = Game1.GlobalToLocal(Game1.viewport, Monster.Position);
         var linkPosition = monsterPosition + new Vector2(Monster.GetBoundingBox().Width / 2f, Monster.GetBoundingBox().Height / 2f);
         if (Offset is not null)
             linkPosition += Offset.Value;
-        Draw(spriteBatch, linkPosition);
+        return linkPosition;
     }
 }
 

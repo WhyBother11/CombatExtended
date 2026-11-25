@@ -90,7 +90,7 @@ public class HostMonsterBuffManager : IMonsterBuffManager
                 if (monsterBuff.DoEffectEveryTick > 0 && monsterBuff.TicksElapsed % _doEffectAdjustedTicks[monsterBuffId] == 0)
                 {
                     monsterBuff.DoEffect(monster, monster.currentLocation);
-                    HandleMonsterBuffTrigger(Triggers.MonsterBuffContinuousEffect, monsterBuff, monster, monster.currentLocation);
+                    HandleMonsterBuffTrigger(Triggers.MonsterBuffEffectTriggered, monsterBuff, monster, monster.currentLocation);
                 }
                 if (monsterBuff.DoAnimationEveryTick > 0 && monsterBuff.TicksElapsed % _doAnimationAdjustedTicks[monsterBuffId] == 0)
                 {

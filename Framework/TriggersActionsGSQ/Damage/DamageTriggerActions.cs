@@ -1,7 +1,6 @@
 using CombatExtended.Framework.Core.Damage;
 using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 using CombatExtended.Framework.Core.Monsters;
-using CombatExtended.Framework.Core.Util;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
@@ -42,20 +41,25 @@ public static class DamageTriggerActions
         {
             return TryHandleRange(rangeId, monster, player, out error,
                 monsterHandler: m => m.currentLocation.DamageMonsterDirectly(
-                    m, damageAmount, player, DamageTypeDataAsset.DamageTypeColors[damageTypeId]));
+                    m, damageAmount, player, damageTypeId, DamageTypeDataAsset.DamageTypeColors[damageTypeId]));
         }
 
         if (RequireContext(monster, out _))
         {
             if (monster.Health <= 0 || !monster.ShouldBeInteractedWith())
+            {
+                Log.Trace("Monster should not be interacted with.");
                 return true;
+            }
             if (damageTypeId == DamageType.Physical || !DamageTypeDataAsset.Exists(damageTypeId))
             {
                 monster.takeDamage(damageAmount, 0, 0, false, 0.0, player);
                 monster.currentLocation.debris.Add(new Debris(damageAmount, new Vector2(monster.GetBoundingBox().Center.X + 16,
                     monster.GetBoundingBox().Center.Y), new Color(255, 130, 0), 1f, monster));
             }
-            else DamageType.TakeExtraTypePureDamage(monster, damageAmount, damageTypeId, player);
+            else monster.currentLocation.DamageMonsterDirectly(monster, damageAmount, Game1.player, damageTypeId, 
+                DamageTypeDataAsset.DamageTypeColors[damageTypeId]);
+            //else DamageType.TakeDamageWithDamageType(monster, damageAmount, damageTypeId, player);
         }
 
         return true;

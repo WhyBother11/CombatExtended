@@ -6,8 +6,8 @@ namespace CombatExtended.Framework.TriggersActionsGSQ.LinkEffects;
 public class LinkEffectTriggers
 {
     [Trigger]
-    private static void LinkedMonsterEffect() {}
+    private static void LinkEffectTriggered() {}
     
     [Trigger]
-    private static void MonsterLinkTouchedEffect() {}
+    private static void MonsterTouchedLink() {}
 }

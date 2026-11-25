@@ -15,6 +15,8 @@ in `LinkEffectData`.
 scarecrow ranges).
 - `Radius` field in `RangeTileData` to `Circles`, specifying list of range circles.
 - `StunTime` field in `MonsterBuffAttributesData` to be time in seconds.
+- Renamed following triggers: `MonsterBuffContinuousEffect` to `MonsterBuffEffectTriggered`, `ProjectileMonsterHit` to 
+`ProjectileHitMonster`.
 
 ## 0.8.0
 

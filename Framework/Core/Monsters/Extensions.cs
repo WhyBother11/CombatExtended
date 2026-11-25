@@ -5,7 +5,6 @@ using CombatExtended.Framework.Core.Monsters.Buffs;
 using CombatExtended.Framework.Core.Monsters.Statuses;
 using CombatExtended.Framework.Core.Monsters.Tags;
 using CombatExtended.Framework.Data;
-using CombatExtended.Framework.UI.Vanilla;
 using CombatExtended.Framework.Util;
 using CombatExtended.Integrations.Compatibility;
 using StardewValley;
@@ -230,7 +229,7 @@ public static class Extensions
         {
             if (!DamageTypeDataAsset.Exists(attributesResistance.DamageType))
             {
-                Log.Warn($"Unknown damage type ID {attributesResistance.DamageType}");
+                Log.Warn($"Unknown damage type ID: {attributesResistance.DamageType}.");
                 continue;
             }
 
@@ -243,14 +242,12 @@ public static class Extensions
         {
             if (!DamageTypeDataAsset.Exists(attributesDamage.DamageType))
             {
-                Log.Warn($"Unknown damage type ID {attributesDamage.DamageType}");
+                Log.Warn($"Unknown damage type ID: {attributesDamage.DamageType}.");
                 continue;
             }
 
             var damageRoll = Game1.random.Next((int)attributesDamage.MinDamage, (int)attributesDamage.MaxDamage + 1);
-            var damage =
-                DamageType.TakeExtraTypePureDamage(monster, damageRoll, attributesDamage.DamageType, Game1.player);
-            DamageNumbersDebris.Display(monster.currentLocation, monster, damage, 
+            monster.currentLocation.DamageMonsterDirectly(monster, damageRoll, Game1.player, attributesDamage.DamageType,
                 DamageTypeDataAsset.DamageTypeColors[attributesDamage.DamageType]);
         }
     }
@@ -275,7 +272,7 @@ public static class Extensions
         {
             if (!DamageTypeDataAsset.Exists(attributesResistance.DamageType))
             {
-                Log.Warn($"Unknown damage type ID {attributesResistance.DamageType}");
+                Log.Warn($"Unknown damage type ID: {attributesResistance.DamageType}.");
                 continue;
             }
 
@@ -308,7 +305,7 @@ public static class Extensions
         {
             if (!DamageTypeDataAsset.Exists(attributesResistance.DamageType))
             {
-                Log.Warn($"Unknown damage type ID {attributesResistance.DamageType}");
+                Log.Warn($"Unknown damage type ID: {attributesResistance.DamageType}.");
                 continue;
             }
 
@@ -321,14 +318,12 @@ public static class Extensions
         {
             if (!DamageTypeDataAsset.Exists(attributesDamage.DamageType))
             {
-                Log.Warn($"Unknown damage type ID {attributesDamage.DamageType}");
+                Log.Warn($"Unknown damage type ID: {attributesDamage.DamageType}.");
                 continue;
             }
 
             var damageRoll = Game1.random.Next((int)attributesDamage.MinDamage, (int)attributesDamage.MaxDamage + 1);
-            var damage =
-                DamageType.TakeExtraTypePureDamage(monster, damageRoll, attributesDamage.DamageType, Game1.player);
-            DamageNumbersDebris.Display(monster.currentLocation, monster, damage, 
+            monster.currentLocation.DamageMonsterDirectly(monster, damageRoll, Game1.player, attributesDamage.DamageType,
                 DamageTypeDataAsset.DamageTypeColors[attributesDamage.DamageType]);
         }
     }
@@ -354,7 +349,7 @@ public static class Extensions
         {
             if (!DamageTypeDataAsset.Exists(attributesResistance.DamageType))
             {
-                Log.Warn($"Unknown damage type ID {attributesResistance.DamageType}");
+                Log.Warn($"Unknown damage type ID: {attributesResistance.DamageType}.");
                 continue;
             }
 

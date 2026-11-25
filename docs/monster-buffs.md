@@ -127,9 +127,10 @@ Raised when monster buff on monster expires. Provides `Monster context` and `Mon
 Raised when monster buff is removed from monster by any other means except from natural expiration. Provides `Monster context` 
 and `MonsterBuffContext`. When buff is removed `MonsterBuffExpired` is also raised afterwards.
 
-### `WhyBother11.CombatExtended_MonsterBuffContinuousEffect`
+### `WhyBother11.CombatExtended_MonsterBuffEffectTriggered`
 
-Raised when monster buff triggers its effects. Provides `Monster context` and `MonsterBuffContext`.
+Raised when monster buff triggers its effects (as per `DoEffectEverySec` in its data). Provides `Monster context` and 
+`MonsterBuffContext`.
 
 ## Monster buff trigger actions
 

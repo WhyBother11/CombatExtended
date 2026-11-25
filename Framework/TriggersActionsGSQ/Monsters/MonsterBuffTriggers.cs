@@ -15,5 +15,5 @@ public static class MonsterBuffTriggers
     private static void MonsterBuffExpired() {}
     
     [Trigger]
-    private static void MonsterBuffContinuousEffect() {}
+    private static void MonsterBuffEffectTriggered() {}
 }

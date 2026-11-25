@@ -19,26 +19,6 @@ namespace CombatExtended.Framework.Util;
 public static class Utility
 {
     /// <summary>
-    /// Damage <paramref name="monster"/> directly and display <paramref name="damage"/> with custom <paramref name="damageColor"/>.
-    /// </summary>
-    /// <param name="location">Location with <paramref name="monster"/> to be damaged.</param>
-    /// <param name="monster">The monster to be damaged.</param>
-    /// <param name="damage">The damage to <paramref name="monster"/>.</param>
-    /// <param name="player">The current player.</param>
-    /// <param name="damageColor">The display colour of damage.</param>
-    public static void DamageMonsterDirectly(
-        this GameLocation location,
-        Monster monster,
-        int damage,
-        Farmer player,
-        Color damageColor
-    )
-    {
-        var actual = monster.takeDamage(damage, 0, 0, false, 0.0, player);
-        DamageNumbersDebris.Display(location, monster, actual, damageColor);
-    }
-    
-    /// <summary>
     /// Find the closest monster to given <paramref name="tileFrom"/> in given <paramref name="radius"/> in tiles, ignoring <paramref name="from"/> if provided.
     /// </summary>
     /// <param name="loc">The monster location.</param>

@@ -102,22 +102,18 @@ public class CustomProjectile : Projectile
     public override void behaviorOnCollisionWithMonster(NPC n, GameLocation location)
     {
         var farmer = this.GetLocalFarmer(location);
-
+        if (farmer is null) return;
         if (n is not Monster monster) return;
-        if (Data.DamageType is DamageType.Physical) 
-            location.damageMonster(monster.GetBoundingBox(), Data.MinDamage, Data.MaxDamage, false, farmer, true);
-        else
-        {
-            var damage = Game1.random.Next(Data.MinDamage, Data.MaxDamage + 1);
-            DamageType.TakeExtraTypePureDamage(monster, damage, Data.DamageType, farmer);
-        }
+        var damage = Game1.random.Next(Data.MinDamage, Data.MaxDamage + 1);
+        location.DamageMonsterDirectly(monster, damage, farmer, Data.DamageType, 
+            DamageTypeDataAsset.DamageTypeColors[Data.DamageType]);
         piercesLeft.Value -= 1;
 
         var item = ItemRegistry.Create("(O)168");
         item.PackProjectileInfo(this);
         item.PackMonsterInfo(monster);
         TriggerActionManager.Raise(
-            Triggers.ProjectileMonsterHit,
+            Triggers.ProjectileHitMonster,
             new object[] { monster },
             location: _location,
             player: Owner,

@@ -18,6 +18,7 @@ using ActionPointManager = CombatExtended.Framework.Managers.ActionPointManager;
 using SequenceOrchestratorManager = CombatExtended.Framework.Managers.SequenceOrchestratorManager;
 using StackableBuffManager = CombatExtended.Framework.Managers.StackableBuffManager;
 using CooldownManager = CombatExtended.Framework.Managers.CooldownManager;
+using LinkEffectManager = CombatExtended.Framework.Managers.LinkEffectManager;
 
 namespace CombatExtended;
 
@@ -201,6 +202,7 @@ public class ModEntry : Mod
         AbilityManager.Register(Helper);
         StackableBuffManager.Register(Helper);
         ActionPointManager.Register(Helper);
+        LinkEffectManager.Register(Helper);
     }
 
     private void UnregisterManagers()
@@ -213,6 +215,7 @@ public class ModEntry : Mod
         AbilityManager.Unregister(Helper);
         StackableBuffManager.Unregister(Helper);
         ActionPointManager.Unregister(Helper);
+        LinkEffectManager.Unregister(Helper);
     }
     
     private void OnGameLaunched_AddGmcmIntegration(object? sender, GameLaunchedEventArgs e)

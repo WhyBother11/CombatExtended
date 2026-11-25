@@ -6,5 +6,5 @@ namespace CombatExtended.Framework.TriggersActionsGSQ.Projectiles;
 public static class ProjectileTriggers
 {
     [Trigger]
-    private static void ProjectileMonsterHit() {}
+    private static void ProjectileHitMonster() {}
 }
