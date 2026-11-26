@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Core.Monsters.Buffs;
+using CombatExtended.Framework.Core.Monsters.Stats;
 using CombatExtended.Framework.Core.Monsters.Statuses;
 using CombatExtended.Framework.Core.Monsters.Tags;
 using CombatExtended.Framework.Data;
@@ -161,30 +162,30 @@ public static class Extensions
     /// <returns>Monster's armour class.</returns>
     public static int GetDataArmourClass(this Monster monster)
     {
-        return (MonsterStats.DefaultArmourClass + MonsterStats.GetMonsterExtraArmourClass(monster))
+        return (MonsterStats.DefaultArmourClass + MonsterStats.GetMonsterStat<int>(MonsterStatType.ArmourClass, monster))
             .WithCompatibility(monster,
-                m => (MonsterStats.TryGetMonsterExtraArmourClass(m.Name, out var armourClass), armourClass ?? -1),
-                t => (MonsterStats.TryGetMonsterExtraArmourClass(t, out var armourClass), armourClass ?? -1),
+                m => (MonsterStats.TryGetMonsterStat(MonsterStatType.ArmourClass, m.Name, out int? armourClass), armourClass ?? -1),
+                t => (MonsterStats.TryGetMonsterStat(MonsterStatType.ArmourClass, t, out int? armourClass), armourClass ?? -1),
                 extraAc => MonsterStats.DefaultArmourClass + extraAc
             );
     }
 
     public static float GetDataWeight(this Monster monster)
     {
-        return (MonsterStats.DefaultWeight + MonsterStats.GetMonsterExtraWeight(monster))
+        return (MonsterStats.DefaultWeight + MonsterStats.GetMonsterStat<float>(MonsterStatType.Weight, monster))
             .WithCompatibility(monster,
-                m => (MonsterStats.TryGetMonsterExtraWeight(m.Name, out var weight), weight ?? -1),
-                t => (MonsterStats.TryGetMonsterExtraWeight(t, out var weight), weight ?? -1),
+                m => (MonsterStats.TryGetMonsterStat(MonsterStatType.Weight, m.Name, out float? weight), weight ?? -1),
+                t => (MonsterStats.TryGetMonsterStat(MonsterStatType.Weight, t, out float? weight), weight ?? -1),
                 extraWeight => MonsterStats.DefaultWeight + extraWeight
             );
     }
 
     public static float GetDataHitMissRate(this Monster monster)
     {
-        return (MonsterStats.DefaultHitMissRate + MonsterStats.GetMonsterExtraHitMissRate(monster))
+        return (MonsterStats.DefaultHitMissRate + MonsterStats.GetMonsterStat<float>(MonsterStatType.HitMissRate, monster))
             .WithCompatibility(monster,
-                m => (MonsterStats.TryGetMonsterExtraHitMissRate(m.Name, out var rate), rate ?? -1),
-                t => (MonsterStats.TryGetMonsterExtraHitMissRate(t, out var rate), rate ?? -1),
+                m => (MonsterStats.TryGetMonsterStat(MonsterStatType.HitMissRate, m.Name, out float? rate), rate ?? -1),
+                t => (MonsterStats.TryGetMonsterStat(MonsterStatType.HitMissRate, t, out float? rate), rate ?? -1),
                 extraRate => MonsterStats.DefaultHitMissRate + extraRate
             );
     }
@@ -207,6 +208,7 @@ public static class Extensions
         };
     }
 
+    #region MonsterAttributes
     /// <summary>
     /// Apply monster buff <paramref name="attributes"/> to given <paramref name="monster"/>.
     /// </summary>
@@ -214,42 +216,18 @@ public static class Extensions
     /// <param name="attributes">The monster buff attributes to apply.</param>
     public static void ApplyMonsterBuffAttributes(this Monster monster, MonsterBuffAttributes attributes)
     {
-        monster.resilience.Value += (int) attributes.Resilience;
-        monster.MaxHealth += (int) attributes.MaxHealth;
-        monster.Health += (int) attributes.Health;
-        monster.missChance.Value += (int) attributes.MissChance;
-        monster.AddArmourClass((int) attributes.ArmourClass);
-        monster.AddWeight(attributes.Weight);
-        monster.AddHitMissRate(attributes.HitMissRate);
-        if (attributes.StunTime.Equals(-2f)) monster.stunTime.Value = int.MaxValue;
-        else monster.stunTime.Value += attributes.StunTime.ToMilliseconds();
-        //monster.Speed += (int)attributes.Speed;
-        monster.addedSpeed += attributes.Speed;
-        foreach (var attributesResistance in attributes.Resistances)
-        {
-            if (!DamageTypeDataAsset.Exists(attributesResistance.DamageType))
-            {
-                Log.Warn($"Unknown damage type ID: {attributesResistance.DamageType}.");
-                continue;
-            }
+        monster.ApplyMonsterAttributesRevertable(attributes);
+        monster.ApplyMonsterAttributesDamage(attributes);
+    }
 
-            var current = monster.GetResistances();
-            if (attributesResistance.Delta >= 0) current.IncreaseResistance(attributesResistance.DamageType, 
-                (int) attributesResistance.Delta);
-            else current.LowerResistance(attributesResistance.DamageType, (int) Math.Abs(attributesResistance.Delta));
-        }
-        foreach (var attributesDamage in attributes.Damages)
-        {
-            if (!DamageTypeDataAsset.Exists(attributesDamage.DamageType))
-            {
-                Log.Warn($"Unknown damage type ID: {attributesDamage.DamageType}.");
-                continue;
-            }
-
-            var damageRoll = Game1.random.Next((int)attributesDamage.MinDamage, (int)attributesDamage.MaxDamage + 1);
-            monster.currentLocation.DamageMonsterDirectly(monster, damageRoll, Game1.player, attributesDamage.DamageType,
-                DamageTypeDataAsset.DamageTypeColors[attributesDamage.DamageType]);
-        }
+    public static void ApplyMonsterBuffAttributesRevertable(this Monster monster, MonsterBuffAttributes attributes)
+    {
+        monster.ApplyMonsterAttributesRevertable(attributes);
+    }
+    
+    public static void ApplyMonsterBuffAttributesDamage(this Monster monster, MonsterBuffAttributes attributes)
+    {
+        monster.ApplyMonsterAttributesDamage(attributes);
     }
     
     /// <summary>
@@ -259,28 +237,7 @@ public static class Extensions
     /// <param name="attributes">The monster buff attributes to remove.</param>
     public static void RemoveMonsterBuffAttributes(this Monster monster, MonsterBuffAttributes attributes)
     {
-        monster.resilience.Value -= (int) attributes.Resilience;
-        monster.MaxHealth -= (int) attributes.MaxHealth;
-        monster.missChance.Value -= (int) attributes.MissChance;
-        monster.AddArmourClass((int) -attributes.ArmourClass);
-        monster.AddWeight(-attributes.Weight);
-        monster.AddHitMissRate(-attributes.HitMissRate);
-        if (attributes.StunTime.Equals(-2f)) monster.stunTime.Value = 0;
-        else monster.stunTime.Value -= attributes.StunTime.ToMilliseconds();
-        monster.addedSpeed -= attributes.Speed;
-        foreach (var attributesResistance in attributes.Resistances)
-        {
-            if (!DamageTypeDataAsset.Exists(attributesResistance.DamageType))
-            {
-                Log.Warn($"Unknown damage type ID: {attributesResistance.DamageType}.");
-                continue;
-            }
-
-            var current = monster.GetResistances();
-            if (attributesResistance.Delta >= 0) current.LowerResistance(attributesResistance.DamageType, 
-                (int) attributesResistance.Delta);
-            else current.IncreaseResistance(attributesResistance.DamageType, (int) Math.Abs(attributesResistance.Delta));
-        }
+        monster.RemoveMonsterAttributes(attributes);
     }
     
     /// <summary>
@@ -289,6 +246,32 @@ public static class Extensions
     /// <param name="monster">The monster instance.</param>
     /// <param name="attributes">The monster status attributes to apply.</param>
     public static void ApplyMonsterStatusAttributes(this Monster monster, MonsterStatusAttributes attributes)
+    {
+        monster.ApplyMonsterAttributesRevertable(attributes);
+    }
+    
+    /// <summary>
+    /// Revert back monster status <paramref name="attributes"/> from given <paramref name="monster"/>.
+    /// </summary>
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="attributes">The monster status attributes to remove.</param>
+    public static void RemoveMonsterStatusAttributes(this Monster monster, MonsterStatusAttributes attributes)
+    {
+        monster.RemoveMonsterAttributes(attributes);
+    }
+    
+    /// <summary>
+    /// Apply monster <paramref name="attributes"/> to given <paramref name="monster"/>.
+    /// </summary>
+    /// <param name="monster">The monster instance.</param>
+    /// <param name="attributes">The monster attributes to apply.</param>
+    public static void ApplyMonsterAttributes(this Monster monster, MonsterAttributes attributes)
+    {
+        monster.ApplyMonsterAttributesRevertable(attributes);
+        monster.ApplyMonsterAttributesDamage(attributes);
+    }
+    
+    public static void ApplyMonsterAttributesRevertable(this Monster monster, MonsterAttributes attributes)
     {
         monster.resilience.Value += (int) attributes.Resilience;
         monster.MaxHealth += (int) attributes.MaxHealth;
@@ -314,6 +297,10 @@ public static class Extensions
                 (int) attributesResistance.Delta);
             else current.LowerResistance(attributesResistance.DamageType, (int) Math.Abs(attributesResistance.Delta));
         }
+    }
+
+    public static void ApplyMonsterAttributesDamage(this Monster monster, MonsterAttributes attributes)
+    {
         foreach (var attributesDamage in attributes.Damages)
         {
             if (!DamageTypeDataAsset.Exists(attributesDamage.DamageType))
@@ -329,11 +316,11 @@ public static class Extensions
     }
     
     /// <summary>
-    /// Revert back monster status <paramref name="attributes"/> from given <paramref name="monster"/>.
+    /// Revert back monster <paramref name="attributes"/> from given <paramref name="monster"/>.
     /// </summary>
     /// <param name="monster">The monster instance.</param>
-    /// <param name="attributes">The monster status attributes to remove.</param>
-    public static void RemoveMonsterStatusAttributes(this Monster monster, MonsterStatusAttributes attributes)
+    /// <param name="attributes">The monster attributes to remove.</param>
+    public static void RemoveMonsterAttributes(this Monster monster, MonsterAttributes attributes)
     {
         monster.resilience.Value -= (int) attributes.Resilience;
         monster.MaxHealth -= (int) attributes.MaxHealth;
@@ -359,4 +346,5 @@ public static class Extensions
             else current.IncreaseResistance(attributesResistance.DamageType, (int) Math.Abs(attributesResistance.Delta));
         }
     }
+    #endregion
 }

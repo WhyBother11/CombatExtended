@@ -2,7 +2,7 @@ using CombatExtended.Framework.Data;
 using Microsoft.Xna.Framework;
 using StardewValley;
 
-namespace CombatExtended.Framework.UI.Animations;
+namespace CombatExtended.Framework.Core.Misc.Animations;
 
 /// <summary>
 /// <see cref="TextureTemporaryAnimatedSprite"/> that is attached to some <see cref="Character"/>.

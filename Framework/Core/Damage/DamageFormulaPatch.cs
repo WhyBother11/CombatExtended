@@ -6,7 +6,6 @@ using CombatExtended.Framework.Data;
 using CombatExtended.Framework.Events.Args;
 using CombatExtended.Framework.TriggersActionsGSQ.Damage;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
-using CombatExtended.Framework.UI.Vanilla;
 using CombatExtended.Framework.Util;
 using HarmonyLib;
 using Netcode;

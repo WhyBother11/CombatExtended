@@ -23,6 +23,9 @@ public class WeaponExtensionData
     
     [ContentSerializer(Optional = true)]
     public List<string> ActionsOnUnequip = new ();
+
+    [ContentSerializer(Optional = true)] 
+    public SpecialExtensionData? SpecialExtension;
 }
 
 public class DamageTypeWeaponExtensionData
@@ -76,6 +79,21 @@ public class WeaponStateData
 
     [ContentSerializer(Optional = true)] 
     public List<DamageTypeWeaponExtensionData>? DamageTypes;
+    
+    [ContentSerializer(Optional = true)] 
+    public SpecialExtensionData? SpecialExtension;
+}
+
+public class SpecialExtensionData
+{
+    [ContentSerializer(Optional = true)] 
+    public string? TriggerActionCondition;
+    
+    [ContentSerializer(Optional = true)]
+    public List<string>? ActionsOnTrigger;
+
+    [ContentSerializer(Optional = true)] 
+    public bool PreventBase;
 }
 
 [DataAsset("WeaponExtensionData")]
@@ -85,7 +103,7 @@ public class WeaponExtensionDataAsset : DataAsset<WeaponExtensionData>
     
     private Dictionary<string, string>? _abilities;
     private Dictionary<string, string> InstanceAbilities => _abilities ??= Data
-        .Where(entry => entry.Value.Abilities != null)
+        .Where(entry => entry.Value.Abilities is not null)
         .ToDictionary(
             entry => entry.Key, 
             entry => entry.Value.Abilities!);
@@ -94,7 +112,7 @@ public class WeaponExtensionDataAsset : DataAsset<WeaponExtensionData>
 
     private Dictionary<string, Dictionary<string, WeaponStateData>>? _weaponStates;
     private Dictionary<string, Dictionary<string, WeaponStateData>> InstanceWeaponStates => _weaponStates ??= Data
-        .Where(entry => entry.Value.States != null)
+        .Where(entry => entry.Value.States is not null)
         .ToDictionary(
             entry => entry.Key, 
             entry => entry.Value.States!);
@@ -104,7 +122,7 @@ public class WeaponExtensionDataAsset : DataAsset<WeaponExtensionData>
 
     private Dictionary<string, List<DamageTypeWeaponExtensionData>>? _damageTypes;
     private Dictionary<string, List<DamageTypeWeaponExtensionData>> InstanceDamageTypes => _damageTypes ??= Data
-        .Where(entry => entry.Value.DamageTypes != null)
+        .Where(entry => entry.Value.DamageTypes is not null)
         .ToDictionary(
             entry => entry.Key,
             entry => entry.Value.DamageTypes!
@@ -114,12 +132,21 @@ public class WeaponExtensionDataAsset : DataAsset<WeaponExtensionData>
     
     private Dictionary<string, string>? _actionPoints;
     private Dictionary<string, string> InstanceActionPoints => _actionPoints ??= Data
-        .Where(entry => entry.Value.ActionPoints != null)
+        .Where(entry => entry.Value.ActionPoints is not null)
         .ToDictionary(
             entry => entry.Key, 
             entry => entry.Value.ActionPoints!);
 
     public static Dictionary<string, string> ActionPoints => Instance.InstanceActionPoints;
+    
+    private Dictionary<string, SpecialExtensionData>? _specialExtensions;
+    private Dictionary<string, SpecialExtensionData> InstanceSpecialExtensions => _specialExtensions ??= Data
+        .Where(entry => entry.Value.SpecialExtension is not null)
+        .ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value.SpecialExtension!
+        );
+    public static Dictionary<string, SpecialExtensionData> SpecialExtensions => Instance.InstanceSpecialExtensions;
 
 
     private WeaponExtensionDataAsset(string path) : base(path) {}
@@ -139,7 +166,7 @@ public class WeaponExtensionDataAsset : DataAsset<WeaponExtensionData>
         foreach (var damageType in damageTypes)
         {
             if (DamageTypeDataAsset.Exists(damageType.Type)) result.Add(damageType);
-            else Log.Warn($"Unknown damage type {damageType.Type} for weapon extension on {weaponId}");
+            else Log.Error($"Ignored unknown damage type {damageType.Type} for weapon extension on {weaponId}.");
         }
         return result;
     }
@@ -151,5 +178,6 @@ public class WeaponExtensionDataAsset : DataAsset<WeaponExtensionData>
         _damageTypes = null;
         _weaponStates = null;
         _actionPoints = null;
+        _specialExtensions = null;
     }
 }

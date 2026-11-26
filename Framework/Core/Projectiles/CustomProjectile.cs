@@ -1,7 +1,6 @@
 using CombatExtended.Framework.Core.Damage;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
-using CombatExtended.Framework.UI.Animations;
 using CombatExtended.Framework.Util;
 using HarmonyLib;
 using Microsoft.Xna.Framework;
@@ -14,7 +13,7 @@ using StardewValley.Projectiles;
 using StardewValley.TerrainFeatures;
 using StardewValley.Triggers;
 
-namespace CombatExtended.Framework.Core.Misc.Projectiles;
+namespace CombatExtended.Framework.Core.Projectiles;
 
 [HarmonyPatch]
 [Registrable]
@@ -31,7 +30,7 @@ public class CustomProjectile : Projectile
     
     public float Angle { get; private set; }
     
-    private readonly List<Action<GameLocation, Farmer>> DestroyListeners = new ();
+    private readonly List<Action<GameLocation, Farmer>> _destroyListeners = new ();
 
     private readonly GameLocation _location;
     
@@ -82,10 +81,10 @@ public class CustomProjectile : Projectile
             _animator = new ProjectileAnimator(
                 Helper.GameContent.Load<Texture2D>(data.Texture), data.SpriteIndex.Value,
                 data.Animation?.Split(' ').Select(int.Parse).ToArray());
-        else Log.Error($"Projectile {id} has no item or texture with sprite index set");
+        else Log.Error($"Projectile {id} item or texture with sprite index are not set.");
         damagesMonsters.Value = true;
         if (onDestroy is not null) 
-            DestroyListeners.Add(onDestroy);
+            _destroyListeners.Add(onDestroy);
         _destroyOnWallContact = destroyOnWallContact;
     }
     
@@ -152,7 +151,7 @@ public class CustomProjectile : Projectile
 
     public void AddDestroyListener(Action<GameLocation, Farmer> onDestroy)
     {
-        DestroyListeners.Add(onDestroy);
+        _destroyListeners.Add(onDestroy);
     }
 
     public int GetDebrisSpawnDirection()
@@ -208,7 +207,7 @@ public class CustomProjectile : Projectile
             __result = true;
         if (__result)
         {
-            customProjectile.DestroyListeners.ForEach(action => 
+            customProjectile._destroyListeners.ForEach(action => 
                 action.Invoke(customProjectile._location, customProjectile.Owner));
         }
     }

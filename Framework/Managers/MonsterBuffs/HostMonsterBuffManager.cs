@@ -109,7 +109,7 @@ public class HostMonsterBuffManager : IMonsterBuffManager
                             node.Value -= BaseTicks;
                         }
                         if (independent.Stacks == stacks) continue;
-                        var expired = stacks - independent.Stacks;
+                        var expired = independent.Stacks - stacks;
                         independent.OnIndependentStacksExpired(monster, expired);
                         break;
                 }

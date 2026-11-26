@@ -12,6 +12,7 @@ using StardewValley.Extensions;
 using StardewValley.GameData.Objects;
 using StardewValley.Menus;
 using StardewValley.Triggers;
+using Utility = CombatExtended.Framework.Util.Utility;
 
 namespace CombatExtended.Framework.Core.Buffs;
 
@@ -243,10 +244,7 @@ public static class BuffExtensionEnabler
                 buffExtension.MillisElapsed = 0;
                 if (buffExtension.EffectTimesTriggered >= buffExtension.MaxEffectTimesTriggered) return;
                 buffExtension.ActionsOnEffect.ForEach(action =>
-                {
-                    if (!TriggerActionManager.TryRunAction(action, out var error, out var exception))
-                        Log.Error($"Failed to run action {action} from buff '{__instance.id}': {error}", exception);
-                });
+                    Utility.RunAndLogAction(action, $"buff '{__instance.id}'"));
                 buffExtension.EffectTimesTriggered += 1;
             }
             return;

@@ -140,6 +140,42 @@ it should be present at least one time. `int` type arguments are prefixed with `
 
 ### `WhyBother11.CombatExtended_ApplyMonsterBuff`
 
-Format: `WhyBother11.CombatExtended_ApplyMonsterBuff <MonsterBuffId> [RangeId]* [%Chance]`
+Format: `WhyBother11.CombatExtended_ApplyMonsterBuff <MonsterBuffId> [%Chance] [RangeId]*`
 
-Used to apply monster buff on monster(s).
+Used to apply monster buff on monster. `MonsterBuffId` corresponds to the monster buff that should be applied. `Chance`
+(defaults to `1`) specifies chance of buff application (should be in `[0, 1]` range), rolled for every affected monster.
+`RandeId` specifies [range](https://github.com/WhyBother11/CombatExtended/blob/master/docs/ranges.md) which contains the 
+affected monsters.
+
+If used in `Monster context`, `RangeId` can be omitted, in which case the monster buff will be applied only to the 
+context monster.
+
+### `WhyBother11.CombatExtended_RemoveMonsterBuff`
+
+Format: `WhyBother11.CombatExtended_RemoveMonsterBuff <MonsterBuffId> [%Chance] [RangeId]*`
+
+Used to manually remove monster buff from monster. `MonsterBuffId` corresponds to the monster buff that should be removed.
+`Chance` (defaults to `1`) specifies chance of buff removal (should be in `[0, 1]` range), rolled for every affected monster.
+`RandeId` specifies [range](https://github.com/WhyBother11/CombatExtended/blob/master/docs/ranges.md) which contains the
+affected monsters.
+
+If used in `Monster context`, `RangeId` can be omitted, in which case the monster buff will be removed only from the 
+context monster.
+
+## Game state queries
+
+### `WhyBother11.CombatExtended_MONSTER_BUFF_ID`
+
+Format: `WhyBother11.CombatExtended_MONSTER_BUFF_ID <MonsterBuffId>+`
+
+Can be used only in `Monster buff context`. Used to check ID of monster buff in context. `MonsterBuffId` corresponds to
+multiple possible monster buff IDs to check against. Query returns `true` if any `MonsterBuffId` is equal to ID of monster
+buff in context, `false` otherwise.
+
+### `WhyBother11.CombatExtended_MONSTER_BUFF_CONTEXT_TAG`
+
+Format: `WhyBother11.CombatExtended_MONSTER_BUFF_CONTEXT_TAG <ContextTag>+`
+
+Can be used only in `Monster buff context`. Used to check context tags of monster buff in context. `ContextTag` corresponds
+to multiple possible context tags to check against. Query returns `true` if any `ContextTag` is equal to one of context tag
+of context monster buff, `false` otherwise. 

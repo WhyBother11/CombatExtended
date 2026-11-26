@@ -8,6 +8,9 @@
 in `LinkEffectData`.
 - `HitRate` extra stat for monsters.
 - `RangeTileData_Circle` data model to specify building circles for range builder.
+- `SpecialExtensionData` data model and `SpecialExtension` field to `WeaponExtensionData` for weapon's special attack.
+- `SpecialUsed` and `Parried` triggers raised when weapon special attack is used and sword parry special is successfully
+performed, respectively.
 
 ### Changed
 
@@ -17,6 +20,10 @@ scarecrow ranges).
 - `StunTime` field in `MonsterBuffAttributesData` to be time in seconds.
 - Renamed following triggers: `MonsterBuffContinuousEffect` to `MonsterBuffEffectTriggered`, `ProjectileMonsterHit` to 
 `ProjectileHitMonster`.
+
+### Fixed
+
+- Stackable monster buffs behaving very incorrectly.
 
 ## 0.8.0
 

@@ -3,46 +3,8 @@ using CombatExtended.Framework.Data;
 namespace CombatExtended.Framework.Core.Monsters.Buffs;
 
 #pragma warning disable CS8618
-public class MonsterBuffAttributes
+public class MonsterBuffAttributes : MonsterAttributes
 {
-    
-    public float Resilience { get; set; }
-    
-    public float Health { get; set; }
-    
-    public float MaxHealth { get; set; }
-    
-    public float MissChance { get; set; }
-    
-    public float ArmourClass { get; set; }
-    
-    public float Weight { get; set; }
-    
-    public float HitMissRate { get; set; }
-    
-    public float StunTime { get; set; }
-    
-    public float Speed { get; set; }
-    
-    public List<DamageData> Damages { get; set; } = new ();
-    
-    public List<ResistanceData> Resistances { get; set; } = new ();
-    
-    public class ResistanceData
-    {
-        public string DamageType { get; set; }
-        
-        public float Delta { get; set; }
-    }
-    
-    public class DamageData
-    {
-        public string DamageType { get; set; }
-        
-        public float MinDamage { get; set; }
-        
-        public float MaxDamage { get; set; }
-    }
 
     public static MonsterBuffAttributes CreateEmpty()
     {
@@ -64,24 +26,5 @@ public class MonsterBuffAttributes
         if (data.DamageData is not null) attrs.Damages = data.DamageData.Select(GetDamageData).ToList();
         if (data.ResistanceData is not null) attrs.Resistances = data.ResistanceData.Select(GetResistanceData).ToList();
         return attrs;
-    }
-
-    public static DamageData GetDamageData(MonsterBuffAttributesData.DamageAttributesData attributesData)
-    {
-        return new DamageData
-        {
-            DamageType = attributesData.DamageType,
-            MinDamage = attributesData.Damage,
-            MaxDamage = attributesData.MaxDamage.GetValueOrDefault(attributesData.Damage)
-        };
-    }
-
-    public static ResistanceData GetResistanceData(MonsterBuffAttributesData.ResistanceAttributesData attributesData)
-    {
-        return new ResistanceData
-        {
-            DamageType = attributesData.DamageType,
-            Delta = attributesData.Delta
-        };
     }
 }

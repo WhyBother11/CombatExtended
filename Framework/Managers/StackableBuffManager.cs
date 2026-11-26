@@ -48,7 +48,7 @@ public class StackableBuffManager
         {
             if (!isIndependentStacking) return;
             _buffTimers[buffId].RemoveFirst();
-            var duration = buffData.Duration == -2 ? int.MaxValue : buffData.Duration.MillisToTicks();
+            var duration = buffData.Duration.CheckIfIndefiniteAndModify(v => v.MillisToTicks());
             _buffTimers[buffId].AddLast(duration);
             return;
         }
@@ -98,7 +98,7 @@ public class StackableBuffManager
     {
         var maxStacks = _buffMaxStacks.GetValueOrDefault(buffId,
             BuffExtensionDataAsset.Data[buffId].StackableData?.MaxStacks ?? 1);
-        return maxStacks == -2 ? int.MaxValue : maxStacks;
+        return maxStacks.CheckIfIndefiniteAndModify(v => v);
     }
 
     /// <summary>

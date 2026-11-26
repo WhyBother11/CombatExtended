@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Projectiles;
 
-namespace CombatExtended.Framework.UI.Animations;
+namespace CombatExtended.Framework.Core.Projectiles;
 
 public class ProjectileAnimator
 {

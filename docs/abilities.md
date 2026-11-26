@@ -20,9 +20,9 @@ The following table describes shared fields for ability with `Default` type and 
 | `SpriteIndex`                | `float`        | The index within `Texture` of icon for this ability.                                                                                                                                                  |
 | `HighlightRangeId`           | `string`       | *(Optional)* The ID of range from `Mods/WhyBother11.CombatExtended/Range` that should be highlighted when ability is selected and highlight buttons are pressed. If omitted, no range is highlighted. |
 | `ContextTags`                | `List<string>` | *(Optional)* The list of ability's context tags, similar to item's context tags.                                                                                                                      |
-| `TriggerActionCondition`     | `string`       | *(Optional)* If present, used to check if `ActionsOnTrigger` should be triggered.                                                                                                                     |
+| `TriggerActionCondition`     | `string`       | *(Optional)* The GSQ to check if `ActionsOnTrigger` should be triggered.                                                                                                                              |
 | `ActionsOnTrigger`           | `List<string>` | *(Optional)* The list of actions that should be triggered when the ability is triggered.                                                                                                              |
-| `CooldownEndActionCondition` | `string`       | *(Optional)* If present, used to check if `ActionsOnCooldownEnd` should be triggered.                                                                                                                 |
+| `CooldownEndActionCondition` | `string`       | *(Optional)* The GSQ to check if `ActionsOnCooldownEnd` should be triggered.                                                                                                                          |
 | `ActionsOnCooldownEnd`       | `List<string>` | *(Optional)* The list of actions that should be triggered when the ability's cooldown is ended.                                                                                                       |
 
 The following table describes fields for ability with `Continuous` type. These abilities can have duration, during which 
@@ -33,9 +33,9 @@ they count as active. After `Duration` ends, `Cooldown` starts to tick.
 | `Duration`              | `float`        | The time (in seconds) for ability to be considered active and do its effect.                                                   |
 | `AttachedToWeapon`      | `bool`         | *(Optional)* Whether ability's effect should continue to trigger if associated weapon is unequipped. Defaults to `false`.      |
 | `DoEffectEverySec`      | `float`        | *(Optional)* The time (in seconds) for ability effect to be triggered. If set to `0`, no effect is triggered. Defaults to `0`. |
-| `EndActionCondition`    | `string`       | *(Optional)* If present, used to check if `ActionsOnEnd` should be triggered.                                                  |
+| `EndActionCondition`    | `string`       | *(Optional)* The GSQ to check if `ActionsOnEnd` should be triggered.                                                           |
 | `ActionsOnEnd`          | `List<string>` | *(Optional)* The list of actions that should be triggered when the ability's `Duration` is ended.                              |
-| `EffectActionCondition` | `string`       | *(Optional)* If present, used to check if `ActionsOnEffect` should be triggered.                                               |
+| `EffectActionCondition` | `string`       | *(Optional)* The GSQ to check if `ActionsOnEffect` should be triggered.                                                        |
 | `ActionsOnEffect`       | `List<string>` | *(Optional)* The list of actions that should be triggered when the ability's effect is triggered (as per `DoEffectEverySec`).  |
 
 The following table describes fields for ability with `Throw` type. These abilities take item from player's inventory and launch
@@ -82,7 +82,7 @@ Example for ability with `Continuous` type:
 ## Ability triggers
 
 For the most use cases, it is recommended to use ability's fields for actions to be executed that work just like with triggers. 
-Use them if you need to use ability GSQ (other than `ABILITY_ID`, of course).
+Use them if you need to use any conditions.
 
 ### `WhyBother11.CombatExtended_AbilityTriggered`
 
@@ -157,16 +157,16 @@ to ability whose duration should be restored.
 
 Format: `WhyBother11.CombatExtended_ABILITY_ID <AbilityId>+`
 
-Can be used only in `Ability context`. Used to check ID of ability in context. `AbilityId` corresponds to multiple possible 
-ability IDs to check against. Query returns `true` if any `AbilityId` is equal to ID of ability in context, `false` otherwise.
+Can be used only in `Ability context`. Used to check ID of the context ability. `AbilityId` corresponds to multiple possible 
+ability IDs to check against. Query returns `true` if any `AbilityId` is equal to ID of context ability, `false` otherwise.
 
 ### `WhyBother11.CombatExtended_ABILITY_CONTEXT_TAG`
 
 Format: `WhyBother11.CombatExtended_ABILITY_CONTEXT_TAG <ContextTag>+`
 
-Can be used only in `Ability context`. Used to check context tags of ability in context. `ContextTag` corresponds to 
+Can be used only in `Ability context`. Used to check context tags of the context ability. `ContextTag` corresponds to 
 multiple possible context tags to check against. Query returns `true` if any `ContextTag` is equal to one of context tag 
-of ability in context, `false` otherwise.
+of context ability, `false` otherwise.
 
 ### `WhyBother11.CombatExtended_IS_ACTIVE`
 

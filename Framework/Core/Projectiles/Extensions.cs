@@ -1,7 +1,7 @@
 using StardewValley;
 using StardewValley.Projectiles;
 
-namespace CombatExtended.Framework.Core.Misc.Projectiles;
+namespace CombatExtended.Framework.Core.Projectiles;
 
 public static class Extensions
 {

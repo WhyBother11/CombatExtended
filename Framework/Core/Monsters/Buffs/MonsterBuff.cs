@@ -1,5 +1,5 @@
+using CombatExtended.Framework.Core.Misc.Animations;
 using CombatExtended.Framework.Data;
-using CombatExtended.Framework.UI.Animations;
 using CombatExtended.Framework.Util;
 using StardewValley;
 using StardewValley.Extensions;
@@ -72,15 +72,13 @@ public class MonsterBuff
         Id = id;
         DisplayName = data.DisplayName;
         Description = data.Description;
-        DurationTicks = !data.Duration.Equals(-2) ? data.Duration.ToTicks() : int.MaxValue;
+        DurationTicks = data.Duration.CheckIfIndefiniteAndModify(v => v.ToTicks());
         IsDebuff = data.IsDebuff;
-        
-        if (data.Attributes is not null)
-            Attributes = MonsterBuffAttributes.Create(data.Attributes);
-        else Attributes = MonsterBuffAttributes.CreateEmpty();
-        if (data.Effects is not null)
-            EffectAttributes = MonsterBuffAttributes.Create(data.Effects);
-        else EffectAttributes = MonsterBuffAttributes.CreateEmpty();
+
+        Attributes = data.Attributes is not null
+            ? MonsterBuffAttributes.Create(data.Attributes) : MonsterBuffAttributes.CreateEmpty();
+        EffectAttributes = data.Effects is not null
+            ? MonsterBuffAttributes.Create(data.Effects) : MonsterBuffAttributes.CreateEmpty();
         
         DoEffectEveryTick = data.DoEffectEverySec.ToTicks();
         DoAnimationEveryTick = data.DoAnimationEverySec.ToTicks();
@@ -95,7 +93,6 @@ public class MonsterBuff
     /// <param name="location">The monster location.</param>
     public void HandleApplied(Monster monster, GameLocation location)
     {
-        AddBuffToMonster(monster);
         IsDurationEndHandled = false;
         monster.ApplyMonsterBuffAttributes(Attributes);
         if (TemporaryAnimatedSprites is not null)
@@ -104,10 +101,11 @@ public class MonsterBuff
             {
                 if (CombatTemporaryAnimatedSpriteDataAsset.Data.TryGetValue(tas, out var data))
                     StartTemporaryAnimatedSprite(monster, location, data);
-                else Log.Warn($"Unknown temporary animated sprite {tas}");
+                else Log.Warn($"Unknown temporary animated sprite {tas}.");
             }
         }
         OnApplied(monster, location);
+        AddBuffToMonster(monster);
     }
 
     /// <summary>

@@ -33,12 +33,13 @@ model described below.
 
 ### `WhyBother.CombatExtended_LinkEffectTriggered`
 
-Raised when link effect is triggered on linked monster (as per `DoMonsterEffectEverySec` in its data). Provides `Monster context`.
+Raised when link effect is triggered on linked monster (as per `DoMonsterEffectEverySec` in its data). Provides `Monster 
+context`. The target item's ID is the ID of associated link effect.
 
 ### `WhyBother.CombatExtended_MonsterTouchedLink`
 
 Raised when monster touches some existing link (no less than per `DoMonsterTouchEffectEverySec` seconds). Provides 
-`Monster context`.
+`Monster context`. The target item's ID is the ID of associated link effect.
 
 ## Trigger actions
 

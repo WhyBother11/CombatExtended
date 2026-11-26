@@ -320,11 +320,6 @@ public static class Utility
     public static string Prepend(this string str, string prefix) => $"{prefix}{str}";
 
     #region Buffs
-    public static void ApplyBuff(this Monster monster, GameLocation location, string buffId, string? applier,
-        string? applierId)
-    {
-        MonsterBuffManager.ApplyBuff(monster, location, buffId, applier, applierId);
-    }
 
     public static void RegisterAddedStack(this Buff buff)
     {
@@ -348,4 +343,27 @@ public static class Utility
         BuffExtensionEnabler.AddFlatCritMult(buff, data.FlatCriticalMultiplier);
     }
     #endregion
+
+    /// <summary>
+    /// Execute given <paramref name="action"/> and log error if run unsuccessfully.
+    /// </summary>
+    /// <param name="action">The trigger action to run.</param>
+    /// <param name="from">On behalf of what data was <paramref name="action"/> run, used in logging.</param>
+    public static void RunAndLogAction(string action, string from)
+    {
+        if (!TriggerActionManager.TryRunAction(action, out var error, out var exception))
+            Log.Error($"Failed to run action {action} from {from}: {error}'", exception);
+    }
+    
+    /// <summary>
+    /// Check that the <paramref name="value"/> is considered indefinite (that is, equal to <c>-2</c>). If it is not,
+    /// modify it.
+    /// </summary>
+    /// <param name="value">The value to check.</param>
+    /// <param name="modify">The function to modify value.</param>
+    /// <returns><see cref="int.MaxValue"/> if <paramref name="value"/> is <c>-2</c>, otherwise it modified.</returns>
+    public static int CheckIfIndefiniteAndModify<T>(this T value, Func<T, int> modify)
+    {
+        return value is -2 ? int.MaxValue : modify(value);
+    }
 }

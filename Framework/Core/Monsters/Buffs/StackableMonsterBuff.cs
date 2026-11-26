@@ -1,4 +1,5 @@
 using CombatExtended.Framework.Data;
+using CombatExtended.Framework.Util;
 using StardewValley;
 using StardewValley.Monsters;
 
@@ -35,20 +36,25 @@ public class StackableMonsterBuff : MonsterBuff
         }
 
         var stackableData = data.StackableData;
-        MaxStacks = stackableData.MaxStacks;
-        
-        if (stackableData.AttributesPerStack is not null)
-            AttributesPerStack = MonsterBuffAttributes.Create(stackableData.AttributesPerStack);
-        else AttributesPerStack = MonsterBuffAttributes.CreateEmpty();
-        if (stackableData.EffectsPerStack is not null)
-            EffectsPerStack = MonsterBuffAttributes.Create(stackableData.EffectsPerStack);
-        else EffectsPerStack = MonsterBuffAttributes.CreateEmpty();
+        MaxStacks = stackableData.MaxStacks.CheckIfIndefiniteAndModify(v => v);
+        AttributesPerStack = stackableData.AttributesPerStack is not null
+            ? MonsterBuffAttributes.Create(stackableData.AttributesPerStack) : MonsterBuffAttributes.CreateEmpty();
+        EffectsPerStack = stackableData.EffectsPerStack is not null
+            ? MonsterBuffAttributes.Create(stackableData.EffectsPerStack) : MonsterBuffAttributes.CreateEmpty();
     }
 
     protected override void OnApplied(Monster monster, GameLocation location)
     {
         Stacks += 1;
         monster.modData[$"{ModBindings.Id}_Stacks_{Id}"] = Stacks.ToString();
+    }
+
+    public override void DoEffect(Monster monster, GameLocation location)
+    {
+        base.DoEffect(monster, location);
+        var effectiveStacks = Stacks - 1;
+        if (effectiveStacks <= 0) return;
+        monster.ApplyMonsterBuffAttributes(GetAttributesWithStacks(EffectsPerStack, effectiveStacks));
     }
 
     /// <summary>
@@ -61,8 +67,14 @@ public class StackableMonsterBuff : MonsterBuff
         TicksElapsed = 0;
         if (Stacks != MaxStacks) 
             UpdateMonsterBuffAttributesForExtraStacks(monster, 1);
-        //monster.modData[$"{ModBindings.Id}_Stacks_{Id}"] = Stacks.ToString();
         OnNewStack(monster, location);
+    }
+
+    protected override void AddBuffToMonster(Monster monster)
+    {
+        base.AddBuffToMonster(monster);
+        // will be called only when buff is applied but not on additional stacks
+        monster.modData[$"{ModBindings.Id}_Stacks_{Id}"] = Stacks.ToString();
     }
 
     protected override void RemoveBuffFromMonster(Monster monster)
@@ -82,15 +94,15 @@ public class StackableMonsterBuff : MonsterBuff
                 monster.RemoveMonsterBuffAttributes(GetAttributesWithStacks(EffectsPerStack, effectiveStacks));
             }
         }
-
-        Stacks = Math.Max(0, Stacks + delta);
+        Stacks = Math.Clamp(0, Stacks + delta, MaxStacks);
         monster.modData[$"{ModBindings.Id}_Stacks_{Id}"] = Stacks.ToString();
         effectiveStacks = Stacks - 1;
         if (effectiveStacks <= 0) return;
-        monster.ApplyMonsterBuffAttributes(GetAttributesWithStacks(AttributesPerStack, effectiveStacks));
+        // recalculate revertable buff attributes
+        monster.ApplyMonsterBuffAttributesRevertable(GetAttributesWithStacks(AttributesPerStack, effectiveStacks));
         for (var i = 0; i < EffectTimesTriggered; i++)
         {
-            monster.ApplyMonsterBuffAttributes(GetAttributesWithStacks(EffectsPerStack, effectiveStacks));
+            monster.ApplyMonsterBuffAttributesRevertable(GetAttributesWithStacks(EffectsPerStack, effectiveStacks));
         }
     }
 
@@ -121,13 +133,13 @@ public class StackableMonsterBuff : MonsterBuff
             Weight = attributes.Weight * effectiveStacks,
             StunTime = attributes.StunTime * effectiveStacks,
             Speed = attributes.Speed * effectiveStacks,
-            Damages = attributes.Damages.Select(damage => new MonsterBuffAttributes.DamageData
+            Damages = attributes.Damages.Select(damage => new MonsterAttributes.DamageData
             {
                 DamageType = damage.DamageType,
                 MinDamage = damage.MinDamage * effectiveStacks,
                 MaxDamage = damage.MaxDamage * effectiveStacks
             }).ToList(),
-            Resistances = attributes.Resistances.Select(resistance => new MonsterBuffAttributes.ResistanceData
+            Resistances = attributes.Resistances.Select(resistance => new MonsterAttributes.ResistanceData
             {
                 DamageType = resistance.DamageType,
                 Delta = resistance.Delta * effectiveStacks,

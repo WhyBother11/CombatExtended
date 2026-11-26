@@ -13,6 +13,7 @@ being existing *unqualified* weapon ID and value being data model described belo
 | `ActionPoints`     | `string`                              | *(Optional)* The space delimited string of action point IDs that should be available when this weapon is equipped.                                                                                                                                                        |
 | `ActionsOnEquip`   | `List<string>`                        | *(Optional)* The list of actions that should be triggered when the weapon is equipped.                                                                                                                                                                                    |
 | `ActionsOnUnequip` | `List<string>`                        | *(Optional)* The list of actions that should be triggered when the weapon is unequipped.                                                                                                                                                                                  |
+| `SpecialExtension` | `SpecialExtensionData`                | *(Optional)* If set, used to extend weapon's special attacks.                                                                                                                                                                                                             |
 
 ### DamageTypeWeaponExtensionData
 
@@ -25,21 +26,30 @@ being existing *unqualified* weapon ID and value being data model described belo
 
 ### WeaponStateData
 
-| Field            | Type                                  | Description                                                                          |
-|------------------|---------------------------------------|--------------------------------------------------------------------------------------|
-| `Id`             | `string`                              | The ID of this weapon state.                                                         |
-| `MinDamage`      | `int`                                 | *(Optional)* The overriding minimum damage of this weapon.                           |
-| `MaxDamage`      | `int`                                 | *(Optional)* The overriding maximum damage of this weapon.                           |
-| `Texture`        | `string`                              | *(Optional)* The asset name containing overriding sprite for this weapon.            |
-| `SpriteIndex`    | `int`                                 | *(Optional)* The index within `Texture` of overriding sprite for this weapon.        |
-| `Knockback`      | `float`                               | *(Optional)* Overrides how far the target is pushed when hit.                        |
-| `Speed`          | `int`                                 | *(Optional)* Overrides how fast the player can swing the weapon.                     |
-| `Precision`      | `int`                                 | *(Optional)* Overrides how much chance that a strike will miss is reduced.           |
-| `Defense`        | `int`                                 | *(Optional)* Overrides how much damage received by the player is reduced.            |
-| `AreaOfEffect`   | `int`                                 | *(Optional)* Overrides how much the area of effect is increased.                     |
-| `CritChance`     | `float`                               | *(Optional)* Overrides the chance of a critical hit.                                 |
-| `CritMultiplier` | `float`                               | *(Optional)* Overrides the multiplier applied to the base damage for a critical hit. |
-| `DamageTypes`    | `List<DamageTypeWeaponExtensionData>` | *(Optional)* Overrides list of extra damage instances dealt to hit enemies.          |
+| Field              | Type                                  | Description                                                                          |
+|--------------------|---------------------------------------|--------------------------------------------------------------------------------------|
+| `Id`               | `string`                              | The ID of this weapon state.                                                         |
+| `MinDamage`        | `int`                                 | *(Optional)* The overriding minimum damage of this weapon.                           |
+| `MaxDamage`        | `int`                                 | *(Optional)* The overriding maximum damage of this weapon.                           |
+| `Texture`          | `string`                              | *(Optional)* The asset name containing overriding sprite for this weapon.            |
+| `SpriteIndex`      | `int`                                 | *(Optional)* The index within `Texture` of overriding sprite for this weapon.        |
+| `Knockback`        | `float`                               | *(Optional)* Overrides how far the target is pushed when hit.                        |
+| `Speed`            | `int`                                 | *(Optional)* Overrides how fast the player can swing the weapon.                     |
+| `Precision`        | `int`                                 | *(Optional)* Overrides how much chance that a strike will miss is reduced.           |
+| `Defense`          | `int`                                 | *(Optional)* Overrides how much damage received by the player is reduced.            |
+| `AreaOfEffect`     | `int`                                 | *(Optional)* Overrides how much the area of effect is increased.                     |
+| `CritChance`       | `float`                               | *(Optional)* Overrides the chance of a critical hit.                                 |
+| `CritMultiplier`   | `float`                               | *(Optional)* Overrides the multiplier applied to the base damage for a critical hit. |
+| `DamageTypes`      | `List<DamageTypeWeaponExtensionData>` | *(Optional)* Overrides list of extra damage instances dealt to hit enemies.          |
+| `SpecialExtension` | `SpecialExtensionData`                | *(Optional)* Overrides special attack extension data.                                |
+
+### SpecialExtensionData
+
+| Field                    | Type           | Description                                                                                                                     |
+|--------------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------|
+| `TriggerActionCondition` | `string`       | *(Optional)* The GSQ to check if `ActionsOnTrigger` should be triggered.                                                        |
+| `ActionsOnTrigger`       | `List<string>` | *(Optional)* The list of actions that should be triggered when special attack is used. Those actions will ignore `PreventBase`. |
+| `PreventBase`            | `bool`         | *(Optional)* Whether vanilla special attack behaviour should not be performed. Defaults to `false`.                             |
 
 Example:
 
@@ -105,6 +115,16 @@ be left intact.
 same damage type.
 
 # Triggers, trigger actions, GSQs stuff
+
+## Weapon triggers
+
+### `WhyBother11.CombatExtended_SpecialUsed`
+
+Raised when the weapon special attack is used.
+
+### `WhyBother11.CombatExtended_Parried`
+
+Raised when monster attack was successfully parried. Provides `Monster context` with parried monster.
 
 ## Weapon trigger actions
 

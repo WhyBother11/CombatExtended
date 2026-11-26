@@ -1,11 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using CombatExtended.Framework.Core.Abilities;
-using CombatExtended.Framework.Core.Misc.Projectiles;
+using CombatExtended.Framework.Core.Areas.Ranges;
 using CombatExtended.Framework.Core.Monsters;
 using CombatExtended.Framework.Core.Monsters.Buffs;
 using CombatExtended.Framework.Core.Monsters.Statuses;
-using CombatExtended.Framework.Core.Util;
+using CombatExtended.Framework.Core.Projectiles;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Abilities;
 using CombatExtended.Framework.TriggersActionsGSQ.Monsters;

@@ -21,18 +21,9 @@ public class DataAsset<TD>
     {
         helper.Events.Content.AssetRequested += _instance.OnAssetRequested;
         helper.Events.Content.AssetReady += _instance.OnAssetReady;
-        helper.Events.Content.AssetsInvalidated += _instance.OnAssetsInvalidated;
+        helper.Events.Content.AssetsInvalidated += _instance.OnAssetInvalidated;
     }
     
-    private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
-    {
-        if (e.NameWithoutLocale.IsEquivalentTo(_path))
-        {
-            Load(e);
-            OnRequested();
-        }
-    }
-
     /// <summary>
     /// Load associated data asset. By default, empty dictionary is loaded.
     /// </summary>
@@ -40,28 +31,6 @@ public class DataAsset<TD>
     protected virtual void Load(AssetRequestedEventArgs e)
     {
         e.LoadFrom(() => new Dictionary<string, TD>(), AssetLoadPriority.Exclusive);
-    }
-    
-    private void OnAssetReady(object? sender, AssetReadyEventArgs e)
-    {
-        if (e.NameWithoutLocale.IsEquivalentTo(_path))
-        {
-            _data = Helper.GameContent.Load<Dictionary<string, TD>>(_path);
-            OnReady();
-        }
-    }
-
-    private void OnAssetsInvalidated(object? sender, AssetsInvalidatedEventArgs e)
-    {
-        foreach (var assetName in e.NamesWithoutLocale)
-        {
-            if (assetName.IsEquivalentTo(_path))
-            {
-                Log.Trace($"Invalidated asset {assetName}");
-                _data = null;
-                OnInvalidated();
-            }
-        }
     }
     
     /// <summary>
@@ -78,4 +47,35 @@ public class DataAsset<TD>
     /// Raised when associated data asset is invalidated.
     /// </summary>
     protected virtual void OnInvalidated() {}
+    
+    private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
+    {
+        if (e.NameWithoutLocale.IsEquivalentTo(_path))
+        {
+            Load(e);
+            OnRequested();
+        }
+    }
+    
+    private void OnAssetReady(object? sender, AssetReadyEventArgs e)
+    {
+        if (e.NameWithoutLocale.IsEquivalentTo(_path))
+        {
+            _data = Helper.GameContent.Load<Dictionary<string, TD>>(_path);
+            OnReady();
+        }
+    }
+
+    private void OnAssetInvalidated(object? sender, AssetsInvalidatedEventArgs e)
+    {
+        foreach (var assetName in e.NamesWithoutLocale)
+        {
+            if (assetName.IsEquivalentTo(_path))
+            {
+                Log.Trace($"Invalidated asset {assetName}");
+                _data = null;
+                OnInvalidated();
+            }
+        }
+    }
 }

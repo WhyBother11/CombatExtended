@@ -7,7 +7,7 @@ using HarmonyLib;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CombatExtended.Framework.Core.Monsters;
+namespace CombatExtended.Framework.Core.Monsters.Stats;
 
 public static class MonsterStats
 {
@@ -23,33 +23,6 @@ public static class MonsterStats
     public static readonly string WeightModDataKey = "Weight".PrependId();
     public static readonly string ArmourClassModDataKey = "ArmourClass".PrependId();
     public static readonly string HitMissRateModDataKey = "HitMissRate".PrependId();
-
-    #region ArmourClass
-    public static int GetMonsterExtraArmourClass(Monster monster)
-    {
-        return GetMonsterExtraArmourClass(monster.Name);
-    }
-    
-    private static int GetMonsterExtraArmourClass(string monsterName)
-    {
-        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterName) || 
-            MonsterExtensionDataAsset.Data[monsterName].ExtraArmourClass == null)
-            return 0;
-        return MonsterExtensionDataAsset.ExtraArmourClasses[monsterName];
-    }
-    
-    public static bool TryGetMonsterExtraArmourClass(string monsterId, [NotNullWhen(true)] out int? ac)
-    {
-        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterId) || 
-            MonsterExtensionDataAsset.Data[monsterId].ExtraArmourClass == null)
-        {
-            ac = null;
-            return false;
-        }
-
-        ac = GetMonsterExtraArmourClass(monsterId);
-        return true;
-    }
     
     public static float MissChanceWithArmourClass(Monster monster, int ac)
     {
@@ -60,64 +33,33 @@ public static class MonsterStats
     
     public static float MissChanceWithArmourClassDelta(Monster monster, int acDelta)
     {
-        
         var missChance = monster.missChance.Value;
         return (float)missChance + ArmourClassMissChancePerOne * acDelta;
     }
-    #endregion
 
-    #region Weight
-    public static float GetMonsterExtraWeight(Monster monster)
+    public static TS GetMonsterStat<TS>(MonsterStatType type, Monster monster) where TS : struct
     {
-        return GetMonsterExtraArmourClass(monster.Name);
+        return GetMonsterStat<TS>(type, monster.Name);
     }
     
-    private static float GetMonsterExtraWeight(string monsterName)
+    public static TS GetMonsterStat<TS>(MonsterStatType type, string monsterName) where TS : struct
     {
-        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterName) || 
-            MonsterExtensionDataAsset.Data[monsterName].ExtraWeight == null)
-            return 0;
-        return MonsterExtensionDataAsset.ExtraWeights[monsterName];
+        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterName) || !type.Defined(monsterName))
+            return default;
+        var result = type.GetValue(monsterName);
+        if (result.GetType() == typeof(TS)) return (TS)result;
+        throw new ArgumentException($"Incorrect type was requested: expected {typeof(TS)}, got {result.GetType()}.");
     }
-    
-    public static bool TryGetMonsterExtraWeight(string monsterId, [NotNullWhen(true)] out float? weight)
+
+    public static bool TryGetMonsterStat<TS>(MonsterStatType type, string monsterId, 
+        [NotNullWhen(true)] out TS? result) where TS : struct
     {
-        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterId) || 
-            MonsterExtensionDataAsset.Data[monsterId].ExtraWeight == null)
+        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterId) || !type.Defined(monsterId))
         {
-            weight = null;
+            result = null;
             return false;
         }
-
-        weight = GetMonsterExtraWeight(monsterId);
-        return true;
-    }
-    #endregion
-    
-    #region HitMissRate
-    public static float GetMonsterExtraHitMissRate(Monster monster)
-    {
-        return GetMonsterExtraHitMissRate(monster.Name);
-    }
-    
-    private static float GetMonsterExtraHitMissRate(string monsterName)
-    {
-        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterName) || 
-            MonsterExtensionDataAsset.Data[monsterName].ExtraHitMissRate == null)
-            return 0;
-        return MonsterExtensionDataAsset.ExtraWeights[monsterName];
-    }
-    
-    public static bool TryGetMonsterExtraHitMissRate(string monsterId, [NotNullWhen(true)] out float? hitMissRate)
-    {
-        if (!MonsterExtensionDataAsset.Data.ContainsKey(monsterId) || 
-            MonsterExtensionDataAsset.Data[monsterId].ExtraHitMissRate == null)
-        {
-            hitMissRate = null;
-            return false;
-        }
-
-        hitMissRate = GetMonsterExtraWeight(monsterId);
+        result = GetMonsterStat<TS>(type, monsterId);
         return true;
     }
     
@@ -179,5 +121,4 @@ public static class MonsterStats
         }
         return result;
     }
-    #endregion
 }

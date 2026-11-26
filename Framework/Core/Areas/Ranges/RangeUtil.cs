@@ -1,9 +1,8 @@
 using CombatExtended.Framework.Data;
-using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CombatExtended.Framework.Core.Util;
+namespace CombatExtended.Framework.Core.Areas.Ranges;
 
 public static class RangeUtil
 {
@@ -13,7 +12,7 @@ public static class RangeUtil
         var playerTile = player.Tile;
         var cursorTile = Helper.Input.GetCursorPosition().Tile;
         var specialTile = monster?.Tile;
-        var parsedTiles = TileParser.ParseTiles(RangeDataAsset.Data[rangeId].Tiles, rangeId);
+        var parsedTiles = RangeBuilder.BuildRange(rangeId, RangeDataAsset.Data[rangeId]);
         var tiles = GetTilesFromRelative(parsedTiles, cursorTile, playerTile, specialTile);
         GetAffectedByRange(player, tiles, out affectedFarmers, out affectedMonsters);
     }
@@ -28,15 +27,15 @@ public static class RangeUtil
         {
             switch (tile.RelativeTo)
             {
-                case "cursor":
+                case RelativeToType.Cursor:
                     tiles.Add(
                         new Vector2(tile.Tile.X + cursorTile.X, tile.Tile.Y + cursorTile.Y)
                     ); break;
-                case "player":
+                case RelativeToType.Player:
                     tiles.Add(
                         new Vector2(tile.Tile.X + playerTile.X, tile.Tile.Y + playerTile.Y)
                     ); break;
-                case "special":
+                case RelativeToType.Special:
                     tiles.Add(
                         new Vector2(tile.Tile.X + specialTile.Value.X, tile.Tile.Y + specialTile.Value.Y)
                     ); break;

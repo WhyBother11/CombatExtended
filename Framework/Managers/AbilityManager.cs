@@ -12,6 +12,7 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Tools;
 using StardewValley.Triggers;
+using Utility = CombatExtended.Framework.Util.Utility;
 
 namespace CombatExtended.Framework.Managers;
 
@@ -422,11 +423,7 @@ public class AbilityManager
             if (condition is not null)
                 shouldRun = GameStateQuery.CheckConditions(condition);
             if (shouldRun)
-                triggerActions.ForEach(action =>
-                {
-                    if (!TriggerActionManager.TryRunAction(action, out var error, out var exception))
-                        Log.Error($"Failed to run action {action} from ability '{ability.Id}': {error}'", exception);
-                });
+                triggerActions.ForEach(action => Utility.RunAndLogAction(action, $"ability '{ability.Id}'"));
         }
     }
 }

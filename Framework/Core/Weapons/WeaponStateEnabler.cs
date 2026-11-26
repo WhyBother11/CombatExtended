@@ -9,7 +9,7 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.ItemTypeDefinitions;
 using StardewValley.Tools;
-using StardewValley.Triggers;
+using Utility = CombatExtended.Framework.Util.Utility;
 
 namespace CombatExtended.Framework.Core.Weapons;
 
@@ -97,7 +97,7 @@ public static class WeaponStateEnabler
         stateData.DamageTypes?.ForEach(damageType =>
         {
             if (DamageTypeDataAsset.Exists(damageType.Type)) result.Add(damageType);
-            else Log.Warn($"Unknown damage type {damageType.Type} for weapon extension on {weaponId} and state {stateId}");
+            else Log.Error($"Ignored unknown damage type {damageType.Type} for weapon extension on {weaponId} and state {stateId}.");
         });
         return result;
     }
@@ -132,37 +132,21 @@ public static class WeaponStateEnabler
     private static void OnWeaponEquipped_RaiseActions(object? sender, WeaponEquippedEventArgs e)
     {
         if (WeaponExtensionDataAsset.Data.TryGetValue(e.Equipped.ItemId, out var data))
-            data.ActionsOnEquip.ForEach(action =>
-            {
-                if (!TriggerActionManager.TryRunAction(action, out var error, out _))
-                    Log.Error(error);
-            });
+            data.ActionsOnEquip.ForEach(action => Utility.RunAndLogAction(action, $"weapon '{e.Equipped.ItemId}'"));
     }
     
     private static void OnWeaponUnequipped_RaiseActions(object? sender, WeaponUnequippedEventArgs e)
     {
         if (WeaponExtensionDataAsset.Data.TryGetValue(e.Unequipped.ItemId, out var data))
-            data.ActionsOnUnequip.ForEach(action =>
-            {
-                if (!TriggerActionManager.TryRunAction(action, out var error, out _))
-                    Log.Error(error);
-            });
+            data.ActionsOnUnequip.ForEach(action => Utility.RunAndLogAction(action, $"weapon '{e.Unequipped.ItemId}'"));
     }
 
     private static void OnWeaponSwitched_RaiseActions(object? sender, WeaponSwitchedEventArgs e)
     {
         if (WeaponExtensionDataAsset.Data.TryGetValue(e.Equipped.ItemId, out var data))
-            data.ActionsOnEquip.ForEach(action =>
-            {
-                if (!TriggerActionManager.TryRunAction(action, out var error, out _))
-                    Log.Error(error);
-            });
+            data.ActionsOnEquip.ForEach(action => Utility.RunAndLogAction(action, $"weapon '{e.Equipped.ItemId}'"));
         if (WeaponExtensionDataAsset.Data.TryGetValue(e.Unequipped.ItemId, out data))
-            data.ActionsOnUnequip.ForEach(action =>
-            {
-                if (!TriggerActionManager.TryRunAction(action, out var error, out _))
-                    Log.Error(error);
-            });
+            data.ActionsOnUnequip.ForEach(action => Utility.RunAndLogAction(action, $"weapon '{e.Unequipped.ItemId}'"));
     }
 
     /// <summary>

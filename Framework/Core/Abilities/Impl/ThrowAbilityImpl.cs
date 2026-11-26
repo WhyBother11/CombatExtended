@@ -1,4 +1,4 @@
-using CombatExtended.Framework.Core.Misc.Projectiles;
+using CombatExtended.Framework.Core.Projectiles;
 using CombatExtended.Framework.Data;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI.Events;

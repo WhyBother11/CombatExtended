@@ -7,6 +7,8 @@ public static class WeaponTriggers
 {
     
     [Trigger]
-    private static void SpecialMoveTriggered() {}
+    private static void SpecialUsed() {}
     
+    [Trigger]
+    private static void Parried() {}
 }

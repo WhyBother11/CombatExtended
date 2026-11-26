@@ -15,7 +15,13 @@ public class IndependentlyStackableMonsterBuff : StackableMonsterBuff
     {
         UpdateMonsterBuffAttributesForExtraStacks(monster, -expiredAmount);
     }
-    
+
+    protected override void OnApplied(Monster monster, GameLocation location)
+    {
+        base.OnApplied(monster, location);
+        StackTimers.AddLast(DurationTicks);
+    }
+
     protected override void OnNewStack(Monster monster, GameLocation location)
     {
         if (Stacks == MaxStacks) StackTimers.RemoveFirst();

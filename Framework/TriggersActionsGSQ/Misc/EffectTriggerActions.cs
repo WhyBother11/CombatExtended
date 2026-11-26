@@ -1,4 +1,4 @@
-using CombatExtended.Framework.Core.Util;
+using CombatExtended.Framework.Core.Areas.Ranges;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
@@ -63,7 +63,7 @@ public static class EffectTriggerActions
             var playerTile = Game1.player.Tile;
             var cursorTile = Helper.Input.GetCursorPosition().Tile;
             var tiles = 
-                RangeUtil.GetTilesFromRelative(TileParser.ParseTiles(rangeData.Tiles, rangeId), cursorTile, playerTile);
+                RangeUtil.GetTilesFromRelative(RangeBuilder.BuildRange(rangeId, rangeData), cursorTile, playerTile);
             if (spawnArea is "tiles")
                 positions.AddRange(tiles.Select(t => t * 64f));
             else

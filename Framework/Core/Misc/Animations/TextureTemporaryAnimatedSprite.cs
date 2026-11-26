@@ -1,7 +1,7 @@
 using CombatExtended.Framework.Data;
 using StardewValley;
 
-namespace CombatExtended.Framework.UI.Animations;
+namespace CombatExtended.Framework.Core.Misc.Animations;
 
 /// <summary>
 /// Utility class extending <see cref="TemporaryAnimatedSprite"/> with constructor where most arguments have default values.

@@ -1,5 +1,5 @@
 using CombatExtended.Framework.Core.Abilities.Impl;
-using CombatExtended.Framework.Core.Util;
+using CombatExtended.Framework.Core.Areas.Ranges;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.Util;
 using Microsoft.Xna.Framework.Graphics;
@@ -44,8 +44,6 @@ public class Ability
     public int CooldownTicksElapsed { get; set; }
 
     public bool IsCooldownEndHandled { get; private set; } = true;
-    
-    private HashSet<ParsedVector>? _relativeTiles;
     
     protected Ability(string id, AbilityData data)
     {
@@ -126,9 +124,6 @@ public class Ability
     private HashSet<ParsedVector> GetRelativeTiles()
     {
         if (HighlightRangeId is null || !RangeDataAsset.Exists(HighlightRangeId)) return new HashSet<ParsedVector>();
-        if (!RangeDataAsset.NonStaticRange(HighlightRangeId)) 
-            return _relativeTiles ??= 
-                TileParser.ParseTiles(RangeDataAsset.Data[HighlightRangeId].Tiles ?? new List<RangeTileData>());
-        return TileParser.ParseTiles(RangeDataAsset.Data[HighlightRangeId].Tiles ?? new List<RangeTileData>());
+        return RangeBuilder.BuildRange(HighlightRangeId, RangeDataAsset.Data[HighlightRangeId]);
     }
 }

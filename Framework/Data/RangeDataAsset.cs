@@ -97,7 +97,7 @@ public class RangeTileData
 public class RangeData
 {
     #nullable disable
-    public List<RangeTileData> Tiles;
+    public List<RangeTileData> Tiles = new ();
     #nullable restore
 }
 

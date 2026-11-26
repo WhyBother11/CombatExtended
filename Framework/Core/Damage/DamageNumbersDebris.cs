@@ -2,7 +2,7 @@ using HarmonyLib;
 using StardewValley;
 using StardewValley.Monsters;
 
-namespace CombatExtended.Framework.UI.Vanilla;
+namespace CombatExtended.Framework.Core.Damage;
 
 /// <summary>
 /// Utility class to enable number debris with static text colour.

@@ -23,7 +23,8 @@ public static class Triggers
     
     public static readonly string MonsterDied = "MonsterDied".PrependId();
     
-    public static readonly string SpecialMoveTriggered = "SpecialMoveTriggered".PrependId();
+    public static readonly string SpecialUsed = "SpecialUsed".PrependId();
+    public static readonly string Parried = "Parried".PrependId();
     
     public static readonly string LinkEffectTriggered = "LinkEffectTriggered".PrependId();
     public static readonly string MonsterTouchedLink = "MonsterTouchedLink".PrependId();

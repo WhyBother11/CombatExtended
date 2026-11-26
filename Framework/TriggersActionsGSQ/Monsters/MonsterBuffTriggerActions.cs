@@ -1,6 +1,5 @@
 using static CombatExtended.Framework.TriggersActionsGSQ.Util.TriggerActionGSQUtils;
 using CombatExtended.Framework.Core.Monsters;
-using CombatExtended.Framework.Core.Util;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
 using CombatExtended.Framework.Util;
@@ -70,17 +69,23 @@ public static class MonsterBuffTriggerActions
             error = $"Unknown monster buff ID: {monsterBuffId}.";
             return false;
         }
+        ArgUtility.TryGetOptionalFloat(args, 2, out var chance, out _, 1f);
         var player = Game1.player;
         var location = player.currentLocation;
 
-        if (ArgUtility.TryGet(args, 2, out var rangeId, out _))
+        if (ArgUtility.TryGet(args, 3, out var rangeId, out _))
         {
             return TryHandleRange(rangeId, monster, player, out error,
-                monsterHandler: m => MonsterBuffManager.RemoveBuff(m, location, monsterBuffId));
+                monsterHandler: m =>
+                {
+                    if (Game1.random.NextDouble() < chance)
+                        MonsterBuffManager.RemoveBuff(m, location, monsterBuffId);
+                });
         }
 
         if (!RequireContext(monster, out error)) return false;
-        MonsterBuffManager.RemoveBuff(monster, location, monsterBuffId);
+        if (Game1.random.NextDouble() < chance) 
+            MonsterBuffManager.RemoveBuff(monster, location, monsterBuffId);
         return true;
     }
 }

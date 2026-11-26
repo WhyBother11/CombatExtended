@@ -1,5 +1,4 @@
 using CombatExtended.Framework.Core.Monsters;
-using CombatExtended.Framework.UI.Vanilla;
 using StardewValley;
 using StardewValley.Monsters;
 using Utility = CombatExtended.Framework.Util.Utility;

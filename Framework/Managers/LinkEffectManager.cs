@@ -1,8 +1,9 @@
 using System.Runtime.CompilerServices;
-using CombatExtended.Framework.Core.Misc.Projectiles;
+using CombatExtended.Framework.Core.Misc.LinkEffect;
+using CombatExtended.Framework.Core.Misc.LinkEffect.Impl;
+using CombatExtended.Framework.Core.Projectiles;
 using CombatExtended.Framework.Data;
 using CombatExtended.Framework.TriggersActionsGSQ.Util;
-using CombatExtended.Framework.UI.Animations;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
